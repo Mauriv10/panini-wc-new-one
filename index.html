@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="World Cup 2026">
-  <title>World Cup 2026 · Build 614</title>
+  <title>World Cup 2026 · Build 614.1</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/icons/world-cup-2026-apple-v522.png">
   <link rel="stylesheet" href="./styles.css">
@@ -28,15 +28,7 @@
   </div>
 
   
-<section class="premium-dashboard premium-dashboard-single" aria-label="Resumen global">
-  <article class="premium-stat premium-stat-primary premium-stat-single">
-    <span>Cromos</span>
-    <strong id="globalInventoryTotal">0</strong>
-    <small>en el proyecto activo</small>
-  </article>
-  <span id="globalMissingTotal" hidden>0</span>
-  <span id="globalRepeatsTotal" hidden>0</span>
-</section>
+
 
 
   
@@ -171,19 +163,46 @@
   </div>
 </section>
 
+
 <section id="statisticsView" class="main-tab-view" hidden>
   <div class="tab-page-heading">
     <span>PROYECTO ACTIVO</span>
     <h2>Estadísticas</h2>
   </div>
-  <section class="statistics-grid">
-    <article><span>Cromos</span><strong id="statsTotalStickers">0</strong><small>unidades en total</small></article>
-    <article><span>Me faltan</span><strong id="statsMissingUnits">0</strong><small>unidades pendientes</small></article>
-    <article><span>Repetidas</span><strong id="statsRepeatUnits">0</strong><small>por encima del objetivo</small></article>
-    <article><span>Brillantes</span><strong id="statsShinyTotal">0</strong><small>FWC y escudos</small></article>
-    <article><span>Selecciones completas</span><strong id="statsCompleteTeams">0</strong><small>de 49 categorías</small></article>
-    <article><span>Progreso</span><strong id="statsProgress">0%</strong><small>respecto al objetivo</small></article>
+
+  <section class="stats-hero">
+    <div class="stats-ring" id="statsProgressRing">
+      <div>
+        <strong id="statsProgress">0%</strong>
+        <span>completado</span>
+      </div>
+    </div>
+    <div class="stats-hero-copy">
+      <span>Resumen general</span>
+      <h3 id="statsTotalStickers">0 cromos</h3>
+      <p id="statsCompleteTeamsText">0 selecciones completas</p>
+    </div>
   </section>
+
+  <section class="statistics-grid visual-stats-grid">
+    <article class="stat-card stat-red">
+      <span class="stat-icon">−</span>
+      <div><span>Me faltan</span><strong id="statsMissingUnits">0</strong><small>unidades pendientes</small></div>
+    </article>
+    <article class="stat-card stat-green">
+      <span class="stat-icon">+</span>
+      <div><span>Repetidas</span><strong id="statsRepeatUnits">0</strong><small>para intercambio</small></div>
+    </article>
+    <article class="stat-card stat-gold">
+      <span class="stat-icon">✦</span>
+      <div><span>Brillantes</span><strong id="statsShinyTotal">0</strong><small>FWC y escudos</small></div>
+    </article>
+    <article class="stat-card stat-blue">
+      <span class="stat-icon">✓</span>
+      <div><span>Completas</span><strong id="statsCompleteTeams">0</strong><small>de 49 categorías</small></div>
+    </article>
+  </section>
+
   <section class="shiny-breakdown">
     <div><span>FWC</span><strong id="statsFwcTotal">0</strong></div>
     <div><span>Escudos (posición 01)</span><strong id="statsBadgesTotal">0</strong></div>

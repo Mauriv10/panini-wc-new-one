@@ -1,4 +1,4 @@
-const APP_VERSION="6.1.4";
+const APP_VERSION="6.1.4.1";
 const DATA_REVISION="2026-07-16-master-4";
 const PROJECTS_KEY="world-cup-2026-projects-v600";
 const ACTIVE_PROJECT_KEY="world-cup-2026-active-project-v600";
@@ -17,7 +17,7 @@ let sessionStats={plus:0,minus:0,startedAt:new Date().toISOString()};
 let currentFilter="all",currentView="inventory",exchangeType="give",exchangeListType="give";
 let exchange={give:{},receive:{}};
 let projects={},activeProjectId="",pendingSync={},lastSyncedAt=null;
-let mainTab="collection",collectionFilter="all";
+let mainTab="collection",collectionFilter="all",collectionTeamFilter="all";
 let pendingExcelImport=null;
 let pendingBackupRestore=null;
 
@@ -187,6 +187,7 @@ function updateCurrentTeamUI(){
  $("#currentTeamFlag").src=flags[team]||"";
 }
 function selectTeam(team){
+ collectionTeamFilter=team||"all";
  if(!inventory[team])return;
  teamSelect.value=team;
  teamSearch.value="";
@@ -359,6 +360,7 @@ function renderGlobalCollection(){
  if(!list)return;
  list.innerHTML="";
  Object.entries(inventory).forEach(([team,stickers])=>{
+   if(collectionTeamFilter!=="all"&&team!==collectionTeamFilter)return;
    const entries=Object.entries(stickers)
      .sort(([a],[b])=>Number(a)-Number(b))
      .filter(([code,qty])=>collectionStickerMatches(team,code,Number(qty)||0));
@@ -404,16 +406,19 @@ function mathExcessForProgress(){
 function renderStatistics(){
  const s=calculateProjectStatistics();
  const values={
-   statsTotalStickers:s.total.toLocaleString("es-ES"),
+   statsTotalStickers:`${s.total.toLocaleString("es-ES")} cromos`,
    statsMissingUnits:s.missing.toLocaleString("es-ES"),
    statsRepeatUnits:s.repeats.toLocaleString("es-ES"),
    statsShinyTotal:s.shiny.toLocaleString("es-ES"),
    statsCompleteTeams:String(s.complete),
    statsProgress:`${s.progress}%`,
    statsFwcTotal:s.fwc.toLocaleString("es-ES"),
-   statsBadgesTotal:s.badges.toLocaleString("es-ES")
+   statsBadgesTotal:s.badges.toLocaleString("es-ES"),
+   statsCompleteTeamsText:`${s.complete} selecciones completas`
  };
  Object.entries(values).forEach(([id,value])=>{const node=$("#"+id);if(node)node.textContent=value});
+ const ring=$("#statsProgressRing");
+ if(ring)ring.style.setProperty("--progress",String(s.progress));
 }
 function setMainTab(tab){
  if(tab==="settings"){
@@ -1395,6 +1400,12 @@ $("#openClassicExchangeButton").onclick=()=>{
  document.querySelector(".collection-toolbar").scrollIntoView({behavior:"smooth"});
  showToast("Modo intercambio manual activado");
 };
+
+
+teamSelect.addEventListener("change",()=>{
+ collectionTeamFilter=teamSelect.value||"all";
+ renderGlobalCollection();
+});
 
 if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js"));
 loadData().catch(error=>{console.error(error);hideLoading();document.body.innerHTML="<main class='app-main'><h1>Error al cargar</h1><p>Comprueba que todos los archivos estén subidos.</p></main>"});
