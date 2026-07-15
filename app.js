@@ -1,4 +1,4 @@
-const APP_VERSION="6.1.3";
+const APP_VERSION="6.1.3.1";
 const DATA_REVISION="2026-07-16-master-4";
 const PROJECTS_KEY="world-cup-2026-projects-v600";
 const ACTIVE_PROJECT_KEY="world-cup-2026-active-project-v600";
@@ -318,7 +318,10 @@ function updateLastChange(){
 }
 function renderAll(){
  if(currentView!=="missing")renderCards();
- updateSummary();updateLastChange();
+ updateSummary();
+ updateGlobalDashboard();
+ updateSettingsTargetUI();
+ updateLastChange();
  undoButton.disabled=history.length===0;
  if(currentView==="missing")renderMissing();
  updateNavigationBadges();
