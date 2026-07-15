@@ -7,54 +7,78 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="World Cup 2026">
-  <title>World Cup 2026</title>
+  <title>World Cup 2026 · Build 612</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/icons/world-cup-2026-apple-v522.png">
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-<header class="app-header">
-  <div class="title-row">
-    <div>
-      <p class="eyebrow">WORLD CUP 2026</p>
+
+<header class="app-header premium-home-header">
+  <div class="premium-hero">
+    <div class="premium-brand">
+      <span class="premium-kicker">WORLD CUP 2026</span>
       <h1>Mi colección</h1>
-      <p class="hero-subtitle">Todo lo importante, sin distracciones.</p>
+      <p>Tu progreso, siempre a mano.</p>
     </div>
     <div class="top-actions">
-      <button id="undoButton" class="header-button compact-action" disabled aria-label="Deshacer">↩</button>
-      <button id="settingsButton" class="settings-button" type="button" aria-label="Abrir ajustes">⚙</button>
+      <button id="undoButton" class="icon-action" disabled aria-label="Deshacer">↩</button>
+      <button id="settingsButton" class="icon-action settings-action" type="button" aria-label="Abrir ajustes">⚙</button>
     </div>
   </div>
 
-  <div class="selector-search">
-    <div class="search-wrap">
-      <span class="search-icon">⌕</span>
-      <input id="teamSearch" type="search" placeholder="Buscar selección: esp, arg, fwc…" autocomplete="off">
-      <div id="searchSuggestions" class="suggestions" hidden></div>
-    </div>
+  <section class="premium-dashboard" aria-label="Resumen global">
+    <article class="premium-stat premium-stat-primary">
+      <span>Inventario</span>
+      <strong id="globalInventoryTotal">0</strong>
+      <small>cromos registrados</small>
+    </article>
+    <article class="premium-stat">
+      <span>Faltan</span>
+      <strong id="globalMissingTotal">0</strong>
+      <small>unidades pendientes</small>
+    </article>
+    <article class="premium-stat">
+      <span>Repetidos</span>
+      <strong id="globalRepeatsTotal">0</strong>
+      <small>disponibles para cambiar</small>
+    </article>
+  </section>
 
-    <button id="teamSelectorButton" class="team-selector-button" type="button">
-      <img id="currentTeamFlag" class="current-team-flag" alt="">
-      <span id="currentTeamName">Seleccionar</span>
-      <span class="chevron">⌄</span>
+  <section class="premium-selection-row">
+    <button id="teamSelectorButton" class="premium-team-card" type="button">
+      <img id="currentTeamFlag" class="premium-team-flag" alt="">
+      <span class="premium-team-copy">
+        <small>Selección</small>
+        <strong id="currentTeamName">Seleccionar</strong>
+      </span>
+      <span class="premium-chevron">⌄</span>
     </button>
     <select id="teamSelect" hidden></select>
 
-    <div class="target-control">
+    <button id="targetLockButton" class="premium-target-card" type="button">
       <span>Objetivo</span>
-      <button id="targetLockButton" class="target-button" type="button">
-        <span id="targetValue">5</span> <span id="lockIcon">🔒</span>
-      </button>
-      <input id="targetInput" type="number" min="1" max="20" value="5" hidden>
+      <strong><span id="targetValue">5</span> álbumes</strong>
+      <small id="lockIcon">Bloqueado</small>
+    </button>
+    <input id="targetInput" type="number" min="1" max="20" value="5" hidden>
+  </section>
+
+  <div class="premium-search">
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input id="teamSearch" type="search" placeholder="Buscar selección…" autocomplete="off">
+      <div id="searchSuggestions" class="suggestions" hidden></div>
     </div>
   </div>
 
-  <nav class="tabs" aria-label="Filtrar cromos">
+  <nav class="tabs premium-tabs" aria-label="Filtrar cromos">
     <button class="tab active" data-filter="all"><span>Todos</span><b id="tabAllCount">20</b></button>
     <button class="tab" data-filter="need"><span>Pedir</span><b id="tabNeedCount">0</b></button>
     <button class="tab" data-filter="offer"><span>Entregar</span><b id="tabOfferCount">0</b></button>
   </nav>
 </header>
+
 
 
 <section class="project-bar">

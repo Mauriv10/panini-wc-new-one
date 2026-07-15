@@ -2028,3 +2028,425 @@ dialog::backdrop{
   .settings-group{padding:13px;border-radius:19px}
   .settings-slot .project-bar{grid-template-columns:1fr 46px}
 }
+
+
+/* =========================================================
+   BUILD 611 — HOME PREMIUM
+   ========================================================= */
+.premium-home-header{
+  width:min(calc(100% - 20px),980px);
+  margin:10px auto 0;
+  padding:22px;
+  border:1px solid rgba(255,255,255,.78);
+  border-radius:30px;
+  background:
+    radial-gradient(circle at 88% 2%, rgba(0,122,255,.18), transparent 24rem),
+    linear-gradient(145deg,rgba(255,255,255,.96),rgba(255,255,255,.78));
+  box-shadow:0 28px 80px rgba(29,29,31,.10);
+  backdrop-filter:blur(28px) saturate(165%);
+  -webkit-backdrop-filter:blur(28px) saturate(165%);
+}
+.premium-hero{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:20px;
+}
+.premium-brand{
+  display:grid;
+  gap:6px;
+}
+.premium-kicker{
+  color:#0071e3;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.16em;
+}
+.premium-brand h1{
+  margin:0;
+  font-size:clamp(42px,8vw,72px);
+  line-height:.94;
+  letter-spacing:-.06em;
+  font-weight:760;
+}
+.premium-brand p{
+  margin:4px 0 0;
+  color:#6e6e73;
+  font-size:16px;
+}
+.top-actions{
+  display:flex;
+  gap:8px;
+}
+.icon-action{
+  width:46px;
+  height:46px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(0,0,0,.07);
+  border-radius:50%;
+  background:rgba(255,255,255,.90);
+  color:#1d1d1f;
+  font-size:19px;
+  box-shadow:0 8px 22px rgba(0,0,0,.07);
+}
+.icon-action:disabled{opacity:.35}
+.settings-action{
+  background:#1d1d1f;
+  color:#fff;
+}
+.premium-dashboard{
+  display:grid;
+  grid-template-columns:1.25fr 1fr 1fr;
+  gap:12px;
+  margin-top:24px;
+}
+.premium-stat{
+  min-height:136px;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  padding:18px;
+  border:1px solid rgba(0,0,0,.045);
+  border-radius:24px;
+  background:rgba(255,255,255,.88);
+  box-shadow:0 12px 34px rgba(0,0,0,.055);
+}
+.premium-stat-primary{
+  color:#fff;
+  border:0;
+  background:linear-gradient(145deg,#1d1d1f,#343438);
+  box-shadow:0 20px 50px rgba(29,29,31,.18);
+}
+.premium-stat span{
+  color:#6e6e73;
+  font-size:12px;
+  font-weight:700;
+}
+.premium-stat-primary span,
+.premium-stat-primary small{color:rgba(255,255,255,.67)}
+.premium-stat strong{
+  margin:8px 0 4px;
+  font-size:clamp(34px,6vw,52px);
+  line-height:.92;
+  letter-spacing:-.06em;
+}
+.premium-stat small{
+  color:#86868b;
+  font-size:11px;
+}
+.premium-selection-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 190px;
+  gap:12px;
+  margin-top:14px;
+}
+.premium-team-card,
+.premium-target-card{
+  min-height:90px;
+  border:1px solid rgba(0,0,0,.055);
+  border-radius:22px;
+  background:#fff;
+  box-shadow:0 12px 32px rgba(0,0,0,.055);
+}
+.premium-team-card{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:14px 16px;
+  text-align:left;
+}
+.premium-team-flag{
+  width:56px;
+  height:38px;
+  object-fit:cover;
+  border-radius:9px;
+  box-shadow:0 4px 12px rgba(0,0,0,.10);
+}
+.premium-team-copy{
+  display:grid;
+  gap:3px;
+  min-width:0;
+}
+.premium-team-copy small,
+.premium-target-card span{
+  color:#86868b;
+  font-size:11px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+}
+.premium-team-copy strong{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:22px;
+  letter-spacing:-.025em;
+}
+.premium-chevron{
+  margin-left:auto;
+  color:#86868b;
+  font-size:18px;
+}
+.premium-target-card{
+  display:grid;
+  align-content:center;
+  gap:5px;
+  padding:14px 16px;
+  text-align:left;
+}
+.premium-target-card strong{
+  font-size:22px;
+  letter-spacing:-.025em;
+}
+.premium-target-card small{
+  color:#34c759;
+  font-size:11px;
+  font-weight:700;
+}
+.premium-search{
+  margin-top:12px;
+}
+.premium-search #teamSearch{
+  width:100%;
+  height:50px;
+}
+.premium-tabs{
+  margin-top:12px;
+}
+@media(max-width:700px){
+  .premium-home-header{
+    width:calc(100% - 12px);
+    padding:18px;
+    border-radius:26px;
+  }
+  .premium-dashboard{
+    grid-template-columns:1fr 1fr;
+  }
+  .premium-stat-primary{
+    grid-column:1/-1;
+    min-height:126px;
+  }
+  .premium-stat{
+    min-height:110px;
+  }
+  .premium-selection-row{
+    grid-template-columns:1fr;
+  }
+  .premium-target-card{
+    min-height:78px;
+  }
+}
+@media(max-width:430px){
+  .premium-brand h1{
+    font-size:44px;
+  }
+  .premium-brand p{
+    font-size:14px;
+  }
+  .icon-action{
+    width:42px;height:42px;
+  }
+  .premium-dashboard{
+    gap:8px;
+  }
+  .premium-stat{
+    padding:15px;
+    border-radius:20px;
+  }
+  .premium-stat strong{
+    font-size:34px;
+  }
+  .premium-team-card{
+    min-height:82px;
+  }
+  .premium-team-flag{
+    width:48px;height:32px;
+  }
+  .premium-team-copy strong{
+    font-size:20px;
+  }
+}
+
+
+/* =========================================================
+   BUILD 612 — PREMIUM STICKER CARDS
+   ========================================================= */
+.sticker-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.sticker-card-premium{
+  min-height:168px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  gap:14px;
+  padding:16px;
+  border:1px solid rgba(0,0,0,.045);
+  border-radius:24px;
+  background:
+    radial-gradient(circle at 92% 8%, rgba(0,122,255,.08), transparent 9rem),
+    #fff!important;
+  box-shadow:0 14px 36px rgba(0,0,0,.055);
+  overflow:hidden;
+}
+.sticker-card-premium.need{
+  border-top:4px solid #ff3b30;
+  border-left:1px solid rgba(0,0,0,.045);
+}
+.sticker-card-premium.offer{
+  border-top:4px solid #34c759;
+  border-left:1px solid rgba(0,0,0,.045);
+}
+.sticker-card-premium.just{
+  border-top:4px solid #ffcc00;
+  border-left:1px solid rgba(0,0,0,.045);
+}
+.sticker-main{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+}
+.sticker-number{
+  min-width:72px;
+  font-size:54px;
+  line-height:.9;
+  font-weight:760;
+  letter-spacing:-.065em;
+  color:#1d1d1f;
+}
+.sticker-meta{
+  display:grid;
+  justify-items:end;
+  gap:4px;
+  text-align:right;
+}
+.sticker-stock-label{
+  color:#86868b;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.10em;
+  text-transform:uppercase;
+}
+.sticker-stock-value{
+  font-size:31px;
+  line-height:1;
+  letter-spacing:-.045em;
+}
+.sticker-card-premium .status{
+  margin-top:4px;
+  padding:6px 9px;
+  border-radius:999px;
+  font-size:10px;
+  font-weight:800;
+}
+.sticker-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.sticker-card-premium .step-button{
+  min-height:52px;
+  height:auto;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  padding:10px 12px;
+  border:0;
+  border-radius:16px;
+  box-shadow:none;
+}
+.sticker-card-premium .step-button.minus{
+  background:#f2f2f7;
+  color:#1d1d1f;
+}
+.sticker-card-premium .step-button.plus{
+  background:#007aff;
+  color:#fff;
+}
+.sticker-card-premium .button-symbol{
+  font-size:22px;
+  line-height:1;
+  font-weight:720;
+}
+body.exchange-active .sticker-card-premium .step-button.exchange-action{
+  min-height:56px;
+  border-radius:16px;
+  font-size:12px;
+  font-weight:800;
+}
+body.exchange-active .sticker-card-premium .give-action{
+  background:#fff0f0;
+  color:#c70000;
+  box-shadow:inset 0 0 0 1px rgba(199,0,0,.10);
+}
+body.exchange-active .sticker-card-premium .receive-action{
+  background:#eef9f1;
+  color:#187d35;
+  box-shadow:inset 0 0 0 1px rgba(24,125,53,.10);
+}
+body.exchange-active .sticker-card-premium .button-symbol{
+  font-size:12px;
+}
+.sticker-card-premium .step-button small{
+  font-size:10px;
+  font-weight:800;
+}
+.sticker-card-premium .exchange-action-placeholder{
+  min-height:56px;
+}
+.sticker-card-premium.flash-card-plus{
+  animation:premiumPlusFlash .44s ease;
+}
+.sticker-card-premium.flash-card-minus{
+  animation:premiumMinusFlash .44s ease;
+}
+@keyframes premiumPlusFlash{
+  0%{box-shadow:0 14px 36px rgba(0,0,0,.055)}
+  40%{box-shadow:0 0 0 5px rgba(52,199,89,.18),0 14px 36px rgba(0,0,0,.055)}
+  100%{box-shadow:0 14px 36px rgba(0,0,0,.055)}
+}
+@keyframes premiumMinusFlash{
+  0%{box-shadow:0 14px 36px rgba(0,0,0,.055)}
+  40%{box-shadow:0 0 0 5px rgba(255,59,48,.15),0 14px 36px rgba(0,0,0,.055)}
+  100%{box-shadow:0 14px 36px rgba(0,0,0,.055)}
+}
+@media(max-width:700px){
+  .sticker-grid{
+    grid-template-columns:1fr;
+  }
+  .sticker-card-premium{
+    min-height:132px;
+  }
+  .sticker-main{
+    align-items:center;
+  }
+  .sticker-number{
+    font-size:48px;
+  }
+}
+@media(max-width:430px){
+  .sticker-card-premium{
+    min-height:124px;
+    padding:14px;
+    border-radius:21px;
+  }
+  .sticker-number{
+    min-width:62px;
+    font-size:44px;
+  }
+  .sticker-stock-value{
+    font-size:28px;
+  }
+  .sticker-actions{
+    gap:7px;
+  }
+  .sticker-card-premium .step-button{
+    min-height:48px;
+    border-radius:14px;
+  }
+}

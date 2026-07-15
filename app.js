@@ -1,4 +1,4 @@
-const APP_VERSION="6.0.0-phase0";
+const APP_VERSION="6.1.2";
 const DATA_REVISION="2026-07-16-master-4";
 const PROJECTS_KEY="world-cup-2026-projects-v600";
 const ACTIVE_PROJECT_KEY="world-cup-2026-active-project-v600";
@@ -214,22 +214,31 @@ function createCard(team,code,qty){
  const st=stateFor(qty),card=document.createElement("article");
  const stagedGive=getExchangeQty("give",team,code);
  const stagedReceive=getExchangeQty("receive",team,code);
- card.className=`sticker-card ${st.kind}`;card.dataset.code=code;
- card.innerHTML=`<div class="sticker-code">${code}</div>
- <div class="sticker-qty">
-   <strong>x${qty}</strong>
-   <div class="status ${st.kind}">${st.text}</div>
-   <div class="exchange-marks">
-     ${stagedGive?`<span class="exchange-mark give">Dar x${stagedGive}</span>`:""}
-     ${stagedReceive?`<span class="exchange-mark receive">Recibir x${stagedReceive}</span>`:""}
+ card.className=`sticker-card sticker-card-premium ${st.kind}`;
+ card.dataset.code=code;
+ card.innerHTML=`
+   <div class="sticker-main">
+     <div class="sticker-number">${code}</div>
+     <div class="sticker-meta">
+       <span class="sticker-stock-label">Stock</span>
+       <strong class="sticker-stock-value">x${qty}</strong>
+       <span class="status ${st.kind}">${st.text}</span>
+     </div>
    </div>
- </div>
- ${currentView!=="exchange"||currentFilter!=="need"
-   ? `<button class="step-button minus ${currentView==="exchange"?"exchange-action give-action":""}" aria-label="${currentView==="exchange"?"Marcar para dar":"Restar stock"}">${currentView==="exchange"?(stagedGive?`DAR ✓ x${stagedGive}`:"DAR"):"−"}</button>`
-   : `<span class="exchange-action-placeholder"></span>`}
- ${currentView!=="exchange"||currentFilter!=="offer"
-   ? `<button class="step-button plus ${currentView==="exchange"?"exchange-action receive-action":""}" aria-label="${currentView==="exchange"?"Marcar para recibir":"Sumar stock"}">${currentView==="exchange"?(stagedReceive?`RECIBIR ✓ x${stagedReceive}`:"RECIBIR"):"+"}</button>`
-   : `<span class="exchange-action-placeholder"></span>`}`;
+   <div class="sticker-actions">
+     ${currentView!=="exchange"||currentFilter!=="need"
+       ? `<button class="step-button minus ${currentView==="exchange"?"exchange-action give-action":""}" aria-label="${currentView==="exchange"?"Marcar para dar":"Restar stock"}">
+            <span class="button-symbol">${currentView==="exchange"?"DAR":"−"}</span>
+            ${currentView==="exchange"&&stagedGive?`<small>✓ x${stagedGive}</small>`:""}
+          </button>`
+       : `<span class="exchange-action-placeholder"></span>`}
+     ${currentView!=="exchange"||currentFilter!=="offer"
+       ? `<button class="step-button plus ${currentView==="exchange"?"exchange-action receive-action":""}" aria-label="${currentView==="exchange"?"Marcar para recibir":"Sumar stock"}">
+            <span class="button-symbol">${currentView==="exchange"?"RECIBIR":"+"}</span>
+            ${currentView==="exchange"&&stagedReceive?`<small>✓ x${stagedReceive}</small>`:""}
+          </button>`
+       : `<span class="exchange-action-placeholder"></span>`}
+   </div>`;
  const minusButton=card.querySelector(".minus");
  const plusButton=card.querySelector(".plus");
  if(minusButton)minusButton.onclick=e=>{
@@ -242,6 +251,7 @@ function createCard(team,code,qty){
  };
  return card;
 }
+
 function changeQuantity(team,code,delta,button){
  const previous=Number(inventory[team][code])||0,next=Math.max(0,previous+delta);
  if(next===previous)return;
@@ -267,6 +277,26 @@ function renderCards(){
  });
  emptyState.hidden=grid.children.length>0;
 }
+
+function updateGlobalDashboard(){
+ const target=getTarget();
+ let total=0,missing=0,repeats=0;
+ Object.values(inventory).forEach(stickers=>{
+   Object.values(stickers).forEach(raw=>{
+     const qty=Number(raw)||0;
+     total+=qty;
+     missing+=Math.max(0,target-qty);
+     repeats+=Math.max(0,qty-target);
+   });
+ });
+ const totalNode=$("#globalInventoryTotal");
+ const missingNode=$("#globalMissingTotal");
+ const repeatsNode=$("#globalRepeatsTotal");
+ if(totalNode)totalNode.textContent=total.toLocaleString("es-ES");
+ if(missingNode)missingNode.textContent=missing.toLocaleString("es-ES");
+ if(repeatsNode)repeatsNode.textContent=repeats.toLocaleString("es-ES");
+}
+
 function updateSummary(){
  const values=Object.values(inventory[teamSelect.value]).map(Number);
  let need=0,offer=0,total=0,needCards=0,offerCards=0;
