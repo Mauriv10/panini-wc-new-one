@@ -1,10 +1,10 @@
-# World Cup 2026 — Build 613.1
+# World Cup 2026 — Build 614
 
-Corrección:
-- La tarjeta `Cromos` muestra ahora el total real del proyecto activo.
-- Se actualiza al cargar la app.
-- Se actualiza al cambiar de proyecto.
-- Se actualiza al sumar, restar, importar o restaurar inventario.
-- Mantiene todos los cambios del Build 613.
-
-Caché: `world-cup-2026-build-613-1`.
+- Barra inferior fija: Cromos, Estadísticas, Cambiar y Ajustes.
+- Cromos muestra por defecto las 49 categorías con sus 20 cromos.
+- Filtros globales: Todos, Me faltan, Repetidos y Brillantes.
+- Brillantes = todos los FWC + posición 01 de cada selección.
+- Estadísticas completas del proyecto.
+- Pantalla Cambiar preparada para intercambio por QR.
+- Ajustes trasladado a la barra inferior.
+- Caché: `world-cup-2026-build-614`.

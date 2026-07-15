@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="World Cup 2026">
-  <title>World Cup 2026 · Build 613.1</title>
+  <title>World Cup 2026 · Build 614</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/icons/world-cup-2026-apple-v522.png">
   <link rel="stylesheet" href="./styles.css">
@@ -23,7 +23,7 @@
     </div>
     <div class="top-actions">
       <button id="undoButton" class="icon-action" disabled aria-label="Deshacer">↩</button>
-      <button id="settingsButton" class="icon-action settings-action" type="button" aria-label="Abrir ajustes">⚙</button>
+      <button id="settingsButton" class="icon-action settings-action top-settings-compat" type="button" aria-label="Abrir ajustes">⚙</button>
     </div>
   </div>
 
@@ -91,86 +91,358 @@
   <button id="newProjectQuickButton" class="new-project-quick" type="button" aria-label="Nuevo proyecto">＋</button>
 </section>
 
-<nav class="mode-nav" aria-label="Secciones">
-  <button class="mode-button active" data-view="inventory"><span class="nav-icon">▦</span><span>Inventario</span></button>
-  <button class="mode-button" data-view="exchange"><span class="nav-icon">⇄</span><span>Intercambio</span><b id="exchangeBadge">0</b></button>
-  <button class="mode-button" data-view="missing"><span class="nav-icon">◌</span><span>Me faltan</span><b id="missingBadge">0</b></button>
+
+<nav class="mode-nav compatibility-nav" aria-label="Secciones internas" hidden>
+  <button class="mode-button active" data-view="inventory">Inventario</button>
+  <button class="mode-button" data-view="exchange"><b id="exchangeBadge">0</b></button>
+  <button class="mode-button" data-view="missing"><b id="missingBadge">0</b></button>
 </nav>
 
+<nav class="bottom-app-nav" aria-label="Navegación principal">
+  <button class="bottom-nav-button active" data-main-view="collection">
+    <span class="bottom-nav-icon">▦</span><span>Cromos</span>
+  </button>
+  <button class="bottom-nav-button" data-main-view="statistics">
+    <span class="bottom-nav-icon">◔</span><span>Estadísticas</span>
+  </button>
+  <button class="bottom-nav-button" data-main-view="trade">
+    <span class="bottom-nav-icon">⇄</span><span>Cambiar</span>
+  </button>
+  <button class="bottom-nav-button" data-main-view="settings">
+    <span class="bottom-nav-icon">⚙</span><span>Ajustes</span>
+  </button>
+</nav>
+
+
 <main class="app-main">
-  <section id="inventoryView" class="app-view active">
-  <div class="section-heading"><div><span>Resumen</span><h2>Selección actual</h2></div></div>
-  <section class="summary">
-    <article><strong id="needTotal">0</strong><span>Necesito</span></article>
-    <article><strong id="offerTotal">0</strong><span>Puedo entregar</span></article>
-    <article><strong id="selectionTotal">0</strong><span>Total selección</span></article>
-  </section>
-
-  <section id="exchangeModePanel" class="exchange-mode-panel" hidden>
-    <div>
-      <span>Intercambio en preparación</span>
-      <strong id="exchangeSummary">0 para dar · 0 para recibir</strong>
-      <small>Usa − para marcar lo que darás y + para marcar lo que recibirás. El stock no cambia hasta confirmar.</small>
-    </div>
-    <button id="openExchangeListButton" class="primary">Ver lista</button>
-  </section>
-
-  <section class="session-card">
-    <div>
-      <span>Estadísticas de hoy</span>
-      <strong id="sessionChanges">+0 / −0</strong>
-    </div>
-    <div>
-      <span>Balance</span>
-      <strong id="sessionBalance">0</strong>
-    </div>
-  </section>
-
-  <div class="save-status"><span id="saveDot">●</span> <span id="saveStatus">Todo guardado</span></div>
-  <p id="lastChange" class="last-change">Sin cambios todavía</p>
-
-  <div class="section-heading stickers-heading"><div><span>Inventario</span><h2>20 cromos</h2></div><span class="live-dot">Guardado automático</span></div>
-  <section id="stickerGrid" class="sticker-grid"></section>
-  <p id="emptyState" class="empty-state" hidden>No hay cromos en esta pestaña.</p>
-
   
-<section class="sync-card">
-  <div class="sync-card-copy">
-    <span>Sincronización del proyecto</span>
-    <strong id="pendingSyncCount">0 cambios pendientes</strong>
-    <small id="lastSyncText">Todavía no sincronizado</small>
-  </div>
-  <div class="sync-card-actions">
-    <button id="importExcelButton" class="sync-import-button" type="button">Importar Excel</button>
-    <button id="markSyncedButton" class="sync-button" type="button">✓ Marcar sincronizado</button>
+<section id="inventoryView" class="app-view active">
+  <section class="collection-toolbar">
+    <div>
+      <span>COLECCIÓN COMPLETA</span>
+      <h2>Todos los cromos</h2>
+    </div>
+    <div class="collection-filter" role="tablist">
+      <button class="collection-filter-button active" data-collection-filter="all">Todos</button>
+      <button class="collection-filter-button" data-collection-filter="missing">Me faltan</button>
+      <button class="collection-filter-button" data-collection-filter="repeats">Repetidos</button>
+      <button class="collection-filter-button" data-collection-filter="shiny">Brillantes</button>
+    </div>
+  </section>
+
+  <section id="globalCollectionList" class="global-collection-list"></section>
+
+  <div class="compatibility-hidden" aria-hidden="true">
+    <section class="summary">
+      <article><strong id="needTotal">0</strong><span>Necesito</span></article>
+      <article><strong id="offerTotal">0</strong><span>Puedo entregar</span></article>
+      <article><strong id="selectionTotal">0</strong><span>Total selección</span></article>
+    </section>
+    <section id="exchangeModePanel" class="exchange-mode-panel" hidden>
+      <strong id="exchangeSummary">0 para dar · 0 para recibir</strong>
+      <button id="openExchangeListButton">Ver lista</button>
+    </section>
+    <section class="session-card">
+      <strong id="sessionChanges">+0 / −0</strong>
+      <strong id="sessionBalance">0</strong>
+    </section>
+    <div class="save-status"><span id="saveDot">●</span><span id="saveStatus">Todo guardado</span></div>
+    <p id="lastChange">Sin cambios todavía</p>
+    <section id="stickerGrid" class="sticker-grid"></section>
+    <p id="emptyState" hidden></p>
+    <section class="sync-card">
+      <div><strong id="pendingSyncCount">0 cambios pendientes</strong><small id="lastSyncText">Todavía no sincronizado</small></div>
+      <button id="importExcelButton">Importar Excel</button>
+      <button id="markSyncedButton">Marcar sincronizado</button>
+    </section>
+    <section class="backup-card">
+      <button id="exportBackupButton">Exportar copia</button>
+      <button id="restoreBackupButton">Restaurar copia</button>
+      <input id="backupFileInput" type="file" accept=".json" hidden>
+    </section>
+    <section class="actions">
+      <button id="historyButton">Historial</button>
+      <button id="finishButton">Finalizar</button>
+      <button id="resetSessionButton">Reiniciar estadísticas</button>
+      <button id="exportButton">Exportar copia</button>
+      <button id="excelButton">Descargar Excel</button>
+      <button id="resetButton">Restaurar original</button>
+    </section>
   </div>
 </section>
 
-
-<section class="backup-card">
-  <div class="backup-card-copy">
-    <span>Copias de seguridad</span>
-    <strong>Protege todos tus proyectos</strong>
-    <small>Exporta o restaura inventarios, historial, intercambios y sincronización.</small>
+<section id="statisticsView" class="main-tab-view" hidden>
+  <div class="tab-page-heading">
+    <span>PROYECTO ACTIVO</span>
+    <h2>Estadísticas</h2>
   </div>
-  <div class="backup-card-actions">
-    <button id="exportBackupButton" type="button">Exportar copia</button>
-    <button id="restoreBackupButton" type="button">Restaurar copia</button>
-    <input id="backupFileInput" type="file" accept=".json,application/json" hidden>
-  </div>
+  <section class="statistics-grid">
+    <article><span>Cromos</span><strong id="statsTotalStickers">0</strong><small>unidades en total</small></article>
+    <article><span>Me faltan</span><strong id="statsMissingUnits">0</strong><small>unidades pendientes</small></article>
+    <article><span>Repetidas</span><strong id="statsRepeatUnits">0</strong><small>por encima del objetivo</small></article>
+    <article><span>Brillantes</span><strong id="statsShinyTotal">0</strong><small>FWC y escudos</small></article>
+    <article><span>Selecciones completas</span><strong id="statsCompleteTeams">0</strong><small>de 49 categorías</small></article>
+    <article><span>Progreso</span><strong id="statsProgress">0%</strong><small>respecto al objetivo</small></article>
+  </section>
+  <section class="shiny-breakdown">
+    <div><span>FWC</span><strong id="statsFwcTotal">0</strong></div>
+    <div><span>Escudos (posición 01)</span><strong id="statsBadgesTotal">0</strong></div>
+  </section>
 </section>
 
-<section class="actions">
-    <button id="historyButton" class="secondary">Historial del día</button>
-    <button id="finishButton" class="primary">Finalizar mercat</button>
-    <button id="resetSessionButton" class="secondary wide">↻ Reiniciar estadísticas</button>
-    <button id="exportButton" class="secondary">Exportar copia</button>
-    <button id="excelButton" class="secondary">Descargar para Excel</button>
-    <button id="resetButton" class="danger">Restaurar original</button>
+<section id="tradeView" class="main-tab-view" hidden>
+  <div class="tab-page-heading">
+    <span>INTERCAMBIO ENTRE COLECCIONISTAS</span>
+    <h2>Cambiar</h2>
+  </div>
+  <section class="trade-hero-card">
+    <div class="trade-qr-placeholder">
+      <span>QR</span>
+    </div>
+    <div>
+      <h3>Compara dos colecciones</h3>
+      <p>En el siguiente build podrás generar y escanear un QR para detectar automáticamente qué cromos podéis intercambiar.</p>
+    </div>
   </section>
+  <button id="openClassicExchangeButton" class="trade-secondary-action">Preparar un intercambio manual</button>
+</section>
+
+<section id="missingView"<section id="missingView" class="app-view" hidden>
+    <section class="missing-toolbar">
+      <div>
+        <span>Todos los cromos pendientes</span>
+        <strong id="missingTotals">0 cromos</strong>
+      </div>
+      <select id="missingSort">
+        <option value="album">Orden del álbum/desplegable</option>
+        <option value="most">Países con más faltas</option>
+        <option value="least">Países con menos faltas</option>
+        <option value="az">País A–Z</option>
+        <option value="za">País Z–A</option>
+      </select>
+    </section>
+    <section id="missingList" class="missing-list"></section>
+  </section>
+</main>
+
+
+
+
+
+<dialog id="settingsDialog" class="settings-center">
+  <div class="settings-sheet-header">
+    <div>
+      <span>WORLD CUP 2026</span>
+      <h2>Ajustes</h2>
+    </div>
+    <button id="closeSettingsDialog" type="button" aria-label="Cerrar">✕</button>
+  </div>
+
+  <div class="settings-groups">
+    <section class="settings-group">
+      <div class="settings-group-title"><span class="settings-glyph blue">▣</span><div><strong>Proyectos</strong><small>Cambiar, crear y transferir repetidas</small></div></div>
+      
+<div class="settings-target-card">
+  <div>
+    <span>Objetivo del proyecto</span>
+    <strong><span id="settingsTargetValue">5</span> álbumes</strong>
+  </div>
+  <button id="settingsTargetButton" type="button">Cambiar</button>
+</div>
+<div id="settingsProjectsSlot" class="settings-slot"></div>
+
+    </section>
+
+    <section class="settings-group">
+      <div class="settings-group-title"><span class="settings-glyph green">↻</span><div><strong>Sincronización</strong><small>Importar, exportar y revisar cambios</small></div></div>
+      <div id="settingsSyncSlot" class="settings-slot"></div>
+    </section>
+
+    <section class="settings-group">
+      <div class="settings-group-title"><span class="settings-glyph purple">◆</span><div><strong>Seguridad</strong><small>Copias y restauración</small></div></div>
+      <div id="settingsBackupSlot" class="settings-slot"></div>
+    </section>
+
+    <section class="settings-group">
+      <div class="settings-group-title"><span class="settings-glyph orange">◷</span><div><strong>Actividad</strong><small>Historial, sesión y herramientas</small></div></div>
+      <div id="settingsActionsSlot" class="settings-slot"></div>
+    </section>
+
+    <section class="settings-group info-group">
+      <div class="settings-group-title"><span class="settings-glyph gray">i</span><div><strong>Información</strong><small>World Cup 2026 · Build 600</small></div></div>
+    </section>
+  </div>
+</dialog>
+
+<dialog id="restoreBackupDialog" class="restore-backup-dialog">
+  <div class="dialog-header">
+    <h2>Restaurar copia</h2>
+    <button id="closeRestoreBackupDialog">✕</button>
+  </div>
+
+  <div id="restoreBackupSummary" class="restore-backup-summary"></div>
+
+  <label class="restore-option">
+    <input id="restoreReplaceAll" type="radio" name="restoreMode" value="replace" checked>
+    <span><strong>Reemplazar todos los proyectos</strong><small>Usa exactamente la copia seleccionada.</small></span>
+  </label>
+
+  <label class="restore-option">
+    <input id="restoreMerge" type="radio" name="restoreMode" value="merge">
+    <span><strong>Añadir como proyectos nuevos</strong><small>No elimina los proyectos actuales.</small></span>
+  </label>
+
+  <div class="restore-backup-actions">
+    <button id="cancelRestoreBackupButton" class="secondary">Cancelar</button>
+    <button id="confirmRestoreBackupButton" class="primary">Restaurar</button>
+  </div>
+</dialog>
+
+<dialog id="importExcelDialog" class="import-excel-dialog">
+  <div class="dialog-header">
+    <h2>Importar Excel maestro</h2>
+    <button id="closeImportExcelDialog">✕</button>
+  </div>
+
+  <input id="excelFileInput" type="file" accept=".xlsx,.xlsm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel.sheet.macroEnabled.12" hidden>
+
+  <section id="importExcelStart" class="import-excel-start">
+    <p>Selecciona un archivo <strong>.xlsx</strong> o <strong>.xlsm</strong> con una hoja llamada <strong>Inventario</strong>.</p>
+    <button id="chooseExcelFileButton" class="primary full">Seleccionar Excel</button>
   </section>
 
-  <section id="missingView" class="app-view" hidden>
+  <section id="importExcelReview" hidden>
+    <div class="import-summary-grid">
+      <article><strong id="importFileTeams">0</strong><span>Selecciones</span></article>
+      <article><strong id="importChangedCells">0</strong><span>Diferencias</span></article>
+      <article><strong id="importConflictCells">0</strong><span>Conflictos</span></article>
+    </div>
+
+    <div id="importConflictHelp" class="import-conflict-help"></div>
+
+    <div class="import-resolution">
+      <label>
+        <span>Para celdas con cambios pendientes en la app</span>
+        <select id="importConflictResolution">
+          <option value="app">Mantener el valor de la app</option>
+          <option value="excel">Usar el valor del Excel</option>
+        </select>
+      </label>
+    </div>
+
+    <div id="importDifferencesList" class="import-differences-list"></div>
+
+    <div class="import-dialog-actions">
+      <button id="cancelExcelImportButton" class="secondary">Cancelar</button>
+      <button id="applyExcelImportButton" class="primary">Aplicar importación</button>
+    </div>
+  </section>
+</dialog>
+
+<dialog id="projectsDialog" class="projects-dialog">
+  <div class="dialog-header">
+    <h2>Mis proyectos</h2>
+    <button id="closeProjectsDialog">✕</button>
+  </div>
+  <div id="projectsList" class="projects-list"></div>
+  <button id="createProjectButton" class="primary full">＋ Crear proyecto</button>
+</dialog>
+
+<dialog id="createProjectDialog" class="create-project-dialog">
+  <div class="dialog-header">
+    <h2>Nuevo proyecto</h2>
+    <button id="closeCreateProjectDialog">✕</button>
+  </div>
+
+  <label class="project-field">
+    <span>Nombre</span>
+    <input id="newProjectName" type="text" placeholder="Ej. Mundial 2026 · 2 álbumes">
+  </label>
+
+  <label class="project-field">
+    <span>Objetivo de álbumes</span>
+    <input id="newProjectTarget" type="number" min="1" max="20" value="2">
+  </label>
+
+  <fieldset class="project-source-options">
+    <legend>Inventario inicial</legend>
+    <label><input type="radio" name="projectSource" value="empty" checked> Empezar vacío</label>
+    <label><input type="radio" name="projectSource" value="repeats"> Usar repetidas de otro proyecto</label>
+  </fieldset>
+
+  <div id="repeatOptions" hidden>
+    <label class="project-field">
+      <span>Proyecto origen</span>
+      <select id="sourceProjectSelect"></select>
+    </label>
+    <fieldset class="project-source-options">
+      <legend>Transferir</legend>
+      <label><input type="radio" name="repeatMode" value="target" checked> Solo hasta el objetivo nuevo</label>
+      <label><input type="radio" name="repeatMode" value="all"> Todas las repetidas disponibles</label>
+    </fieldset>
+    <div id="transferPreview" class="transfer-preview">Selecciona las opciones para ver el cálculo.</div>
+  </div>
+
+  <button id="confirmCreateProjectButton" class="primary full">Crear proyecto</button>
+</dialog>
+
+<dialog id="teamDialog" class="team-dialog">
+  <div class="dialog-header">
+    <h2>Elegir selección</h2>
+    <button id="closeTeamDialog">✕</button>
+  </div>
+  <input id="dialogSearch" class="dialog-search" type="search" placeholder="Buscar selección…">
+  <div id="teamList" class="team-list"></div>
+</dialog>
+
+<dialog id="exchangeDialog" class="exchange-dialog">
+  <div class="dialog-header">
+    <h2>Lista del intercambio</h2>
+    <button id="closeExchangeDialog">✕</button>
+  </div>
+
+  <div class="exchange-dialog-tabs">
+    <button class="exchange-list-tab active" data-list-type="give">Dar <b id="giveListCount">0</b></button>
+    <button class="exchange-list-tab" data-list-type="receive">Recibir <b id="receiveListCount">0</b></button>
+  </div>
+
+  <div id="exchangeList" class="exchange-list"></div>
+
+  <div class="exchange-dialog-actions">
+    <button id="cancelExchangeButton" class="danger">Cancelar intercambio</button>
+    <button id="confirmExchangeButton" class="primary">Confirmar intercambio</button>
+  </div>
+</dialog>
+
+<dialog id="historyDialog">
+  <div class="dialog-header">
+    <h2>Historial del día</h2>
+    <button id="closeHistoryButton">✕</button>
+  </div>
+  <div id="historyList" class="history-list"></div>
+</dialog>
+
+<dialog id="finishDialog">
+  <div class="dialog-header">
+    <h2>Mercat finalizado</h2>
+    <button id="closeFinishButton">✕</button>
+  </div>
+  <div id="finishSummary" class="finish-summary"></div>
+  <button id="downloadFinishButton" class="primary full">Descargar resumen</button>
+  <button id="confirmFinishButton" class="secondary full">Guardar y empezar una nueva jornada</button>
+</dialog>
+
+<div id="toast" class="toast">Guardado</div>
+<script src="./assets/vendor/jszip.min.js"></script>
+<script src="./app.js" defer></script>
+
+<footer class="app-footer">
+  <span>Panini Mercat <strong>V5.2</strong></span>
+  <span id="offlineStatus">Comprobando conexión…</span>
+</footer>
+
+</body>
+</html> class="app-view" hidden>
     <section class="missing-toolbar">
       <div>
         <span>Todos los cromos pendientes</span>

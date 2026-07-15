@@ -1,4 +1,4 @@
-const APP_VERSION="6.1.3.1";
+const APP_VERSION="6.1.4";
 const DATA_REVISION="2026-07-16-master-4";
 const PROJECTS_KEY="world-cup-2026-projects-v600";
 const ACTIVE_PROJECT_KEY="world-cup-2026-active-project-v600";
@@ -17,6 +17,7 @@ let sessionStats={plus:0,minus:0,startedAt:new Date().toISOString()};
 let currentFilter="all",currentView="inventory",exchangeType="give",exchangeListType="give";
 let exchange={give:{},receive:{}};
 let projects={},activeProjectId="",pendingSync={},lastSyncedAt=null;
+let mainTab="collection",collectionFilter="all";
 let pendingExcelImport=null;
 let pendingBackupRestore=null;
 
@@ -316,6 +317,119 @@ function updateLastChange(){
  const last=history.at(-1);
  $("#lastChange").textContent=last?`Último cambio: ${last.team} ${last.code} · ${last.delta>0?"+1":"−1"} · ${formatTime(last.at)}`:"Sin cambios todavía";
 }
+
+function isShinySticker(team,code){
+ return team==="FWC"||code==="01";
+}
+function collectionStickerMatches(team,code,qty){
+ const target=getTarget();
+ if(collectionFilter==="all")return true;
+ if(collectionFilter==="missing")return qty<target;
+ if(collectionFilter==="repeats")return qty>target;
+ if(collectionFilter==="shiny")return isShinySticker(team,code);
+ return true;
+}
+function createGlobalSticker(team,code,qty){
+ const state=stateFor(qty);
+ const item=document.createElement("article");
+ item.className=`collection-sticker ${state.kind} ${isShinySticker(team,code)?"shiny":""}`;
+ item.innerHTML=`<div><span class="collection-sticker-code">${code}</span><div class="collection-sticker-qty">x${qty}</div></div>
+ <div class="collection-sticker-actions">
+   <button data-delta="-1" aria-label="Restar">−</button>
+   <button data-delta="1" aria-label="Sumar">+</button>
+ </div>`;
+ item.querySelectorAll("button").forEach(button=>button.onclick=()=>{
+   const delta=Number(button.dataset.delta);
+   const previous=Number(inventory[team][code])||0;
+   const next=Math.max(0,previous+delta);
+   if(next===previous)return;
+   inventory[team][code]=next;
+   markPendingSync(team,code,previous,next,"coleccion-global");
+   history.push({id:makeId(),team,code,previous,next,delta,at:new Date().toISOString()});
+   delta>0?sessionStats.plus++:sessionStats.minus++;
+   saveAll("✓ Guardado ahora");
+   vibrate();
+   renderAll();
+   showToast(`✓ ${team} ${code} · x${next}`);
+ });
+ return item;
+}
+function renderGlobalCollection(){
+ const list=$("#globalCollectionList");
+ if(!list)return;
+ list.innerHTML="";
+ Object.entries(inventory).forEach(([team,stickers])=>{
+   const entries=Object.entries(stickers)
+     .sort(([a],[b])=>Number(a)-Number(b))
+     .filter(([code,qty])=>collectionStickerMatches(team,code,Number(qty)||0));
+   if(!entries.length)return;
+   const target=getTarget();
+   const total=Object.values(stickers).reduce((sum,q)=>sum+Number(q||0),0);
+   const missing=Object.values(stickers).reduce((sum,q)=>sum+Math.max(0,target-Number(q||0)),0);
+   const section=document.createElement("section");
+   section.className="collection-team";
+   section.innerHTML=`<header class="collection-team-header">
+     <div class="collection-team-title">${flagHTML(team)}<strong>${team}</strong></div>
+     <div class="collection-team-summary"><strong>${total} cromos</strong>${missing?`${missing} pendientes`:"Completa"}</div>
+   </header><div class="collection-stickers-grid"></div>`;
+   const grid=section.querySelector(".collection-stickers-grid");
+   entries.forEach(([code,qty])=>grid.appendChild(createGlobalSticker(team,code,Number(qty)||0)));
+   list.appendChild(section);
+ });
+ if(!list.children.length)list.innerHTML='<div class="collection-empty">No hay cromos para este filtro.</div>';
+}
+function calculateProjectStatistics(){
+ const target=getTarget();
+ let total=0,missing=0,repeats=0,shiny=0,fwc=0,badges=0,complete=0;
+ Object.entries(inventory).forEach(([team,stickers])=>{
+   let teamComplete=true;
+   Object.entries(stickers).forEach(([code,raw])=>{
+     const qty=Number(raw)||0;
+     total+=qty;
+     missing+=Math.max(0,target-qty);
+     repeats+=Math.max(0,qty-target);
+     if(qty<target)teamComplete=false;
+     if(team==="FWC"){shiny+=qty;fwc+=qty}
+     else if(code==="01"){shiny+=qty;badges+=qty}
+   });
+   if(teamComplete)complete++;
+ });
+ const required=Object.keys(inventory).length*20*target;
+ return {total,missing,repeats,shiny,fwc,badges,complete,progress:required?Math.min(100,Math.round((total-mathExcessForProgress())/required*100)):0};
+}
+function mathExcessForProgress(){
+ const target=getTarget();
+ return Object.values(inventory).reduce((sum,stickers)=>sum+Object.values(stickers).reduce((s,q)=>s+Math.max(0,Number(q||0)-target),0),0);
+}
+function renderStatistics(){
+ const s=calculateProjectStatistics();
+ const values={
+   statsTotalStickers:s.total.toLocaleString("es-ES"),
+   statsMissingUnits:s.missing.toLocaleString("es-ES"),
+   statsRepeatUnits:s.repeats.toLocaleString("es-ES"),
+   statsShinyTotal:s.shiny.toLocaleString("es-ES"),
+   statsCompleteTeams:String(s.complete),
+   statsProgress:`${s.progress}%`,
+   statsFwcTotal:s.fwc.toLocaleString("es-ES"),
+   statsBadgesTotal:s.badges.toLocaleString("es-ES")
+ };
+ Object.entries(values).forEach(([id,value])=>{const node=$("#"+id);if(node)node.textContent=value});
+}
+function setMainTab(tab){
+ if(tab==="settings"){
+   $("#settingsDialog").showModal();
+   return;
+ }
+ mainTab=tab;
+ document.querySelectorAll(".bottom-nav-button").forEach(button=>button.classList.toggle("active",button.dataset.mainView===tab));
+ $("#inventoryView").hidden=tab!=="collection";
+ $("#statisticsView").hidden=tab!=="statistics";
+ $("#tradeView").hidden=tab!=="trade";
+ $("#missingView").hidden=true;
+ if(tab==="collection")renderGlobalCollection();
+ if(tab==="statistics")renderStatistics();
+}
+
 function renderAll(){
  if(currentView!=="missing")renderCards();
  updateSummary();
@@ -325,6 +439,8 @@ function renderAll(){
  undoButton.disabled=history.length===0;
  if(currentView==="missing")renderMissing();
  updateNavigationBadges();
+ renderGlobalCollection();
+ renderStatistics();
 }
 
 function undoChange(change){
@@ -1258,6 +1374,26 @@ $("#settingsTargetButton").onclick=()=>{
  renderAll();
  renderProjectsList();
  showToast(`Objetivo actualizado a ${next}`);
+};
+
+
+document.querySelectorAll(".bottom-nav-button").forEach(button=>button.onclick=()=>setMainTab(button.dataset.mainView));
+document.querySelectorAll(".collection-filter-button").forEach(button=>button.onclick=()=>{
+ document.querySelectorAll(".collection-filter-button").forEach(x=>x.classList.remove("active"));
+ button.classList.add("active");
+ collectionFilter=button.dataset.collectionFilter;
+ renderGlobalCollection();
+});
+$("#openClassicExchangeButton").onclick=()=>{
+ setView("exchange");
+ $("#settingsDialog").close();
+ mainTab="collection";
+ document.querySelectorAll(".bottom-nav-button").forEach(button=>button.classList.toggle("active",button.dataset.mainView==="collection"));
+ $("#inventoryView").hidden=false;
+ $("#statisticsView").hidden=true;
+ $("#tradeView").hidden=true;
+ document.querySelector(".collection-toolbar").scrollIntoView({behavior:"smooth"});
+ showToast("Modo intercambio manual activado");
 };
 
 if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js"));
