@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="World Cup 2026">
-  <title>World Cup 2026 · Build 614.1</title>
+  <title>World Cup 2026 · Build 614.2</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/icons/world-cup-2026-apple-v522.png">
   <link rel="stylesheet" href="./styles.css">
@@ -122,6 +122,15 @@
     </div>
   </section>
 
+  <section id="globalExchangeBanner" class="global-exchange-banner" hidden>
+    <div>
+      <span>INTERCAMBIO EN PREPARACIÓN</span>
+      <strong id="globalExchangeSummary">0 para dar · 0 para recibir</strong>
+      <small>El inventario no cambiará hasta que confirmes.</small>
+    </div>
+    <button id="openGlobalExchangeListButton" type="button">Revisar y confirmar</button>
+  </section>
+
   <section id="globalCollectionList" class="global-collection-list"></section>
 
   <div class="compatibility-hidden" aria-hidden="true">
@@ -205,7 +214,7 @@
 
   <section class="shiny-breakdown">
     <div><span>FWC</span><strong id="statsFwcTotal">0</strong></div>
-    <div><span>Escudos (posición 01)</span><strong id="statsBadgesTotal">0</strong></div>
+    <div><span>Escudos</span><strong id="statsBadgesTotal">0</strong></div>
   </section>
 </section>
 

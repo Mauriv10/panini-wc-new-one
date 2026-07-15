@@ -1,4 +1,4 @@
-const APP_VERSION="6.1.4.1";
+const APP_VERSION="6.1.4.2";
 const DATA_REVISION="2026-07-16-master-4";
 const PROJECTS_KEY="world-cup-2026-projects-v600";
 const ACTIVE_PROJECT_KEY="world-cup-2026-active-project-v600";
@@ -324,37 +324,61 @@ function isShinySticker(team,code){
 }
 function collectionStickerMatches(team,code,qty){
  const target=getTarget();
- if(collectionFilter==="all")return true;
- if(collectionFilter==="missing")return qty<target;
- if(collectionFilter==="repeats")return qty>target;
- if(collectionFilter==="shiny")return isShinySticker(team,code);
+ const effectiveFilter=currentFilter==="need"?"missing":currentFilter==="offer"?"repeats":collectionFilter;
+ if(effectiveFilter==="all")return true;
+ if(effectiveFilter==="missing")return qty<target;
+ if(effectiveFilter==="repeats")return qty>target;
+ if(effectiveFilter==="shiny")return isShinySticker(team,code);
  return true;
 }
 function createGlobalSticker(team,code,qty){
  const state=stateFor(qty);
  const item=document.createElement("article");
- item.className=`collection-sticker ${state.kind} ${isShinySticker(team,code)?"shiny":""}`;
+ const giveQty=getExchangeQty("give",team,code);
+ const receiveQty=getExchangeQty("receive",team,code);
+ const staged=giveQty||receiveQty;
+ item.className=`collection-sticker ${state.kind} ${isShinySticker(team,code)?"shiny":""} ${staged?"exchange-staged":""}`;
+ const exchangeMode=currentView==="exchange";
  item.innerHTML=`<div><span class="collection-sticker-code">${code}</span><div class="collection-sticker-qty">x${qty}</div></div>
- <div class="collection-sticker-actions">
-   <button data-delta="-1" aria-label="Restar">−</button>
-   <button data-delta="1" aria-label="Sumar">+</button>
+ <div class="collection-sticker-actions ${exchangeMode?"exchange-actions":""}">
+   ${exchangeMode
+     ? `${currentFilter!=="need"?`<button class="give-global" data-type="give">DAR${giveQty?` <small>✓x${giveQty}</small>`:""}</button>`:"<span></span>"}
+        ${currentFilter!=="offer"?`<button class="receive-global" data-type="receive">RECIBIR${receiveQty?` <small>✓x${receiveQty}</small>`:""}</button>`:"<span></span>"}`
+     : `<button data-delta="-1" aria-label="Restar">−</button><button data-delta="1" aria-label="Sumar">+</button>`}
  </div>`;
- item.querySelectorAll("button").forEach(button=>button.onclick=()=>{
-   const delta=Number(button.dataset.delta);
-   const previous=Number(inventory[team][code])||0;
-   const next=Math.max(0,previous+delta);
-   if(next===previous)return;
-   inventory[team][code]=next;
-   markPendingSync(team,code,previous,next,"coleccion-global");
-   history.push({id:makeId(),team,code,previous,next,delta,at:new Date().toISOString()});
-   delta>0?sessionStats.plus++:sessionStats.minus++;
-   saveAll("✓ Guardado ahora");
-   vibrate();
-   renderAll();
-   showToast(`✓ ${team} ${code} · x${next}`);
- });
+ if(exchangeMode){
+   item.querySelectorAll("button[data-type]").forEach(button=>button.onclick=()=>{
+     const type=button.dataset.type;
+     const current=getExchangeQty(type,team,code);
+     if(type==="give"&&current>=qty){
+       showToast(`No puedes marcar más de x${qty} para dar`);
+       return;
+     }
+     setExchangeQty(type,team,code,current+1);
+     vibrate();
+     saveAll("Intercambio preparado");
+     renderAll();
+     showToast(`${team} ${code} · ${type==="give"?"dar":"recibir"} x${current+1}`);
+   });
+ }else{
+   item.querySelectorAll("button[data-delta]").forEach(button=>button.onclick=()=>{
+     const delta=Number(button.dataset.delta);
+     const previous=Number(inventory[team][code])||0;
+     const next=Math.max(0,previous+delta);
+     if(next===previous)return;
+     inventory[team][code]=next;
+     markPendingSync(team,code,previous,next,"coleccion-global");
+     history.push({id:makeId(),team,code,previous,next,delta,at:new Date().toISOString()});
+     delta>0?sessionStats.plus++:sessionStats.minus++;
+     saveAll("✓ Guardado ahora");
+     vibrate();
+     renderAll();
+     showToast(`✓ ${team} ${code} · x${next}`);
+   });
+ }
  return item;
 }
+
 function renderGlobalCollection(){
  const list=$("#globalCollectionList");
  if(!list)return;
@@ -446,6 +470,12 @@ function renderAll(){
  updateNavigationBadges();
  renderGlobalCollection();
  renderStatistics();
+ const banner=$("#globalExchangeBanner");
+ if(banner){
+   banner.hidden=currentView!=="exchange";
+   const totals=exchangeTotals();
+   $("#globalExchangeSummary").textContent=`${totals.give} para dar · ${totals.receive} para recibir`;
+ }
 }
 
 function undoChange(change){
@@ -471,7 +501,15 @@ function setView(view){
 document.querySelectorAll(".mode-button").forEach(button=>button.onclick=()=>setView(button.dataset.view));
 document.querySelectorAll(".tab").forEach(button=>button.onclick=()=>{
  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
- button.classList.add("active");currentFilter=button.dataset.filter;renderCards();
+ button.classList.add("active");
+ currentFilter=button.dataset.filter;
+ collectionFilter=currentFilter==="need"?"missing":currentFilter==="offer"?"repeats":"all";
+ document.querySelectorAll(".collection-filter-button").forEach(x=>{
+   const wanted=currentFilter==="need"?"missing":currentFilter==="offer"?"repeats":"all";
+   x.classList.toggle("active",x.dataset.collectionFilter===wanted);
+ });
+ renderCards();
+ renderGlobalCollection();
 });
 
 teamSelect.onchange=()=>{updateCurrentTeamUI();saveAll();renderAll()};
@@ -1387,16 +1425,20 @@ document.querySelectorAll(".collection-filter-button").forEach(button=>button.on
  document.querySelectorAll(".collection-filter-button").forEach(x=>x.classList.remove("active"));
  button.classList.add("active");
  collectionFilter=button.dataset.collectionFilter;
+ currentFilter=collectionFilter==="missing"?"need":collectionFilter==="repeats"?"offer":"all";
+ document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x.dataset.filter===currentFilter));
  renderGlobalCollection();
 });
 $("#openClassicExchangeButton").onclick=()=>{
- setView("exchange");
+ currentView="exchange";
+ document.body.classList.add("exchange-active");
  $("#settingsDialog").close();
  mainTab="collection";
  document.querySelectorAll(".bottom-nav-button").forEach(button=>button.classList.toggle("active",button.dataset.mainView==="collection"));
  $("#inventoryView").hidden=false;
  $("#statisticsView").hidden=true;
  $("#tradeView").hidden=true;
+ renderAll();
  document.querySelector(".collection-toolbar").scrollIntoView({behavior:"smooth"});
  showToast("Modo intercambio manual activado");
 };
@@ -1406,6 +1448,14 @@ teamSelect.addEventListener("change",()=>{
  collectionTeamFilter=teamSelect.value||"all";
  renderGlobalCollection();
 });
+
+
+$("#openGlobalExchangeListButton").onclick=()=>{
+ exchangeListType="give";
+ renderExchangeDialogTabs();
+ renderExchangeList();
+ $("#exchangeDialog").showModal();
+};
 
 if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js"));
 loadData().catch(error=>{console.error(error);hideLoading();document.body.innerHTML="<main class='app-main'><h1>Error al cargar</h1><p>Comprueba que todos los archivos estén subidos.</p></main>"});
