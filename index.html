@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="World Cup 2026">
-  <title>World Cup 2026 · Build 614.2</title>
+  <title>World Cup 2026 · Build 614.3</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/icons/world-cup-2026-apple-v522.png">
   <link rel="stylesheet" href="./styles.css">
@@ -218,24 +218,34 @@
   </section>
 </section>
 
+
 <section id="tradeView" class="main-tab-view" hidden>
   <div class="tab-page-heading">
-    <span>INTERCAMBIO ENTRE COLECCIONISTAS</span>
-    <h2>Cambiar</h2>
+    <span>INTERCAMBIOS</span>
+    <h2>Cambiar cromos</h2>
   </div>
-  <section class="trade-hero-card">
-    <div class="trade-qr-placeholder">
-      <span>QR</span>
+
+  <section class="trade-option-card trade-option-primary">
+    <div class="trade-option-icon">⇄</div>
+    <div class="trade-option-copy">
+      <span>DISPONIBLE AHORA</span>
+      <h3>Intercambio manual</h3>
+      <p>Marca los cromos que vas a dar y recibir. El inventario solo cambia cuando confirmas.</p>
     </div>
-    <div>
-      <h3>Compara dos colecciones</h3>
-      <p>En el siguiente build podrás generar y escanear un QR para detectar automáticamente qué cromos podéis intercambiar.</p>
+    <button id="openClassicExchangeButton" type="button">Empezar</button>
+  </section>
+
+  <section class="trade-option-card trade-option-upcoming">
+    <div class="trade-option-icon">QR</div>
+    <div class="trade-option-copy">
+      <span>PRÓXIMAMENTE</span>
+      <h3>Comparar mediante QR</h3>
+      <p>Escanea la colección de otra persona para detectar automáticamente intercambios compatibles.</p>
     </div>
   </section>
-  <button id="openClassicExchangeButton" class="trade-secondary-action">Preparar un intercambio manual</button>
 </section>
 
-<section id="missingView"<section id="missingView" class="app-view" hidden>
+<section id="missingView"<section id="missingView" 
     <section class="missing-toolbar">
       <div>
         <span>Todos los cromos pendientes</span>
@@ -470,7 +480,7 @@
 </footer>
 
 </body>
-</html> class="app-view" hidden>
+</html> 
     <section class="missing-toolbar">
       <div>
         <span>Todos los cromos pendientes</span>

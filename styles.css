@@ -2985,3 +2985,104 @@ body{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
   }
   .global-exchange-banner button{width:100%}
 }
+
+
+/* BUILD 614.3 — world filter + clearer exchange + cleanup */
+.trade-option-card{
+  width:min(calc(100% - 16px),980px);
+  margin:0 auto 12px;
+  display:grid;
+  grid-template-columns:72px minmax(0,1fr) auto;
+  align-items:center;
+  gap:18px;
+  padding:20px;
+  border-radius:24px;
+  background:#fff;
+  box-shadow:0 12px 36px rgba(0,0,0,.055);
+}
+.trade-option-primary{
+  color:#fff;
+  background:linear-gradient(145deg,#1d1d1f,#353539);
+  box-shadow:0 22px 60px rgba(29,29,31,.20);
+}
+.trade-option-icon{
+  width:64px;
+  height:64px;
+  display:grid;
+  place-items:center;
+  border-radius:18px;
+  background:#f2f2f7;
+  color:#007aff;
+  font-size:25px;
+  font-weight:850;
+}
+.trade-option-primary .trade-option-icon{
+  background:#fff;
+  color:#1d1d1f;
+}
+.trade-option-copy span{
+  color:#86868b;
+  font-size:10px;
+  font-weight:850;
+  letter-spacing:.1em;
+}
+.trade-option-primary .trade-option-copy span{
+  color:rgba(255,255,255,.55);
+}
+.trade-option-copy h3{
+  margin:4px 0 5px;
+  font-size:22px;
+  letter-spacing:-.035em;
+}
+.trade-option-copy p{
+  margin:0;
+  color:#6e6e73;
+  line-height:1.42;
+}
+.trade-option-primary .trade-option-copy p{
+  color:rgba(255,255,255,.68);
+}
+.trade-option-card button{
+  min-height:44px;
+  padding:0 18px;
+  border:0;
+  border-radius:999px;
+  background:#007aff;
+  color:#fff;
+  font-weight:800;
+}
+.trade-option-primary button{
+  background:#fff;
+  color:#007aff;
+}
+.team-option.world-option{
+  position:sticky;
+  top:0;
+  z-index:2;
+  margin-bottom:6px;
+  background:#edf5ff;
+  color:#007aff;
+}
+.world-option .team-option-world-icon{
+  width:34px;
+  height:34px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:#fff;
+  font-size:20px;
+}
+@media(max-width:600px){
+  .trade-option-card{
+    grid-template-columns:56px minmax(0,1fr);
+    gap:14px;
+    padding:17px;
+  }
+  .trade-option-icon{
+    width:52px;height:52px;border-radius:15px;font-size:21px;
+  }
+  .trade-option-card button{
+    grid-column:1/-1;
+    width:100%;
+  }
+}

@@ -1,9 +1,9 @@
-# World Cup 2026 — Build 614.2
+# World Cup 2026 — Build 614.3
 
-- Estadísticas: `Escudos` sin texto adicional.
-- Filtros Pedir/Entregar funcionan sobre la colección global.
-- Los filtros superiores y globales quedan sincronizados.
-- Recuperado intercambio manual en la vista global.
-- DAR/RECIBIR solo prepara la operación.
-- El inventario cambia únicamente al revisar y confirmar.
-- Caché: `world-cup-2026-build-614-2`.
+- Nueva opción `🌍 Todas las selecciones` dentro del selector.
+- Permite volver a la vista global después de filtrar por un país.
+- Pantalla Cambiar rediseñada:
+  - Intercambio manual visible y destacado.
+  - QR marcado como próxima función.
+- Eliminado el fragmento HTML roto que aparecía al final de la página.
+- Caché: `world-cup-2026-build-614-3`.

@@ -1,4 +1,4 @@
-const APP_VERSION="6.1.4.2";
+const APP_VERSION="6.1.4.3";
 const DATA_REVISION="2026-07-16-master-4";
 const PROJECTS_KEY="world-cup-2026-projects-v600";
 const ACTIVE_PROJECT_KEY="world-cup-2026-active-project-v600";
@@ -188,17 +188,33 @@ function updateCurrentTeamUI(){
 }
 function selectTeam(team){
  collectionTeamFilter=team||"all";
- if(!inventory[team])return;
- teamSelect.value=team;
  teamSearch.value="";
  $("#dialogSearch").value="";
  suggestions.hidden=true;
+
+ if(collectionTeamFilter==="all"){
+   teamSelect.value="";
+   $("#currentTeamName").textContent="Todas las selecciones";
+   $("#currentTeamFlag").removeAttribute("src");
+   $("#currentTeamFlag").alt="Todas";
+   $("#currentTeamFlag").style.display="none";
+   renderGlobalCollection();
+   saveAll();
+   return;
+ }
+
+ if(!inventory[team])return;
+ $("#currentTeamFlag").style.display="";
+ teamSelect.value=team;
  updateCurrentTeamUI();
  saveAll();
  renderAll();
 }
 function renderTeamList(teams){
- $("#teamList").innerHTML=teams.map(team=>`<button class="team-option" data-team="${team}">${flagHTML(team)}<strong>${team}</strong></button>`).join("");
+ const worldButton=`<button class="team-option world-option" data-team="all">
+   <span class="team-option-world-icon">🌍</span><strong>Todas las selecciones</strong>
+ </button>`;
+ $("#teamList").innerHTML=worldButton+teams.map(team=>`<button class="team-option" data-team="${team}">${flagHTML(team)}<strong>${team}</strong></button>`).join("");
  $("#teamList").querySelectorAll("button").forEach(button=>button.onclick=()=>{
    selectTeam(button.dataset.team);
    $("#teamDialog").close();
@@ -455,7 +471,7 @@ function setMainTab(tab){
  $("#statisticsView").hidden=tab!=="statistics";
  $("#tradeView").hidden=tab!=="trade";
  $("#missingView").hidden=true;
- if(tab==="collection")renderGlobalCollection();
+ if(tab==="collection"){renderGlobalCollection();}
  if(tab==="statistics")renderStatistics();
 }
 
@@ -517,7 +533,9 @@ teamSearch.oninput=()=>{
  const q=normalize(teamSearch.value);
  if(!q){suggestions.hidden=true;return}
  const matches=Object.keys(inventory).filter(team=>normalize(team).includes(q)).slice(0,8);
- suggestions.innerHTML=matches.map(team=>`<button class="suggestion" data-team="${team}">${flagHTML(team)}<strong>${team}</strong></button>`).join("");
+ const worldMatch=["todo","todos","mundo","global","selecciones"].some(word=>word.includes(q)||q.includes(word));
+ suggestions.innerHTML=(worldMatch?`<button class="suggestion" data-team="all"><span>🌍</span><strong>Todas las selecciones</strong></button>`:"")
+   +matches.map(team=>`<button class="suggestion" data-team="${team}">${flagHTML(team)}<strong>${team}</strong></button>`).join("");
  suggestions.hidden=!matches.length;
  suggestions.querySelectorAll("button").forEach(button=>button.onclick=()=>selectTeam(button.dataset.team));
 };
