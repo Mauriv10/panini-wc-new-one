@@ -1,13 +1,11 @@
-# World Cup 2026 — Build 615
+# World Cup 2026 — Build 615.1
 
-Pulido final de interfaz:
-- Home simplificada con título `Colección`.
-- Selector de orden situado bajo los filtros.
-- Opciones: álbum, más repetidos, menos repetidos, número y alfabético.
-- Eliminados los textos visibles de versión, conexión y depuración.
-- Información técnica trasladada a Ajustes → Información.
-- Tarjetas más compactas en iPhone.
-- Transiciones suaves entre pestañas.
-- Mantiene toda la lógica del Build 614.4.
+Último ajuste de la Build 615:
+- La barra `Todos / Pedir / Entregar` queda fija al hacer scroll.
+- El selector de orden se mantiene fijo junto a los filtros.
+- Ambos controles aparecen exclusivamente en la pestaña `Cromos`.
+- No se muestran en `Estadísticas` ni en `Cambiar`.
+- Se refuerza el ocultamiento de vistas inactivas.
+- Mantiene toda la lógica y cambios de la Build 615.
 
-Caché: `world-cup-2026-build-615`.
+Caché: `world-cup-2026-build-615-1`.

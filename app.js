@@ -1,4 +1,4 @@
-const APP_VERSION="6.1.5";
+const APP_VERSION="6.1.5.1";
 const DATA_REVISION="2026-07-16-master-4";
 const PROJECTS_KEY="world-cup-2026-projects-v600";
 const ACTIVE_PROJECT_KEY="world-cup-2026-active-project-v600";
@@ -120,6 +120,7 @@ async function loadData(){
  loadProjectState();
  renderProjectsList();
  setupSettingsCenter();
+ document.body.classList.add("main-tab-collection");
  updateConnectionStatus();
  hideLoading();
 }
@@ -483,12 +484,14 @@ function setMainTab(tab){
    return;
  }
  mainTab=tab;
+ document.body.classList.remove("main-tab-collection","main-tab-statistics","main-tab-trade");
+ document.body.classList.add(`main-tab-${tab}`);
  document.querySelectorAll(".bottom-nav-button").forEach(button=>button.classList.toggle("active",button.dataset.mainView===tab));
  $("#inventoryView").hidden=tab!=="collection";
  $("#statisticsView").hidden=tab!=="statistics";
  $("#tradeView").hidden=tab!=="trade";
  $("#missingView").hidden=true;
- if(tab==="collection"){renderGlobalCollection();}
+ if(tab==="collection")renderGlobalCollection();
  if(tab==="statistics")renderStatistics();
 }
 
@@ -1499,6 +1502,8 @@ $("#openClassicExchangeButton").onclick=()=>{
  document.body.classList.add("exchange-active");
  $("#settingsDialog").close();
  mainTab="collection";
+ document.body.classList.remove("main-tab-statistics","main-tab-trade");
+ document.body.classList.add("main-tab-collection");
  document.querySelectorAll(".bottom-nav-button").forEach(button=>button.classList.toggle("active",button.dataset.mainView==="collection"));
  $("#inventoryView").hidden=false;
  $("#statisticsView").hidden=true;
