@@ -1,4 +1,4 @@
-const APP_VERSION="6.1.5.4";
+const APP_VERSION="6.1.5.5";
 const DATA_REVISION="2026-07-16-master-4";
 const PROJECTS_KEY="world-cup-2026-projects-v600";
 const ACTIVE_PROJECT_KEY="world-cup-2026-active-project-v600";
@@ -192,7 +192,11 @@ function selectTeam(team){
  suggestions.hidden=true;
 
  if(collectionTeamFilter==="all"){
-   teamSelect.value="";
+   // Keep a valid internal team selected so legacy counters/renderers never fail.
+   if(!inventory[teamSelect.value]){
+     teamSelect.value=Object.keys(inventory)[0];
+   }
+
    $("#currentTeamName").textContent="Todas las selecciones";
    $("#currentTeamFlag").removeAttribute("src");
    $("#currentTeamFlag").alt="Todas";
@@ -210,6 +214,12 @@ function selectTeam(team){
 
    saveAll();
    renderAll();
+
+   // renderAll may refresh legacy UI; force the global label afterwards.
+   $("#currentTeamName").textContent="Todas las selecciones";
+   $("#currentTeamFlag").removeAttribute("src");
+   $("#currentTeamFlag").alt="Todas";
+   $("#currentTeamFlag").style.display="none";
    return;
  }
 
@@ -299,7 +309,9 @@ function matchesFilter(qty){
  return currentFilter==="all"||(currentFilter==="need"&&kind==="need")||(currentFilter==="offer"&&kind==="offer");
 }
 function renderCards(){
- const team=teamSelect.value;grid.innerHTML="";
+ const team=inventory[teamSelect.value]?teamSelect.value:Object.keys(inventory)[0];
+ if(!team||!inventory[team])return;
+ grid.innerHTML="";
  Object.entries(inventory[team]).sort(([a],[b])=>Number(a)-Number(b)).forEach(([code,q])=>{
    q=Number(q)||0;if(matchesFilter(q))grid.appendChild(createCard(team,code,q));
  });
@@ -332,7 +344,9 @@ function updateGlobalDashboard(){
 }
 
 function updateSummary(){
- const values=Object.values(inventory[teamSelect.value]).map(Number);
+ const team=inventory[teamSelect.value]?teamSelect.value:Object.keys(inventory)[0];
+ if(!team||!inventory[team])return;
+ const values=Object.values(inventory[team]).map(Number);
  let need=0,offer=0,total=0,needCards=0,offerCards=0;
  values.forEach(q=>{const s=stateFor(q);need+=s.need;offer+=s.offer;total+=q;if(s.kind==="need")needCards++;if(s.kind==="offer")offerCards++;});
  $("#needTotal").textContent=need;$("#offerTotal").textContent=offer;$("#selectionTotal").textContent=total;

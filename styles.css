@@ -3380,3 +3380,51 @@ body.exchange-active .collection-sticker-actions.exchange-actions{
 body.exchange-active .collection-sticker-actions:not(.exchange-actions){
   display:grid;
 }
+
+
+/* =========================================================
+   BUILD 615.5 — PREMIUM STATUS FILLS
+   ========================================================= */
+.collection-sticker{
+  border:1px solid transparent;
+  transition:
+    transform .14s ease,
+    box-shadow .16s ease,
+    background-color .16s ease,
+    border-color .16s ease;
+}
+.collection-sticker.need{
+  background:linear-gradient(145deg,#fff7f7,#ffeded);
+  border-color:rgba(255,59,48,.20);
+  box-shadow:0 5px 15px rgba(255,59,48,.07);
+}
+.collection-sticker.offer{
+  background:linear-gradient(145deg,#f7fff9,#eaf8ee);
+  border-color:rgba(52,199,89,.22);
+  box-shadow:0 5px 15px rgba(52,199,89,.07);
+}
+.collection-sticker.just{
+  background:linear-gradient(145deg,#fafafa,#eeeeF1);
+  border-color:rgba(110,110,115,.14);
+  box-shadow:0 5px 15px rgba(0,0,0,.035);
+}
+.collection-sticker.need .collection-sticker-qty{color:#b42318}
+.collection-sticker.offer .collection-sticker-qty{color:#187d35}
+.collection-sticker.just .collection-sticker-qty{color:#6e6e73}
+
+.collection-sticker.need .collection-sticker-actions button:first-child{
+  background:rgba(255,255,255,.86);
+}
+.collection-sticker.offer .collection-sticker-actions button:first-child,
+.collection-sticker.just .collection-sticker-actions button:first-child{
+  background:rgba(255,255,255,.84);
+}
+.collection-sticker .collection-sticker-actions button:last-child{
+  box-shadow:0 3px 9px rgba(0,122,255,.16);
+}
+
+/* Staged exchange remains visually distinct without losing status colour. */
+.collection-sticker.exchange-staged{
+  outline:2px solid rgba(255,159,10,.42);
+  outline-offset:1px;
+}
