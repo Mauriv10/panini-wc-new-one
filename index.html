@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="World Cup 2026">
-  <title>World Cup 2026 · Build 615.6</title>
+  <title>World Cup 2026 · Build 615.8</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/icons/world-cup-2026-apple-v522.png">
   <link rel="stylesheet" href="./styles.css">
@@ -61,11 +61,7 @@
     </div>
   </div>
 
-  <nav class="tabs premium-tabs" aria-label="Filtrar cromos">
-    <button class="tab active" data-filter="all"><span>Todos</span><b id="tabAllCount">20</b></button>
-    <button class="tab" data-filter="need"><span>Pedir</span><b id="tabNeedCount">0</b></button>
-    <button class="tab" data-filter="offer"><span>Entregar</span><b id="tabOfferCount">0</b></button>
-  </nav>
+  
 </header>
 
 
@@ -110,8 +106,12 @@
   
 <section id="inventoryView" class="app-view active">
   
-<section id="collectionStickyControls" class="collection-sticky-controls">
-  <section class="collection-toolbar">
+<nav id="collectionStickyControls" class="tabs premium-tabs collection-tabs-sticky" aria-label="Filtrar cromos">
+  <button class="tab active" data-filter="all"><span>Todos</span><b id="tabAllCount">20</b></button>
+  <button class="tab" data-filter="need"><span>Pedir</span><b id="tabNeedCount">0</b></button>
+  <button class="tab" data-filter="offer"><span>Entregar</span><b id="tabOfferCount">0</b></button>
+</nav>
+<section class="collection-toolbar">
     
     <div>
       <h2>Colección</h2>
@@ -135,7 +135,6 @@
 
   
   </section>
-</section>
 
 
   <section id="globalExchangeBanner" class="global-exchange-banner" hidden>

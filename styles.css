@@ -3613,3 +3613,89 @@ body.exchange-active .collection-sticker-actions.exchange-actions button{
     letter-spacing:0;
   }
 }
+
+
+/* BUILD 615.7 — DEFINITIVE IPHONE LAYOUT CORRECTION */
+*,*::before,*::after{min-width:initial}
+html,body{width:100%;max-width:100%;overflow-x:clip!important}
+body.main-tab-collection .collection-sticky-controls{display:block!important}
+.collection-sticky-controls{position:sticky!important;top:max(4px,env(safe-area-inset-top))!important;z-index:90!important;overflow:visible}
+.collection-sticky-controls .premium-tabs{width:100%;margin:0 0 6px;position:relative;top:auto;z-index:auto}
+.collection-sticky-controls .collection-toolbar{margin:0}
+body.exchange-active .global-exchange-banner{width:calc(100% - 12px)!important;max-width:calc(100% - 12px)!important;margin:8px auto 12px!important;padding:16px!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;gap:14px!important;overflow:hidden!important}
+body.exchange-active .global-exchange-banner>div{width:100%!important;max-width:100%!important;min-width:0!important;flex:none!important}
+body.exchange-active .global-exchange-banner>div:first-child{display:block!important}
+body.exchange-active .global-exchange-banner span,body.exchange-active .global-exchange-banner strong,body.exchange-active .global-exchange-banner small{display:block!important;width:auto!important;max-width:100%!important;min-width:0!important;white-space:normal!important;word-break:normal!important;overflow-wrap:normal!important;writing-mode:horizontal-tb!important;text-orientation:mixed!important}
+body.exchange-active .global-exchange-banner strong{margin:5px 0 4px!important;font-size:22px!important;line-height:1.12!important;letter-spacing:-.025em}
+body.exchange-active .global-exchange-banner small{line-height:1.4!important}
+body.exchange-active .global-exchange-actions{width:100%!important;max-width:100%!important;min-width:0!important;display:grid!important;grid-template-columns:1fr!important;gap:8px!important}
+body.exchange-active .global-exchange-actions button{width:100%!important;max-width:100%!important;min-width:0!important;min-height:48px!important;padding:0 14px!important;white-space:normal!important}
+body.exchange-active #openGlobalExchangeListButton{order:1}
+body.exchange-active .cancel-global-exchange{order:2}
+body.exchange-active .collection-sticker{min-width:0!important;overflow:hidden!important}
+body.exchange-active .collection-sticker-actions.exchange-actions{width:100%!important;min-width:0!important;display:grid!important;grid-template-columns:1fr!important;gap:4px!important}
+body.exchange-active .collection-sticker-actions.exchange-actions button{width:100%!important;max-width:100%!important;min-width:0!important;padding:4px 2px!important;font-size:9px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important}
+@media(max-width:600px){.bottom-app-nav{left:6px!important;right:6px!important;width:auto!important;max-width:none!important;transform:none!important}}
+@media(min-width:601px){body.exchange-active .global-exchange-banner{width:min(calc(100% - 16px),980px)!important;max-width:980px!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important}.global-exchange-actions{width:auto!important;grid-template-columns:auto auto!important}.global-exchange-actions button{width:auto!important;min-width:150px!important}body.exchange-active .collection-sticker-actions.exchange-actions{grid-template-columns:1fr 1fr!important}}
+@media(max-width:430px){.collection-sticky-controls{top:max(3px,env(safe-area-inset-top))!important}.collection-sticky-controls .premium-tabs{min-height:42px}body.exchange-active .global-exchange-banner{width:calc(100% - 8px)!important;max-width:calc(100% - 8px)!important;padding:14px!important;border-radius:20px!important}body.exchange-active .global-exchange-banner strong{font-size:20px!important}}
+
+
+/* =========================================================
+   BUILD 615.8 — ONLY TODOS / PEDIR / ENTREGAR IS STICKY
+   ========================================================= */
+.collection-sticky-controls{
+  position:static!important;
+  top:auto!important;
+  z-index:auto!important;
+  width:auto!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+
+.collection-tabs-sticky{
+  position:sticky!important;
+  top:max(4px,env(safe-area-inset-top))!important;
+  z-index:92!important;
+  width:min(calc(100% - 12px),980px)!important;
+  margin:8px auto 10px!important;
+  padding:5px!important;
+  border:1px solid rgba(255,255,255,.78)!important;
+  border-radius:18px!important;
+  background:rgba(245,245,247,.91)!important;
+  box-shadow:0 10px 30px rgba(0,0,0,.10)!important;
+  backdrop-filter:blur(24px) saturate(165%)!important;
+  -webkit-backdrop-filter:blur(24px) saturate(165%)!important;
+}
+
+.collection-toolbar{
+  position:static!important;
+  top:auto!important;
+  z-index:auto!important;
+  width:min(calc(100% - 16px),980px)!important;
+  margin:0 auto 12px!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+
+body:not(.main-tab-collection) .collection-tabs-sticky{
+  display:none!important;
+}
+
+@media(max-width:430px){
+  .collection-tabs-sticky{
+    top:max(3px,env(safe-area-inset-top))!important;
+    width:calc(100% - 8px)!important;
+    margin:5px auto 8px!important;
+    border-radius:16px!important;
+  }
+}
