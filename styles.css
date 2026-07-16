@@ -3428,3 +3428,188 @@ body.exchange-active .collection-sticker-actions:not(.exchange-actions){
   outline:2px solid rgba(255,159,10,.42);
   outline-offset:1px;
 }
+
+
+/* =========================================================
+   BUILD 615.6 — IPHONE EXCHANGE LAYOUT FIX
+   ========================================================= */
+html,
+body{
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden!important;
+}
+
+*,
+*::before,
+*::after{
+  min-width:0;
+}
+
+.app-header,
+.app-main,
+#inventoryView,
+.collection-sticky-controls,
+.global-collection-list,
+.collection-team,
+.global-exchange-banner,
+.bottom-app-nav{
+  max-width:100%;
+  box-sizing:border-box;
+}
+
+body.exchange-active .global-exchange-banner{
+  width:calc(100% - 12px);
+  margin:8px auto 12px;
+  padding:16px;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr);
+  gap:14px;
+  border-radius:22px;
+}
+
+.global-exchange-banner>div:first-child{
+  min-width:0;
+}
+
+.global-exchange-banner strong{
+  max-width:100%;
+  font-size:20px;
+  line-height:1.2;
+  overflow-wrap:anywhere;
+}
+
+.global-exchange-banner small{
+  display:block;
+  max-width:100%;
+  line-height:1.35;
+}
+
+.global-exchange-actions{
+  width:100%;
+  display:grid;
+  grid-template-columns:1fr;
+  gap:8px;
+}
+
+.global-exchange-actions button{
+  width:100%;
+  max-width:100%;
+  min-height:48px;
+  padding:0 14px;
+  border-radius:15px;
+  white-space:normal;
+  line-height:1.15;
+}
+
+.global-exchange-banner .cancel-global-exchange{
+  order:2;
+}
+
+#openGlobalExchangeListButton{
+  order:1;
+}
+
+.collection-stickers-grid{
+  width:100%;
+  min-width:0;
+}
+
+.collection-sticker{
+  min-width:0;
+  overflow:hidden;
+}
+
+.collection-sticker-actions{
+  min-width:0;
+}
+
+.collection-sticker-actions button{
+  min-width:0;
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+body.exchange-active .collection-sticker-actions.exchange-actions{
+  grid-template-columns:1fr;
+  gap:4px;
+}
+
+body.exchange-active .collection-sticker-actions.exchange-actions button{
+  width:100%;
+  min-height:28px;
+  padding:4px 3px;
+  white-space:nowrap;
+}
+
+.bottom-app-nav{
+  left:6px;
+  right:6px;
+  transform:none;
+  width:auto;
+}
+
+@media(min-width:601px){
+  body.exchange-active .global-exchange-banner{
+    width:min(calc(100% - 16px),980px);
+    grid-template-columns:minmax(0,1fr) auto;
+    align-items:center;
+  }
+
+  .global-exchange-actions{
+    width:auto;
+    grid-template-columns:auto auto;
+  }
+
+  .global-exchange-actions button{
+    width:auto;
+    min-width:145px;
+  }
+
+  body.exchange-active .collection-sticker-actions.exchange-actions{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .bottom-app-nav{
+    left:50%;
+    right:auto;
+    transform:translateX(-50%);
+    width:min(calc(100% - 20px),620px);
+  }
+}
+
+@media(max-width:430px){
+  body.exchange-active .global-exchange-banner{
+    width:calc(100% - 8px);
+    margin-top:6px;
+    padding:14px;
+  }
+
+  .global-exchange-banner span{
+    display:block;
+  }
+
+  .global-exchange-banner strong{
+    margin-top:5px;
+    font-size:19px;
+  }
+
+  .global-exchange-actions button{
+    min-height:46px;
+    font-size:14px;
+  }
+
+  body.exchange-active .collection-stickers-grid{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+  }
+
+  body.exchange-active .collection-sticker{
+    padding:6px;
+  }
+
+  body.exchange-active .collection-sticker-actions.exchange-actions button{
+    font-size:9px;
+    letter-spacing:0;
+  }
+}

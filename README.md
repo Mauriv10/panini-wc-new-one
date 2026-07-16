@@ -1,12 +1,12 @@
-# World Cup 2026 — Build 615.5
+# World Cup 2026 — Build 615.6
 
-Correcciones y diseño:
-- `🌍 Todas las selecciones` funciona también durante un intercambio.
-- La vista global ya no deja vacío el selector interno, evitando errores de renderizado.
-- Se muestran inmediatamente las 49 categorías.
-- Los cromos tienen relleno premium según estado:
-  - rojo suave: faltan,
-  - verde suave: repetidos,
-  - gris suave: cantidad justa.
-- Los cromos marcados en intercambio conservan un contorno ámbar.
-- Caché: `world-cup-2026-build-615-5`.
+Parche específico para iPhone:
+- Bloquea el desplazamiento horizontal.
+- Mantiene toda la interfaz centrada al entrar en intercambio.
+- Tarjeta de intercambio más compacta.
+- Botones Revisar y confirmar / Cancelar apilados en móvil.
+- Los botones nunca sobresalen del ancho de pantalla.
+- DAR y RECIBIR se adaptan al ancho de las tarjetas.
+- Barra inferior centrada y ajustada al viewport.
+
+Caché: `world-cup-2026-build-615-6`.
