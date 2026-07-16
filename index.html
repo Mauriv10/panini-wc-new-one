@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="World Cup 2026">
-  <title>World Cup 2026 · Build 614.4</title>
+  <title>World Cup 2026 · Build 615</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/icons/world-cup-2026-apple-v522.png">
   <link rel="stylesheet" href="./styles.css">
@@ -111,8 +111,7 @@
 <section id="inventoryView" class="app-view active">
   <section class="collection-toolbar">
     <div>
-      <span>COLECCIÓN COMPLETA</span>
-      <h2>Todos los cromos</h2>
+      <h2>Colección</h2>
     </div>
     <div class="collection-filter" role="tablist">
       <button class="collection-filter-button active" data-collection-filter="all">Todos</button>
@@ -120,6 +119,17 @@
       <button class="collection-filter-button" data-collection-filter="repeats">Repetidos</button>
       <button class="collection-filter-button" data-collection-filter="shiny">Brillantes</button>
     </div>
+<div class="collection-sort-bar">
+  <label for="collectionSort">Orden</label>
+  <select id="collectionSort">
+    <option value="album">Orden del álbum</option>
+    <option value="most-repeats">Más repetidos</option>
+    <option value="least-repeats">Menos repetidos</option>
+    <option value="number">Número</option>
+    <option value="az">Alfabético</option>
+  </select>
+</div>
+
   </section>
 
   <section id="globalExchangeBanner" class="global-exchange-banner" hidden>
@@ -297,7 +307,14 @@
     </section>
 
     <section class="settings-group info-group">
-      <div class="settings-group-title"><span class="settings-glyph gray">i</span><div><strong>Información</strong><small>World Cup 2026 · Build 600</small></div></div>
+      <div class="settings-group-title">
+        <span class="settings-glyph gray">i</span>
+        <div><strong>Información</strong><small>World Cup 2026</small></div>
+      </div>
+      <div class="settings-info-list">
+        <div><span>Versión</span><strong>Build 615</strong></div>
+        <div><span>Modo</span><strong>Disponible offline</strong></div>
+      </div>
     </section>
   </div>
 </dialog>
@@ -464,10 +481,7 @@
 <script src="./assets/vendor/jszip.min.js"></script>
 <script src="./app.js" defer></script>
 
-<footer class="app-footer">
-  <span>Panini Mercat <strong>V5.2</strong></span>
-  <span id="offlineStatus">Comprobando conexión…</span>
-</footer>
+
 
 </body>
 </html> 
@@ -699,10 +713,7 @@
 <script src="./assets/vendor/jszip.min.js"></script>
 <script src="./app.js" defer></script>
 
-<footer class="app-footer">
-  <span>Panini Mercat <strong>V5.2</strong></span>
-  <span id="offlineStatus">Comprobando conexión…</span>
-</footer>
+
 
 </body>
 </html>

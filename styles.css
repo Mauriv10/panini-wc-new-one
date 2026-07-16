@@ -3117,3 +3117,137 @@ body{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
     padding:0 10px;
   }
 }
+
+
+/* =========================================================
+   BUILD 615 — UI POLISH
+   ========================================================= */
+.app-footer,
+#offlineStatus{
+  display:none!important;
+}
+.collection-toolbar{
+  align-items:flex-start;
+  flex-direction:column;
+}
+.collection-toolbar>div:first-child{
+  width:100%;
+}
+.collection-toolbar h2{
+  margin:0;
+}
+.collection-filter{
+  width:100%;
+}
+.collection-filter-button{
+  flex:1;
+}
+.collection-sort-bar{
+  width:100%;
+  min-height:48px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 12px;
+  border-radius:15px;
+  background:#fff;
+  box-shadow:0 8px 24px rgba(0,0,0,.045);
+}
+.collection-sort-bar label{
+  color:#6e6e73;
+  font-size:12px;
+  font-weight:700;
+}
+.collection-sort-bar select{
+  min-height:36px;
+  border:0;
+  border-radius:11px;
+  padding:0 34px 0 12px;
+  background:#f2f2f7;
+  color:#1d1d1f;
+  font-size:12px;
+  font-weight:700;
+}
+.collection-team{
+  border-radius:20px;
+}
+.collection-team-header{
+  padding:13px 15px;
+}
+.collection-stickers-grid{
+  gap:6px;
+  padding:11px;
+}
+.collection-sticker{
+  min-height:72px;
+  padding:7px;
+  border-radius:12px;
+}
+.collection-sticker-code{
+  font-size:17px;
+}
+.collection-sticker-actions button{
+  min-height:23px;
+}
+.settings-info-list{
+  display:grid;
+  gap:1px;
+  overflow:hidden;
+  border-radius:14px;
+  background:#f2f2f7;
+}
+.settings-info-list>div{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:12px 13px;
+  background:#fff;
+}
+.settings-info-list span{
+  color:#6e6e73;
+  font-size:12px;
+}
+.settings-info-list strong{
+  font-size:12px;
+}
+.main-tab-view,
+#inventoryView{
+  animation:tabFade .18s ease both;
+}
+@keyframes tabFade{
+  from{opacity:0;transform:translateY(3px)}
+  to{opacity:1;transform:none}
+}
+.collection-team,
+.stat-card,
+.trade-option-card,
+.settings-group{
+  transition:transform .16s ease,box-shadow .16s ease;
+}
+.collection-team:active,
+.stat-card:active,
+.trade-option-card:active{
+  transform:scale(.995);
+}
+@media(max-width:430px){
+  .collection-toolbar{
+    margin-top:12px;
+  }
+  .collection-filter{
+    gap:3px;
+  }
+  .collection-filter-button{
+    min-width:0;
+    padding:0 7px;
+    font-size:10px;
+  }
+  .collection-sort-bar{
+    min-height:44px;
+    padding:8px 10px;
+  }
+  .collection-sort-bar select{
+    max-width:64%;
+  }
+}

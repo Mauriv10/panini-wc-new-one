@@ -1,4 +1,4 @@
-const APP_VERSION="6.1.4.4";
+const APP_VERSION="6.1.5";
 const DATA_REVISION="2026-07-16-master-4";
 const PROJECTS_KEY="world-cup-2026-projects-v600";
 const ACTIVE_PROJECT_KEY="world-cup-2026-active-project-v600";
@@ -17,7 +17,7 @@ let sessionStats={plus:0,minus:0,startedAt:new Date().toISOString()};
 let currentFilter="all",currentView="inventory",exchangeType="give",exchangeListType="give";
 let exchange={give:{},receive:{}};
 let projects={},activeProjectId="",pendingSync={},lastSyncedAt=null;
-let mainTab="collection",collectionFilter="all",collectionTeamFilter="all";
+let mainTab="collection",collectionFilter="all",collectionTeamFilter="all",collectionSort="album";
 let pendingExcelImport=null;
 let pendingBackupRestore=null;
 
@@ -83,8 +83,6 @@ function updateConnectionStatus(){
  const online=navigator.onLine;
  document.body.classList.toggle("is-online",online);
  document.body.classList.toggle("is-offline",!online);
- const node=$("#offlineStatus");
- if(node)node.textContent=online?"Disponible online y offline":"Sin conexión · modo offline";
 }
 function showLoading(message="Cargando…"){
  let overlay=$("#loadingOverlay");
@@ -399,11 +397,30 @@ function renderGlobalCollection(){
  const list=$("#globalCollectionList");
  if(!list)return;
  list.innerHTML="";
- Object.entries(inventory).forEach(([team,stickers])=>{
+ let teams=Object.entries(inventory);
+ if(collectionSort==="az")teams.sort(([a],[b])=>a.localeCompare(b,"es"));
+ if(collectionSort==="most-repeats"){
+   teams.sort(([,a],[,b])=>{
+     const target=getTarget();
+     const ra=Object.values(a).reduce((s,q)=>s+Math.max(0,Number(q||0)-target),0);
+     const rb=Object.values(b).reduce((s,q)=>s+Math.max(0,Number(q||0)-target),0);
+     return rb-ra;
+   });
+ }
+ if(collectionSort==="least-repeats"){
+   teams.sort(([,a],[,b])=>{
+     const target=getTarget();
+     const ra=Object.values(a).reduce((s,q)=>s+Math.max(0,Number(q||0)-target),0);
+     const rb=Object.values(b).reduce((s,q)=>s+Math.max(0,Number(q||0)-target),0);
+     return ra-rb;
+   });
+ }
+ teams.forEach(([team,stickers])=>{
    if(collectionTeamFilter!=="all"&&team!==collectionTeamFilter)return;
-   const entries=Object.entries(stickers)
-     .sort(([a],[b])=>Number(a)-Number(b))
+   let entries=Object.entries(stickers)
      .filter(([code,qty])=>collectionStickerMatches(team,code,Number(qty)||0));
+   entries.sort(([a],[b])=>Number(a)-Number(b));
+   if(collectionSort==="number")entries.sort(([a],[b])=>Number(a)-Number(b));
    if(!entries.length)return;
    const target=getTarget();
    const total=Object.values(stickers).reduce((sum,q)=>sum+Number(q||0),0);
@@ -1510,6 +1527,12 @@ $("#cancelGlobalExchangeButton").onclick=()=>{
  const totals=exchangeTotals();
  if((totals.give||totals.receive)&&!confirm("¿Cancelar este intercambio? Las selecciones marcadas se descartarán."))return;
  exitManualExchange();
+};
+
+
+$("#collectionSort").onchange=event=>{
+ collectionSort=event.target.value;
+ renderGlobalCollection();
 };
 
 if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js"));

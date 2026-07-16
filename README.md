@@ -1,11 +1,13 @@
-# World Cup 2026 — Build 614.4
+# World Cup 2026 — Build 615
 
-Correcciones:
-- Botón `Cancelar` junto a `Revisar y confirmar`.
-- Cancelar descarta las selecciones preparadas.
-- La colección vuelve inmediatamente al modo normal `+ / −`.
-- Confirmar un intercambio también sale automáticamente del modo intercambio.
-- Eliminada la barra residual `Todos los cromos pendientes / Orden del álbum`.
-- Se conservan nodos internos ocultos para compatibilidad con la lógica anterior.
+Pulido final de interfaz:
+- Home simplificada con título `Colección`.
+- Selector de orden situado bajo los filtros.
+- Opciones: álbum, más repetidos, menos repetidos, número y alfabético.
+- Eliminados los textos visibles de versión, conexión y depuración.
+- Información técnica trasladada a Ajustes → Información.
+- Tarjetas más compactas en iPhone.
+- Transiciones suaves entre pestañas.
+- Mantiene toda la lógica del Build 614.4.
 
-Caché: `world-cup-2026-build-614-4`.
+Caché: `world-cup-2026-build-615`.
