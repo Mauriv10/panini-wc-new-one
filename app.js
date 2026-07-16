@@ -1,4 +1,4 @@
-const APP_VERSION="6.1.5.1";
+const APP_VERSION="6.1.5.2";
 const DATA_REVISION="2026-07-16-master-4";
 const PROJECTS_KEY="world-cup-2026-projects-v600";
 const ACTIVE_PROJECT_KEY="world-cup-2026-active-project-v600";
@@ -486,13 +486,25 @@ function setMainTab(tab){
  mainTab=tab;
  document.body.classList.remove("main-tab-collection","main-tab-statistics","main-tab-trade");
  document.body.classList.add(`main-tab-${tab}`);
- document.querySelectorAll(".bottom-nav-button").forEach(button=>button.classList.toggle("active",button.dataset.mainView===tab));
- $("#inventoryView").hidden=tab!=="collection";
- $("#statisticsView").hidden=tab!=="statistics";
- $("#tradeView").hidden=tab!=="trade";
- $("#missingView").hidden=true;
+
+ document.querySelectorAll(".bottom-nav-button").forEach(button=>{
+   button.classList.toggle("active",button.dataset.mainView===tab);
+ });
+
+ const inventoryView=$("#inventoryView");
+ const statisticsView=$("#statisticsView");
+ const tradeView=$("#tradeView");
+ const missingView=$("#missingView");
+
+ if(inventoryView)inventoryView.hidden=tab!=="collection";
+ if(statisticsView)statisticsView.hidden=tab!=="statistics";
+ if(tradeView)tradeView.hidden=tab!=="trade";
+ if(missingView)missingView.hidden=true;
+
  if(tab==="collection")renderGlobalCollection();
  if(tab==="statistics")renderStatistics();
+
+ window.scrollTo({top:0,behavior:"smooth"});
 }
 
 function renderAll(){
@@ -524,15 +536,13 @@ function undoChange(change){
 }
 
 function setView(view){
- currentView=view;
- document.querySelectorAll(".mode-button").forEach(button=>button.classList.toggle("active",button.dataset.view===view));
- const showingMissing=view==="missing";
- $("#inventoryView").hidden=showingMissing;
- $("#missingView").hidden=!showingMissing;
- $("#exchangeModePanel").hidden=view!=="exchange";
- document.body.classList.toggle("exchange-active",view==="exchange");
- if(showingMissing)renderMissing();
- else renderAll();
+ currentView=view==="missing"?"inventory":view;
+ document.querySelectorAll(".mode-button").forEach(button=>button.classList.toggle("active",button.dataset.view===currentView));
+ $("#inventoryView").hidden=false;
+ $("#missingView").hidden=true;
+ $("#exchangeModePanel").hidden=currentView!=="exchange";
+ document.body.classList.toggle("exchange-active",currentView==="exchange");
+ renderAll();
 }
 document.querySelectorAll(".mode-button").forEach(button=>button.onclick=()=>setView(button.dataset.view));
 document.querySelectorAll(".tab").forEach(button=>button.onclick=()=>{

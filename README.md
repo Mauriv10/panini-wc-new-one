@@ -1,11 +1,13 @@
-# World Cup 2026 — Build 615.1
+# World Cup 2026 — Build 615.2
 
-Último ajuste de la Build 615:
-- La barra `Todos / Pedir / Entregar` queda fija al hacer scroll.
-- El selector de orden se mantiene fijo junto a los filtros.
-- Ambos controles aparecen exclusivamente en la pestaña `Cromos`.
-- No se muestran en `Estadísticas` ni en `Cambiar`.
-- Se refuerza el ocultamiento de vistas inactivas.
-- Mantiene toda la lógica y cambios de la Build 615.
-
-Caché: `world-cup-2026-build-615-1`.
+Corrección visual final:
+- Estadísticas muestra únicamente su contenido.
+- Cambiar muestra únicamente su contenido.
+- Se ocultan en ambas pestañas:
+  - cabecera Mi colección,
+  - selección y buscador,
+  - Todos / Pedir / Entregar,
+  - selector de orden,
+  - barra Todos los cromos pendientes.
+- Cromos conserva la cabecera y filtros fijos.
+- Caché: `world-cup-2026-build-615-2`.

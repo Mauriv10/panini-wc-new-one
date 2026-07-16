@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="World Cup 2026">
-  <title>World Cup 2026 · Build 615.1</title>
+  <title>World Cup 2026 · Build 615.2</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/icons/world-cup-2026-apple-v522.png">
   <link rel="stylesheet" href="./styles.css">
@@ -265,12 +265,13 @@
 </section>
 
 
+
 <section id="missingView" class="app-view missing-view-compat" hidden aria-hidden="true">
-  <select id="missingSort" hidden>
-    <option value="album">Orden del álbum</option>
-  </select>
+  <select id="missingSort" hidden><option value="album">Orden del álbum</option></select>
   <strong id="missingTotals" hidden>0 cromos</strong>
   <section id="missingList" hidden></section>
+</section>
+
 </section>
 
 <dialog id="settingsDialog" class="settings-center">
@@ -491,19 +492,7 @@
 
 </body>
 </html> 
-    <section class="missing-toolbar">
-      <div>
-        <span>Todos los cromos pendientes</span>
-        <strong id="missingTotals">0 cromos</strong>
-      </div>
-      <select id="missingSort">
-        <option value="album">Orden del álbum/desplegable</option>
-        <option value="most">Países con más faltas</option>
-        <option value="least">Países con menos faltas</option>
-        <option value="az">País A–Z</option>
-        <option value="za">País Z–A</option>
-      </select>
-    </section>
+    
     <section id="missingList" class="missing-list"></section>
   </section>
 </main>

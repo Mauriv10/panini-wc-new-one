@@ -3312,3 +3312,59 @@ body:not(.main-tab-collection) .collection-sticky-controls{
     min-height:40px;
   }
 }
+
+
+/* =========================================================
+   BUILD 615.2 — CLEAN STATISTICS / TRADE TABS
+   ========================================================= */
+body.main-tab-statistics .premium-home-header,
+body.main-tab-trade .premium-home-header,
+body.main-tab-statistics .collection-sticky-controls,
+body.main-tab-trade .collection-sticky-controls,
+body.main-tab-statistics #missingView,
+body.main-tab-trade #missingView,
+body.main-tab-statistics .missing-toolbar,
+body.main-tab-trade .missing-toolbar,
+body.main-tab-statistics .missing-view-compat,
+body.main-tab-trade .missing-view-compat{
+  display:none!important;
+}
+
+body.main-tab-collection .premium-home-header{
+  display:block;
+}
+
+#missingView,
+.missing-view-compat,
+.missing-toolbar{
+  display:none!important;
+  visibility:hidden!important;
+  height:0!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+}
+
+body.main-tab-statistics #statisticsView,
+body.main-tab-trade #tradeView{
+  display:block!important;
+  padding-top:8px;
+}
+
+body.main-tab-statistics #inventoryView,
+body.main-tab-trade #inventoryView{
+  display:none!important;
+}
+
+body.main-tab-statistics .tab-page-heading,
+body.main-tab-trade .tab-page-heading{
+  margin-top:18px;
+}
+
+@media(max-width:430px){
+  body.main-tab-statistics .tab-page-heading,
+  body.main-tab-trade .tab-page-heading{
+    margin-top:12px;
+  }
+}
