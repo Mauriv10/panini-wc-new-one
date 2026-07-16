@@ -1,4 +1,4 @@
-const APP_VERSION="6.1.5.2";
+const APP_VERSION="6.1.5.3";
 const DATA_REVISION="2026-07-16-master-4";
 const PROJECTS_KEY="world-cup-2026-projects-v600";
 const ACTIVE_PROJECT_KEY="world-cup-2026-active-project-v600";
@@ -197,8 +197,8 @@ function selectTeam(team){
    $("#currentTeamFlag").removeAttribute("src");
    $("#currentTeamFlag").alt="Todas";
    $("#currentTeamFlag").style.display="none";
-   renderGlobalCollection();
    saveAll();
+   renderAll();
    return;
  }
 
@@ -520,7 +520,10 @@ function renderAll(){
  renderStatistics();
  const banner=$("#globalExchangeBanner");
  if(banner){
-   banner.hidden=currentView!=="exchange";
+   const active=currentView==="exchange";
+   banner.hidden=!active;
+   banner.style.display=active?"flex":"none";
+   document.body.classList.toggle("exchange-active",active);
    const totals=exchangeTotals();
    $("#globalExchangeSummary").textContent=`${totals.give} para dar · ${totals.receive} para recibir`;
  }
@@ -624,6 +627,44 @@ function exitManualExchange({clear=true,message="Intercambio cancelado"}={}){
  saveAll(message);
  renderAll();
  showToast(message);
+}
+
+
+function enterManualExchange(){
+ mainTab="collection";
+ currentView="exchange";
+
+ document.body.classList.remove("main-tab-statistics","main-tab-trade");
+ document.body.classList.add("main-tab-collection","exchange-active");
+
+ document.querySelectorAll(".bottom-nav-button").forEach(button=>{
+   button.classList.toggle("active",button.dataset.mainView==="collection");
+ });
+
+ const inventoryView=$("#inventoryView");
+ const statisticsView=$("#statisticsView");
+ const tradeView=$("#tradeView");
+ const missingView=$("#missingView");
+
+ if(inventoryView)inventoryView.hidden=false;
+ if(statisticsView)statisticsView.hidden=true;
+ if(tradeView)tradeView.hidden=true;
+ if(missingView)missingView.hidden=true;
+
+ renderAll();
+
+ const banner=$("#globalExchangeBanner");
+ if(banner){
+   banner.hidden=false;
+   banner.style.display="flex";
+ }
+
+ requestAnimationFrame(()=>{
+   document.querySelector(".collection-sticky-controls")?.scrollIntoView({
+     behavior:"smooth",
+     block:"start"
+   });
+ });
 }
 
 function exchangeTotals(){
@@ -1508,18 +1549,8 @@ document.querySelectorAll(".collection-filter-button").forEach(button=>button.on
  renderGlobalCollection();
 });
 $("#openClassicExchangeButton").onclick=()=>{
- currentView="exchange";
- document.body.classList.add("exchange-active");
  $("#settingsDialog").close();
- mainTab="collection";
- document.body.classList.remove("main-tab-statistics","main-tab-trade");
- document.body.classList.add("main-tab-collection");
- document.querySelectorAll(".bottom-nav-button").forEach(button=>button.classList.toggle("active",button.dataset.mainView==="collection"));
- $("#inventoryView").hidden=false;
- $("#statisticsView").hidden=true;
- $("#tradeView").hidden=true;
- renderAll();
- document.querySelector(".collection-toolbar").scrollIntoView({behavior:"smooth"});
+ enterManualExchange();
  showToast("Modo intercambio manual activado");
 };
 

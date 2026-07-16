@@ -3368,3 +3368,15 @@ body.main-tab-trade .tab-page-heading{
     margin-top:12px;
   }
 }
+
+
+/* BUILD 615.3 — robust global manual exchange */
+body.exchange-active #globalExchangeBanner{
+  display:flex!important;
+}
+body.exchange-active .collection-sticker-actions.exchange-actions{
+  display:grid!important;
+}
+body.exchange-active .collection-sticker-actions:not(.exchange-actions){
+  display:grid;
+}
