@@ -723,12 +723,26 @@ function updateShareCollectionButton(){
  button.setAttribute("aria-label",type==="missing"?"Compartir cromos que me faltan":"Compartir cromos repetidos");
 }
 
-function buildShareCollectionText(type){
+const TEAM_FLAG_EMOJI={
+ "México":"🇲🇽","Sudáfrica":"🇿🇦","Corea del Sur":"🇰🇷","Chequia":"🇨🇿",
+ "Canadá":"🇨🇦","Bosnia y Herzegovina":"🇧🇦","Catar":"🇶🇦","Suiza":"🇨🇭",
+ "Brasil":"🇧🇷","Marruecos":"🇲🇦","Haití":"🇭🇹","Escocia":"🏴󠁧󠁢󠁳󠁣󠁴󠁿",
+ "Estados Unidos":"🇺🇸","Paraguay":"🇵🇾","Australia":"🇦🇺","Turquía":"🇹🇷",
+ "Alemania":"🇩🇪","Curazao":"🇨🇼","Costa de Marfil":"🇨🇮","Ecuador":"🇪🇨",
+ "Países Bajos":"🇳🇱","Japón":"🇯🇵","Suecia":"🇸🇪","Túnez":"🇹🇳",
+ "Bélgica":"🇧🇪","Egipto":"🇪🇬","Irán":"🇮🇷","Nueva Zelanda":"🇳🇿",
+ "España":"🇪🇸","Cabo Verde":"🇨🇻","Arabia Saudita":"🇸🇦","Uruguay":"🇺🇾",
+ "Francia":"🇫🇷","Senegal":"🇸🇳","Irak":"🇮🇶","Noruega":"🇳🇴",
+ "Argentina":"🇦🇷","Argelia":"🇩🇿","Austria":"🇦🇹","Jordania":"🇯🇴",
+ "Portugal":"🇵🇹","RD Congo":"🇨🇩","Uzbekistán":"🇺🇿","Colombia":"🇨🇴",
+ "Inglaterra":"🏴󠁧󠁢󠁥󠁮󠁧󠁿","Croacia":"🇭🇷","Ghana":"🇬🇭","Panamá":"🇵🇦",
+ "FWC":"⭐"
+};
+
+function collectShareGroups(type){
  const target=getTarget();
- const projectName=projects?.[activeProjectId]?.name||"Mundial 2026";
  const groups=[];
  let totalUnits=0;
-
  currentTeamOrder().forEach(team=>{
    const stickers=inventory[team]||{};
    const items=Object.entries(stickers)
@@ -743,7 +757,12 @@ function buildShareCollectionText(type){
    totalUnits+=items.reduce((sum,item)=>sum+item.units,0);
    groups.push({team,items});
  });
+ return {groups,totalUnits};
+}
 
+function buildShareCollectionText(type,{flags=false,compact=false}={}){
+ const projectName=projects?.[activeProjectId]?.name||"Mundial 2026";
+ const {groups,totalUnits}=collectShareGroups(type);
  if(!groups.length)return {text:"",totalUnits:0};
  const missing=type==="missing";
  const lines=[
@@ -753,11 +772,42 @@ function buildShareCollectionText(type){
    ""
  ];
  groups.forEach((group,index)=>{
-   lines.push(group.team);
-   lines.push(group.items.map(item=>item.units>1?`${item.code} x${item.units}`:item.code).join(", "));
-   if(index<groups.length-1)lines.push("");
+   const heading=(flags?`${TEAM_FLAG_EMOJI[group.team]||""} `:"")+group.team;
+   const stickers=group.items.map(item=>item.units>1?`${item.code} x${item.units}`:item.code).join(", ");
+   if(compact){
+     lines.push(`${group.team}: ${stickers}`);
+   }else{
+     lines.push(heading.trim());
+     lines.push(stickers);
+     if(index<groups.length-1)lines.push("");
+   }
  });
  return {text:lines.join("\n"),totalUnits};
+}
+
+function openShareOptions(){
+ const type=activeShareListType();
+ if(!type)return;
+ const {totalUnits}=collectShareGroups(type);
+ if(!totalUnits){
+   showToast(type==="missing"?"No te falta ningún cromo":"No tienes cromos repetidos");
+   return;
+ }
+ const sheet=$("#shareOptionsSheet");
+ if(!sheet)return;
+ sheet.dataset.type=type;
+ $("#shareOptionsTitle").textContent=type==="missing"?"Compartir cromos que me faltan":"Compartir cromos repetidos";
+ sheet.hidden=false;
+ requestAnimationFrame(()=>sheet.classList.add("open"));
+ document.body.classList.add("share-sheet-open");
+}
+
+function closeShareOptions(){
+ const sheet=$("#shareOptionsSheet");
+ if(!sheet)return;
+ sheet.classList.remove("open");
+ document.body.classList.remove("share-sheet-open");
+ setTimeout(()=>{if(!sheet.classList.contains("open"))sheet.hidden=true;},180);
 }
 
 async function copyShareText(text){
@@ -777,23 +827,26 @@ async function copyShareText(text){
  if(!copied)throw new Error("No se pudo copiar la lista");
 }
 
-async function shareActiveCollectionList(){
- const type=activeShareListType();
+async function runShareOption(mode){
+ const type=$("#shareOptionsSheet")?.dataset.type||activeShareListType();
  if(!type)return;
- const {text,totalUnits}=buildShareCollectionText(type);
+ const options=mode==="share"?{flags:true,compact:false}:mode==="compact"?{flags:false,compact:true}:{flags:false,compact:false};
+ const {text,totalUnits}=buildShareCollectionText(type,options);
  if(!text||!totalUnits){
+   closeShareOptions();
    showToast(type==="missing"?"No te falta ningún cromo":"No tienes cromos repetidos");
    return;
  }
  const title=type==="missing"?"Cromos que me faltan":"Cromos repetidos";
+ closeShareOptions();
  try{
-   if(navigator.share){
+   if(mode==="share"&&navigator.share){
      await navigator.share({title,text});
      showToast("Lista compartida ✓");
      return;
    }
    await copyShareText(text);
-   showToast("Lista copiada al portapapeles ✓");
+   showToast(mode==="compact"?"Lista compacta copiada ✓":"Lista copiada al portapapeles ✓");
  }catch(error){
    if(error?.name==="AbortError")return;
    try{
@@ -804,6 +857,10 @@ async function shareActiveCollectionList(){
      showToast("No se pudo compartir la lista");
    }
  }
+}
+
+async function shareActiveCollectionList(){
+ openShareOptions();
 }
 
 function renderGlobalCollection(){
@@ -2085,6 +2142,9 @@ if(settingsTargetButton)settingsTargetButton.onclick=()=>{
 
 document.querySelectorAll(".bottom-nav-button").forEach(button=>button.onclick=()=>setMainTab(button.dataset.mainView));
 $("#shareCollectionListButton")?.addEventListener("click",shareActiveCollectionList);
+$("#shareOptionsClose")?.addEventListener("click",closeShareOptions);
+$("#shareOptionsBackdrop")?.addEventListener("click",closeShareOptions);
+document.querySelectorAll("[data-share-option]").forEach(button=>button.addEventListener("click",()=>runShareOption(button.dataset.shareOption)));
 
 document.querySelectorAll(".collection-filter-button").forEach(button=>button.onclick=()=>{
  document.querySelectorAll(".collection-filter-button").forEach(x=>x.classList.remove("active"));
@@ -2257,7 +2317,7 @@ initialiseAppUpdates();
 loadData().catch(error=>{console.error(error);hideLoading();document.body.innerHTML="<main class='app-main'><h1>Error al cargar</h1><p>Comprueba que todos los archivos estén subidos.</p></main>"});
 
 
-/* Build 703.1 · recuperación al volver a primer plano + compartir listas */
+/* Build 703.2 · formatos de compartir y copiar + recuperación al volver a primer plano */
 document.addEventListener("DOMContentLoaded",()=>{
  $("#onboardingForm")?.addEventListener("submit",createFirstCloudCollection);
  $("#onboardingStartButton")?.addEventListener("click",()=>{closeFirstCollectionOnboarding();switchMainView?.("collection");window.scrollTo({top:0,behavior:"auto"});showToast("Colección creada y sincronizada ✓")});

@@ -1,3 +1,12 @@
+# Build 703.2
+
+- Nuevo menú al pulsar **Compartir** en «Me faltan» o «Repetidos».
+- **Compartir** usa el menú nativo e incluye la bandera emoji de cada selección.
+- **Copiar texto** genera una lista limpia sin banderas, pensada para Wallapop, Vinted y webs similares.
+- **Copiar compacto** genera una línea por selección, también sin banderas.
+- Los tres formatos respetan el orden del desplegable y el orden numérico de los cromos.
+- Se mantiene la corrección de segundo plano de la Build 703.1.
+
 # Build 703.1
 
 - Corregido el bloqueo en «Cargando tus colecciones…» al volver desde segundo plano en iPhone.

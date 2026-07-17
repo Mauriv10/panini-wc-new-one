@@ -1,8 +1,8 @@
 {
-  "version": "703.1",
-  "appVersion": "7.0.3.1",
-  "releasedAt": "2026-07-17T23:45:00+02:00",
-  "name": "Recuperación al volver",
-  "build": "703.1",
-  "label": "Build 703.1"
+  "version": "703.2",
+  "appVersion": "7.0.3.2",
+  "releasedAt": "2026-07-17T23:55:00+02:00",
+  "name": "Compartir con banderas y copiar texto",
+  "build": "703.2",
+  "label": "Build 703.2"
 }
