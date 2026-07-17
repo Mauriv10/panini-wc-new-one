@@ -1,6 +1,7 @@
 // Build 700.1 · Configuración pública de Supabase
 // Sustituye únicamente estos dos valores. Nunca pongas aquí service_role.
 window.WC_SUPABASE_CONFIG = {
-  url: "",
-  publishableKey: ""
+  url: "https://xkjtiwbsxsvyrsqtaqgi.supabase.co",
+  anonKey: sb_publishable_7hUkQzyNiObLuo3yx4RlMg_O-IBpRTL,
+
 };
