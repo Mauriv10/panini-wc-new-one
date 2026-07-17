@@ -1,6 +1,6 @@
-const APP_VERSION="7.0.0.8";
+const APP_VERSION="701.1";
 const DATA_SCHEMA_VERSION=2;
-const DATA_REVISION="2026-07-17-ui-state-v7008";
+const DATA_REVISION="2026-07-17-collections-v7011";
 const MASTER_SEED_KEY="world-cup-2026-master-seed-revision";
 const PROJECTS_KEY="world-cup-2026-projects-v600";
 const ACTIVE_PROJECT_KEY="world-cup-2026-active-project-v600";
@@ -239,7 +239,7 @@ window.addEventListener("online",updateConnectionStatus);
 window.addEventListener("offline",updateConnectionStatus);
 
 async function loadData(){
- showLoading("Preparando tus proyectos…");
+ showLoading("Preparando tus coleccións…");
  const [i,f,g,s]=await Promise.all([
    fetch("./data/inventory.json"),
    fetch("./data/flags-v4.json"),
@@ -731,7 +731,7 @@ function setMainTab(tab){
    return;
  }
  mainTab=tab;
- document.body.classList.remove("main-tab-collection","main-tab-statistics","main-tab-trade");
+ document.body.classList.remove("main-tab-collection","main-tab-statistics","main-tab-trade","main-tab-collections");
  document.body.classList.add(`main-tab-${tab}`);
 
  document.querySelectorAll(".bottom-nav-button").forEach(button=>{
@@ -741,15 +741,18 @@ function setMainTab(tab){
  const inventoryView=$("#inventoryView");
  const statisticsView=$("#statisticsView");
  const tradeView=$("#tradeView");
+ const collectionsView=$("#collectionsView");
  const missingView=$("#missingView");
 
  if(inventoryView)inventoryView.hidden=tab!=="collection";
  if(statisticsView)statisticsView.hidden=tab!=="statistics";
  if(tradeView)tradeView.hidden=tab!=="trade";
+ if(collectionsView)collectionsView.hidden=tab!=="collections";
  if(missingView)missingView.hidden=true;
 
  if(tab==="collection")renderGlobalCollection();
  if(tab==="statistics")renderStatistics();
+ if(tab==="collections")renderCollections();
 
  window.scrollTo({top:0,behavior:"smooth"});
 }
@@ -765,6 +768,7 @@ function renderAll(){
  updateNavigationBadges();
  renderGlobalCollection();
  renderStatistics();
+ renderCollections();
  const banner=$("#globalExchangeBanner");
  if(banner){
    const active=currentView==="exchange";
@@ -891,6 +895,7 @@ function enterManualExchange(){
  const inventoryView=$("#inventoryView");
  const statisticsView=$("#statisticsView");
  const tradeView=$("#tradeView");
+ const collectionsView=$("#collectionsView");
  const missingView=$("#missingView");
 
  if(inventoryView)inventoryView.hidden=false;
@@ -1290,7 +1295,7 @@ async function exportProjectXlsx(){
    compression:"DEFLATE",
    compressionOptions:{level:6}
  });
- const safeName=project.name.replace(/[\\/:*?"<>|]+/g,"-").trim()||"proyecto";
+ const safeName=project.name.replace(/[\\/:*?"<>|]+/g,"-").trim()||"colección";
  const url=URL.createObjectURL(blob);
  const anchor=document.createElement("a");
  anchor.href=url;
@@ -1302,12 +1307,62 @@ async function exportProjectXlsx(){
 }
 $("#excelButton").onclick=exportProjectXlsx;
 
-$("#resetButton").onclick=()=>{if(confirm("¿Restaurar este proyecto con el inventario cargado desde el último Excel maestro?")){inventory=getMasterInventoryForProject(projects[activeProjectId]);history=[];sessionStats={plus:0,minus:0,startedAt:new Date().toISOString()};exchange={give:{},receive:{}};pendingSync={};saveAll("Inventario restaurado");renderAll()}};
+$("#resetButton").onclick=()=>{if(confirm("¿Restaurar este colección con el inventario cargado desde el último Excel maestro?")){inventory=getMasterInventoryForProject(projects[activeProjectId]);history=[];sessionStats={plus:0,minus:0,startedAt:new Date().toISOString()};exchange={give:{},receive:{}};pendingSync={};saveAll("Inventario restaurado");renderAll()}};
 
 
 function projectStats(p){
  const total=Object.values(p.inventory).reduce((sum,stickers)=>sum+Object.values(stickers).reduce((a,b)=>a+Number(b),0),0);
  return {total,changes:(p.history||[]).length,pending:Object.keys(p.pendingSync||{}).length};
+}
+function albumWord(value){return Number(value)===1?"álbum":"álbumes"}
+function collectionProgress(p){
+ const target=Math.max(1,Number(p.target)||1);
+ const teams=Object.keys(p.inventory||{}).length;
+ const required=teams*20*target;
+ let useful=0,total=0,different=0,pending=0;
+ Object.values(p.inventory||{}).forEach(stickers=>Object.values(stickers||{}).forEach(q=>{
+   const qty=Math.max(0,Number(q)||0);total+=qty;if(qty>0)different++;useful+=Math.min(qty,target);pending+=Math.max(0,target-qty);
+ }));
+ return {total,different,pending,progress:required?Math.min(100,Math.round(useful/required*100)):0};
+}
+function renderCollections(){
+ const list=$("#collectionsList");if(!list)return;
+ list.innerHTML=Object.values(projects).map(p=>{
+   const s=collectionProgress(p),active=p.id===activeProjectId;
+   return `<article class="collection-library-card ${active?"active":""}" data-collection-id="${p.id}">
+    <div class="collection-library-top">
+      <div class="collection-album-icon" aria-hidden="true">📔</div>
+      <div class="collection-library-copy">
+        <h3>${p.name}</h3>
+        ${active?'<span class="collection-active-badge">● Activa</span>':'<span style="font-size:12px;color:#667085">Disponible</span>'}
+      </div>
+    </div>
+    <div class="collection-objective">
+      <div class="collection-objective-copy"><span>Objetivo</span><strong>${p.target} ${albumWord(p.target)}</strong></div>
+      <div class="collection-target-stepper" aria-label="Cambiar objetivo">
+        <button type="button" data-target-delta="-1" data-project-id="${p.id}" aria-label="Reducir objetivo">−</button>
+        <button type="button" data-target-delta="1" data-project-id="${p.id}" aria-label="Aumentar objetivo">＋</button>
+      </div>
+    </div>
+    <div class="collection-stats-row">
+      <div class="collection-mini-stat"><strong>${s.total.toLocaleString("es-ES")}</strong><span>cromos</span></div>
+      <div class="collection-mini-stat"><strong>${s.different.toLocaleString("es-ES")}</strong><span>diferentes</span></div>
+      <div class="collection-mini-stat"><strong>${s.pending.toLocaleString("es-ES")}</strong><span>pendientes</span></div>
+    </div>
+    <div class="collection-progress-track"><div class="collection-progress-fill" style="width:${s.progress}%"></div></div>
+    <button type="button" class="collection-open-button" data-open-collection="${p.id}" ${active?"disabled":""}>${active?"Colección activa":"Abrir colección"}</button>
+   </article>`;
+ }).join("");
+ list.querySelectorAll("[data-open-collection]").forEach(button=>button.onclick=()=>{
+   switchProject(button.dataset.openCollection);
+   setMainTab("collection");
+ });
+ list.querySelectorAll("[data-target-delta]").forEach(button=>button.onclick=()=>{
+   const p=projects[button.dataset.projectId];if(!p)return;
+   p.target=Math.max(1,Math.min(20,(Number(p.target)||1)+Number(button.dataset.targetDelta)));
+   if(p.id===activeProjectId){targetInput.value=p.target;loadProjectState();}
+   persistProjects();queueCloudSync("objetivo-coleccion");renderCollections();renderAll();
+ });
 }
 function renderProjectsList(){
  const list=$("#projectsList");
@@ -1328,12 +1383,12 @@ function renderProjectsList(){
 function switchProject(id){
  if(!projects[id])return;
  commitProjectState();activeProjectId=id;persistProjects();loadProjectState();renderProjectsList();
- $("#projectsDialog").close();showToast(`Proyecto: ${projects[id].name}`);
+ if($("#projectsDialog")?.open)$("#projectsDialog").close();showToast(`Colección: ${projects[id].name}`);
 }
 function deleteProject(id){
- if(id===activeProjectId){alert("Cambia primero a otro proyecto.");return}
- if(!confirm(`¿Eliminar el proyecto "${projects[id].name}"?`))return;
- createAutomaticBackup("antes-de-eliminar-proyecto");
+ if(id===activeProjectId){alert("Cambia primero a otro colección.");return}
+ if(!confirm(`¿Eliminar el colección "${projects[id].name}"?`))return;
+ createAutomaticBackup("antes-de-eliminar-colección");
  delete projects[id];persistProjects();renderProjectsList();
 }
 function openCreateProject(){
@@ -1370,14 +1425,14 @@ function updateTransferPreview(){
 function createProject(){
  const name=$("#newProjectName").value.trim();
  const target=Math.max(1,Number($("#newProjectTarget").value)||1);
- if(!name){alert("Escribe un nombre para el proyecto.");return}
+ if(!name){alert("Escribe un nombre para el colección.");return}
  const sourceType=document.querySelector('input[name="projectSource"]:checked')?.value||"empty";
  let inv=emptyInventory(),transfer=null,source=null;
  if(sourceType==="repeats"){
    source=projects[$("#sourceProjectSelect").value];
    const mode=document.querySelector('input[name="repeatMode"]:checked')?.value||"target";
    transfer=calculateTransfer(source,target,mode);inv=transfer.inventory;
-   if(!confirm(`Crear "${name}" transfiriendo ${transfer.units} cromos del proyecto "${source.name}"?`))return;
+   if(!confirm(`Crear "${name}" transfiriendo ${transfer.units} cromos del colección "${source.name}"?`))return;
  }
  if(sourceType==="repeats")createAutomaticBackup("antes-de-transferir-repetidas");
  const p=defaultProject(name,target,inv);
@@ -1388,7 +1443,7 @@ function createProject(){
    }));
  }
  commitProjectState();activeProjectId=p.id;persistProjects();$("#createProjectDialog").close();loadProjectState();renderProjectsList();
- showToast(`Proyecto creado: ${name}`);
+ showToast(`Colección creado: ${name}`);
 }
 $("#projectSelectorButton").onclick=()=>{renderProjectsList();$("#projectsDialog").showModal()};
 $("#newProjectQuickButton").onclick=openCreateProject;
@@ -1448,9 +1503,9 @@ function validateBackup(data){
    throw new Error("El archivo no es una copia válida de Panini Mercat.");
  }
  const projectValues=Object.values(data.projects);
- if(!projectValues.length)throw new Error("La copia no contiene proyectos.");
+ if(!projectValues.length)throw new Error("La copia no contiene coleccións.");
  for(const project of projectValues){
-   if(!project.id||!project.name||!project.inventory)throw new Error("La copia contiene un proyecto incompleto.");
+   if(!project.id||!project.name||!project.inventory)throw new Error("La copia contiene un colección incompleto.");
  }
  return data;
 }
@@ -1461,7 +1516,7 @@ function backupSummaryHtml(data){
      teamSum+Object.values(stickers).reduce((a,b)=>a+Number(b||0),0)
    ,0)
  ,0);
- return `<strong>${projectsCount} proyectos</strong><br>
+ return `<strong>${projectsCount} coleccións</strong><br>
  <span>${total} cromos · copia del ${new Date(data.createdAt).toLocaleString("es-ES")}</span>`;
 }
 async function readBackupFile(file){
@@ -1519,8 +1574,8 @@ $("#confirmRestoreBackupButton").onclick=()=>{
  if(!pendingBackupRestore)return;
  const mode=document.querySelector('input[name="restoreMode"]:checked')?.value||"replace";
  const message=mode==="replace"
-   ?"Se reemplazarán todos los proyectos actuales. ¿Continuar?"
-   :"Los proyectos de la copia se añadirán como proyectos nuevos. ¿Continuar?";
+   ?"Se reemplazarán todos los coleccións actuales. ¿Continuar?"
+   :"Los coleccións de la copia se añadirán como coleccións nuevos. ¿Continuar?";
  if(!confirm(message))return;
  restoreBackup(pendingBackupRestore,mode);
  $("#restoreBackupDialog").close();
@@ -1667,7 +1722,7 @@ function renderImportReview(){
       <div><strong>${item.team} ${item.code}</strong>${item.conflict?'<span class="import-conflict-badge">Conflicto</span>':""}<small>App → Excel</small></div>
       <div class="import-difference-values">x${item.appValue} → x${item.excelValue}</div>
      </article>`).join("")
-   : "<p>El proyecto y el Excel ya tienen las mismas cantidades.</p>";
+   : "<p>El colección y el Excel ya tienen las mismas cantidades.</p>";
 }
 function openImportExcel(){
  pendingExcelImport=null;
@@ -1744,13 +1799,13 @@ $("#applyExcelImportButton").onclick=applyExcelImport;
 $("#markSyncedButton").onclick=()=>{
  const count=pendingSyncCount();
  if(!count){showToast("No hay cambios pendientes");return}
- if(!confirm(`Marcar ${count} cambios como sincronizados en el proyecto activo?`))return;
+ if(!confirm(`Marcar ${count} cambios como sincronizados en el colección activo?`))return;
  pendingSync={};
  lastSyncedAt=new Date().toISOString();
- saveAll("Proyecto sincronizado");
+ saveAll("Colección sincronizado");
  renderAll();
  renderProjectsList();
- showToast("✓ Proyecto marcado como sincronizado");
+ showToast("✓ Colección marcado como sincronizado");
 };
 
 
@@ -1816,7 +1871,7 @@ function setupSettingsCenter(){
 
 $("#settingsTargetButton").onclick=()=>{
  const current=getTarget();
- const value=prompt("Objetivo de álbumes para este proyecto:",String(current));
+ const value=prompt("Objetivo de álbumes para este colección:",String(current));
  if(value===null)return;
  const next=Math.max(1,Math.min(20,Number(value)||current));
  targetInput.value=String(next);
