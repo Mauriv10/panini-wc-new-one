@@ -1,3 +1,9 @@
+# Build 703.4.10 — Prueba sin desplazamiento automático en Cromos
+
+- Eliminada exclusivamente la llamada `scrollIntoView()` al entrar en el modo de intercambio de Cromos.
+- Se conservan mensajes, vibración, inventario, sincronización y el resto de animaciones.
+- Actualizada la versión y la caché para asegurar que iOS cargue esta build.
+
 # Build 703.4.8 — Recarga controlada tras compartir
 
 - Elimina el seguimiento continuo de la barra que producía vibración.

@@ -1,4 +1,4 @@
-const APP_VERSION=globalThis.WC26_CONFIG?.version||"703.4.8";
+const APP_VERSION=globalThis.WC26_CONFIG?.version||"703.4.10";
 const DATA_SCHEMA_VERSION=2;
 const DATA_REVISION="2026-07-17-collections-v70111";
 const MASTER_SEED_KEY="world-cup-2026-master-seed-revision";
@@ -251,7 +251,7 @@ window.addEventListener("pageshow",recoverFromForeground);
 window.addEventListener("focus",recoverFromForeground);
 
 
-// Build 703.4.8: wait until the native share sheet has fully released the
+// Build 703.4.10: wait until the native share sheet has fully released the
 // iOS viewport, then force a genuinely new navigation. Reloading immediately
 // when navigator.share() resolves can preserve the damaged WebKit compositor.
 let nativeShareReloadPending=false;
@@ -1227,12 +1227,6 @@ function enterManualExchange(){
    banner.style.display="flex";
  }
 
- requestAnimationFrame(()=>{
-   document.querySelector(".collection-sticky-controls")?.scrollIntoView({
-     behavior:"smooth",
-     block:"start"
-   });
- });
 }
 
 function exchangeTotals(){
@@ -2405,7 +2399,7 @@ initialiseAppUpdates();
 loadData().catch(error=>{console.error(error);hideLoading();document.body.innerHTML="<main class='app-main'><h1>Error al cargar</h1><p>Comprueba que todos los archivos estén subidos.</p></main>"});
 
 
-/* Build 703.4.8 · recuperación completa del viewport tras compartir */
+/* Build 703.4.10 · recuperación completa del viewport tras compartir */
 document.addEventListener("DOMContentLoaded",()=>{
  $("#onboardingForm")?.addEventListener("submit",createFirstCloudCollection);
  $("#onboardingStartButton")?.addEventListener("click",()=>{closeFirstCollectionOnboarding();switchMainView?.("collection");window.scrollTo({top:0,behavior:"auto"});showToast("Colección creada y sincronizada ✓")});
