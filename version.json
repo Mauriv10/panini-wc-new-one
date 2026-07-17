@@ -1,9 +1,8 @@
 {
-  "version": "703.4.13",
-  "appVersion": "7.0.3.4.8",
-  "releasedAt": "2026-07-18T23:55:00+02:00",
-  "name": "Recuperación del viewport de Cromos tras compartir",
-  "build": "703.4.13",
-  "label": "Corrección específica de Cromos y recarga diferida",
-  "notes": "Espera a que el panel nativo cierre, fuerza navegación nueva y evita el conflicto sticky/backdrop de Cromos"
+  "version": "703.2",
+  "appVersion": "7.0.3.2",
+  "releasedAt": "2026-07-17T23:55:00+02:00",
+  "name": "Compartir con banderas y copiar texto",
+  "build": "703.2",
+  "label": "Build 703.2"
 }

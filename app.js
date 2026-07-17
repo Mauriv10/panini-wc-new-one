@@ -1,4 +1,4 @@
-const APP_VERSION=globalThis.WC26_CONFIG?.version||"703.4.13";
+const APP_VERSION=globalThis.WC26_CONFIG?.version||"702.2";
 const DATA_SCHEMA_VERSION=2;
 const DATA_REVISION="2026-07-17-collections-v70111";
 const MASTER_SEED_KEY="world-cup-2026-master-seed-revision";
@@ -249,84 +249,6 @@ function recoverFromForeground(){
 document.addEventListener("visibilitychange",recoverFromForeground);
 window.addEventListener("pageshow",recoverFromForeground);
 window.addEventListener("focus",recoverFromForeground);
-
-
-// Build 703.4.13: wait until the native share sheet has fully released the
-// iOS viewport, then force a genuinely new navigation. Reloading immediately
-// when navigator.share() resolves can preserve the damaged WebKit compositor.
-let nativeShareReloadPending=false;
-
-function isIOSStandalonePWA(){
- const ua=navigator.userAgent||"";
- const ios=/iPad|iPhone|iPod/.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
- const standalone=window.matchMedia?.("(display-mode: standalone)")?.matches||navigator.standalone===true;
- return Boolean(ios&&standalone);
-}
-
-function resetBottomNavigationAfterNativeUI(){
- document.body.classList.remove("native-share-active","share-sheet-open");
- const nav=document.querySelector(".bottom-app-nav");
- nav?.classList.remove("native-share-position-lock","ios-share-absolute-nav");
- nav?.removeAttribute("style");
-}
-
-async function persistBeforeNativeShareReload(){
- try{commitProjectStateLocalOnly()}catch(error){console.warn("No se pudo guardar el estado local",error)}
- if(cloudReady&&cloudSession&&navigator.onLine){
-   try{
-     await Promise.race([saveCloudState(),new Promise(resolve=>setTimeout(resolve,1800))]);
-   }catch(error){console.warn("La nube continuará sincronizando tras la recarga",error)}
- }
-}
-
-function waitForStableIOSViewport(timeout=2400){
- return new Promise(resolve=>{
-   const started=Date.now();
-   let previous=null;
-   let stableSamples=0;
-   const sample=()=>{
-     if(document.visibilityState&&document.visibilityState!=="visible"){
-       setTimeout(sample,100);
-       return;
-     }
-     const vv=window.visualViewport;
-     const current=[Math.round(vv?.height||window.innerHeight),Math.round(vv?.offsetTop||0),Math.round(vv?.pageTop||window.scrollY||0)].join(":");
-     stableSamples=current===previous?stableSamples+1:0;
-     previous=current;
-     if(stableSamples>=5||Date.now()-started>=timeout){
-       requestAnimationFrame(()=>requestAnimationFrame(resolve));
-       return;
-     }
-     setTimeout(sample,90);
-   };
-   setTimeout(sample,180);
- });
-}
-
-async function reloadAfterSuccessfulNativeShare(){
- if(nativeShareReloadPending)return;
- nativeShareReloadPending=true;
- resetBottomNavigationAfterNativeUI();
- await persistBeforeNativeShareReload();
- await waitForStableIOSViewport();
- try{sessionStorage.setItem("wc26-share-reloaded-at",String(Date.now()))}catch{}
- // iOS can preserve the damaged compositor when the same document reloads.
- // Move through a separate minimal document so WebKit destroys the current
- // Cromos view before rebuilding the app from scratch.
- const recoveryUrl=new URL("./share-recovery.html",window.location.href);
- recoveryUrl.searchParams.set("t",String(Date.now()));
- window.location.replace(recoveryUrl.toString());
-}
-
-
-// Remove the one-use hard-restart parameter without another navigation.
-try{
- const startupUrl=new URL(window.location.href);
- if(startupUrl.searchParams.has("post-share-restart")){
-   startupUrl.searchParams.delete("post-share-restart");
-   history.replaceState(history.state,"",startupUrl.pathname+(startupUrl.search?startupUrl.search:"")+startupUrl.hash);
- }
-}catch{}
 
 function loadProjectState(){
  const p=projects[activeProjectId];
@@ -919,18 +841,8 @@ async function runShareOption(mode){
  closeShareOptions();
  try{
    if(mode==="share"&&navigator.share){
-     // Release every modal scroll lock before opening the native share sheet.
-     document.body.classList.remove("share-sheet-open");
-     const shareSheet=document.querySelector("#shareOptionsSheet");
-     if(shareSheet){
-       shareSheet.classList.remove("open");
-       shareSheet.hidden=true;
-     }
-     resetBottomNavigationAfterNativeUI();
-     await new Promise(resolve=>setTimeout(resolve,80));
      await navigator.share({title,text});
-     showToast("Lista compartida ✓ · refrescando…");
-     await reloadAfterSuccessfulNativeShare();
+     showToast("Lista compartida ✓");
      return;
    }
    await copyShareText(text);
@@ -944,9 +856,6 @@ async function runShareOption(mode){
      console.error("No se pudo compartir la lista",error,copyError);
      showToast("No se pudo compartir la lista");
    }
- }finally{
-   document.body.classList.remove("share-sheet-open");
-   resetBottomNavigationAfterNativeUI();
  }
 }
 
@@ -1230,6 +1139,12 @@ function enterManualExchange(){
    banner.style.display="flex";
  }
 
+ requestAnimationFrame(()=>{
+   document.querySelector(".collection-sticky-controls")?.scrollIntoView({
+     behavior:"smooth",
+     block:"start"
+   });
+ });
 }
 
 function exchangeTotals(){
@@ -2402,7 +2317,7 @@ initialiseAppUpdates();
 loadData().catch(error=>{console.error(error);hideLoading();document.body.innerHTML="<main class='app-main'><h1>Error al cargar</h1><p>Comprueba que todos los archivos estén subidos.</p></main>"});
 
 
-/* Build 703.4.13 · recuperación completa del viewport tras compartir */
+/* Build 703.2 · formatos de compartir y copiar + recuperación al volver a primer plano */
 document.addEventListener("DOMContentLoaded",()=>{
  $("#onboardingForm")?.addEventListener("submit",createFirstCloudCollection);
  $("#onboardingStartButton")?.addEventListener("click",()=>{closeFirstCollectionOnboarding();switchMainView?.("collection");window.scrollTo({top:0,behavior:"auto"});showToast("Colección creada y sincronizada ✓")});
