@@ -1,4 +1,4 @@
-const APP_VERSION="701.1.1";
+const APP_VERSION="701.2";
 const DATA_SCHEMA_VERSION=2;
 const DATA_REVISION="2026-07-17-collections-v70111";
 const MASTER_SEED_KEY="world-cup-2026-master-seed-revision";
@@ -758,6 +758,7 @@ function setMainTab(tab){
 }
 
 function renderAll(){
+ const homeName=$("#homeCollectionName");if(homeName&&projects[activeProjectId])homeName.textContent=projects[activeProjectId].name;
  if(currentView!=="missing")renderCards();
  updateSummary();
  updateGlobalDashboard();
@@ -1327,43 +1328,28 @@ function collectionProgress(p){
 }
 function renderCollections(){
  const list=$("#collectionsList");if(!list)return;
- list.innerHTML=Object.values(projects).map(p=>{
+ const items=Object.values(projects);
+ list.innerHTML=items.map(p=>{
    const s=collectionProgress(p),active=p.id===activeProjectId;
-   return `<article class="collection-library-card ${active?"active":""}" data-collection-id="${p.id}">
-    <div class="collection-library-top">
+   return `<article class="collection-library-card clean-library-card ${active?"active":""}" data-collection-id="${p.id}">
+    <button type="button" class="collection-card-main" data-open-collection="${p.id}" aria-label="Abrir ${p.name}">
       <div class="collection-album-icon" aria-hidden="true">📔</div>
       <div class="collection-library-copy">
-        <h3>${p.name}</h3>
-        ${active?'<span class="collection-active-badge">● Activa</span>':'<span style="font-size:12px;color:#667085">Disponible</span>'}
+        <div class="collection-title-line"><h3>${p.name}</h3>${active?'<span class="collection-active-badge">Activa</span>':''}</div>
+        <span class="collection-brief">Objetivo: ${p.target} ${albumWord(p.target)} · ${s.progress}% completado</span>
+        <div class="collection-progress-track"><div class="collection-progress-fill" style="width:${s.progress}%"></div></div>
       </div>
-    </div>
-    <div class="collection-objective">
-      <div class="collection-objective-copy"><span>Objetivo</span><strong>${p.target} ${albumWord(p.target)}</strong></div>
-      <div class="collection-target-stepper" aria-label="Cambiar objetivo">
-        <button type="button" data-target-delta="-1" data-project-id="${p.id}" aria-label="Reducir objetivo">−</button>
-        <button type="button" data-target-delta="1" data-project-id="${p.id}" aria-label="Aumentar objetivo">＋</button>
-      </div>
-    </div>
-    <div class="collection-stats-row">
-      <div class="collection-mini-stat"><strong>${s.total.toLocaleString("es-ES")}</strong><span>cromos</span></div>
-      <div class="collection-mini-stat"><strong>${s.different.toLocaleString("es-ES")}</strong><span>diferentes</span></div>
-      <div class="collection-mini-stat"><strong>${s.pending.toLocaleString("es-ES")}</strong><span>pendientes</span></div>
-    </div>
-    <div class="collection-progress-track"><div class="collection-progress-fill" style="width:${s.progress}%"></div></div>
-    <button type="button" class="collection-open-button" data-open-collection="${p.id}" ${active?"disabled":""}>${active?"Colección activa":"Abrir colección"}</button>
+      <span class="collection-card-chevron">›</span>
+    </button>
    </article>`;
  }).join("");
  list.querySelectorAll("[data-open-collection]").forEach(button=>button.onclick=()=>{
-   switchProject(button.dataset.openCollection);
+   const id=button.dataset.openCollection;
+   if(id!==activeProjectId)switchProject(id);
    setMainTab("collection");
  });
- list.querySelectorAll("[data-target-delta]").forEach(button=>button.onclick=()=>{
-   const p=projects[button.dataset.projectId];if(!p)return;
-   p.target=Math.max(1,Math.min(20,(Number(p.target)||1)+Number(button.dataset.targetDelta)));
-   if(p.id===activeProjectId){targetInput.value=p.target;loadProjectState();}
-   persistProjects();queueCloudSync("objetivo-coleccion");renderCollections();renderAll();
- });
 }
+
 function renderProjectsList(){
  const list=$("#projectsList");
  if(!list)return;
@@ -1925,7 +1911,7 @@ window.addEventListener("scroll",()=>{
  },180);
 },{passive:true});
 
-const PUBLIC_BUILD_VERSION="701.1.1";
+const PUBLIC_BUILD_VERSION="701.2";
 let serviceWorkerRegistration=null;
 let updateReloadStarted=false;
 

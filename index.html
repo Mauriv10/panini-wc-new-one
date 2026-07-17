@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="World Cup 2026">
-  <title>World Cup 2026 · Build 700.8.1</title>
+  <title>World Cup 2026 · Build 701.2</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="canonical" href="https://mauriv10.github.io/wc26/">
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/icons/world-cup-2026-apple-v522.png">
@@ -53,12 +53,11 @@
 </div>
 
 
-<header class="app-header premium-home-header">
-  <div class="premium-hero">
-    <div class="premium-brand">
-      <span class="premium-kicker">WORLD CUP 2026</span>
-      <h1>Mi colección</h1>
-      <p>Tu progreso, siempre a mano.</p>
+<header class="app-header premium-home-header compact-home-header">
+  <div class="compact-home-titlebar">
+    <div class="compact-home-copy">
+      <small>MI COLECCIÓN</small>
+      <h1 id="homeCollectionName">Colección</h1>
     </div>
     <div class="top-actions">
       <button id="undoButton" class="icon-action" disabled aria-label="Deshacer">↩</button>
@@ -105,7 +104,7 @@
 
 
 
-<section class="project-bar">
+<section class="project-bar legacy-project-bar" hidden>
   <button id="projectSelectorButton" class="project-selector-button" type="button">
     <span class="project-icon">📔</span>
     <span class="project-copy">
@@ -528,7 +527,7 @@
         <div><strong>Información</strong><small>World Cup 2026</small></div>
       </div>
       <div class="settings-info-list">
-        <div><span>Versión</span><strong>Build 701.1.1 · Colecciones corregida</strong></div>
+        <div><span>Versión</span><strong>Build 701.2 · Interfaz limpia</strong></div>
         <div><span>Modo</span><strong>Disponible offline</strong></div>
       </div>
     </section>
@@ -541,12 +540,8 @@
   </section>
 
 <section id="collectionsView" class="main-tab-view collections-view" hidden>
-  <header class="collections-header">
-    <div>
-      <span class="collections-eyebrow">TU BIBLIOTECA</span>
-      <h2>📔 Colecciones</h2>
-      <p>Cambia de colección y consulta su progreso.</p>
-    </div>
+  <header class="collections-header clean-collections-header">
+    <h2>Colecciones</h2>
   </header>
   <div id="collectionsList" class="collections-grid"></div>
 </section>

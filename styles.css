@@ -4266,3 +4266,58 @@ button.press-feedback{
 .collection-open-button{width:100%;height:44px;border:0;border-radius:13px;background:#1473e6;color:#fff;font-weight:900;font-size:14px;}
 .collection-open-button[disabled]{background:#e8eef7;color:#1473e6;}
 @media(max-width:390px){.bottom-nav-button>span:last-child{font-size:9px}.bottom-nav-icon{font-size:19px}.collections-view{padding-left:11px;padding-right:11px}}
+
+/* =========================================================
+   BUILD 701.2 — INTERFAZ LIMPIA
+   ========================================================= */
+.legacy-project-bar{display:none!important}
+
+.compact-home-header{
+  margin:0 10px 12px;
+  padding:calc(14px + env(safe-area-inset-top)) 18px 16px;
+  border-radius:0 0 26px 26px;
+  background:linear-gradient(180deg,#eef6ff 0%,#f7fbff 100%);
+  box-shadow:none;
+}
+.compact-home-titlebar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px}
+.compact-home-copy{min-width:0}
+.compact-home-copy small{display:block;margin-bottom:3px;font-size:10px;font-weight:850;letter-spacing:.13em;color:#1473e6}
+.compact-home-copy h1{margin:0;font-size:27px;line-height:1.08;letter-spacing:-.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.compact-home-header .top-actions{position:static;display:flex;gap:8px}
+.compact-home-header .icon-action{width:40px;height:40px;border-radius:13px}
+.compact-home-header .premium-selection-row{margin:0}
+.compact-home-header .premium-team-card{min-height:68px;border-radius:18px;padding:12px 15px;box-shadow:none;border:1px solid rgba(15,23,42,.08)}
+.compact-home-header .premium-team-copy small{font-size:10px}
+.compact-home-header .premium-team-copy strong{font-size:19px}
+.compact-home-header .premium-search{margin-top:9px}
+.compact-home-header .search-wrap{min-height:50px;border-radius:16px;box-shadow:none;border:1px solid rgba(15,23,42,.08)}
+
+/* Los filtros esenciales permanecen visibles y cerca del contenido. */
+body.main-tab-collection #collectionStickyControls{margin-top:0}
+
+/* Colecciones funciona como biblioteca, sin repetir el home superior. */
+body.main-tab-collections .premium-home-header,
+body.main-tab-collections .project-bar{display:none!important}
+body.main-tab-collections .app-main{padding-top:calc(12px + env(safe-area-inset-top))}
+.collections-view{padding:12px 16px 112px}
+.clean-collections-header{margin:0 0 16px;padding:0 2px}
+.clean-collections-header h2{margin:0;font-size:32px;line-height:1.1;letter-spacing:-.045em}
+.collections-grid{gap:10px}
+.clean-library-card{padding:0;border:1px solid rgba(15,23,42,.08);border-radius:19px;box-shadow:none;overflow:hidden}
+.clean-library-card.active{border-color:rgba(20,115,230,.35);box-shadow:none}
+.collection-card-main{width:100%;display:flex;align-items:center;gap:13px;padding:14px;border:0;background:#fff;text-align:left;color:inherit}
+.collection-card-main:active{background:#f7f9fc}
+.clean-library-card .collection-album-icon{width:48px;height:56px;font-size:25px;border-radius:11px}
+.clean-library-card .collection-library-copy{min-width:0;flex:1}
+.collection-title-line{display:flex;align-items:center;gap:8px;min-width:0}
+.clean-library-card h3{margin:0;font-size:18px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.clean-library-card .collection-active-badge{padding:3px 7px;font-size:10px;flex:0 0 auto}
+.collection-brief{display:block;margin-top:5px;font-size:12px;color:#667085;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.clean-library-card .collection-progress-track{height:5px;margin:9px 0 0}
+.collection-card-chevron{font-size:28px;line-height:1;color:#98a2b3;flex:0 0 auto}
+
+@media(max-width:390px){
+  .compact-home-header{margin-left:7px;margin-right:7px;padding-left:14px;padding-right:14px}
+  .compact-home-copy h1{font-size:24px}
+  .collections-view{padding-left:12px;padding-right:12px}
+}
