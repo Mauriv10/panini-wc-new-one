@@ -1,5 +1,6 @@
-const APP_VERSION="7.0.0.6";
-const DATA_REVISION="2026-07-17-master-inventarios-1";
+const APP_VERSION="7.0.0.7";
+const DATA_SCHEMA_VERSION=2;
+const DATA_REVISION="2026-07-17-cloud-owned-projects-v2";
 const MASTER_SEED_KEY="world-cup-2026-master-seed-revision";
 const PROJECTS_KEY="world-cup-2026-projects-v600";
 const ACTIVE_PROJECT_KEY="world-cup-2026-active-project-v600";
@@ -22,7 +23,7 @@ let mainTab="collection",collectionFilter="all",collectionTeamFilter="all",colle
 let pendingExcelImport=null;
 
 const CLOUD_STATE_TABLE="wc_user_state";
-const CLOUD_LOCAL_META_KEY="world-cup-2026-cloud-meta-v7004";
+const CLOUD_LOCAL_META_KEY="world-cup-2026-cloud-meta-v7007";
 let cloudSession=null,cloudSubscription=null,cloudSaveTimer=null,cloudApplying=false,cloudReady=false,cloudRevision=0,cloudLastUpdatedAt=null;
 let pendingBackupRestore=null;
 
@@ -72,36 +73,20 @@ function findSeedProject(seed){
    (seed.seedType==="world-cup-2026-main"&&(normalize(project.name).includes("mundial 2026")||normalize(project.name).includes("world cup")))
  );
 }
-function applyMasterSeed(seedData){
+function bootstrapProjectsFromSeed(seedData){
  const seedProjects=Array.isArray(seedData?.projects)?seedData.projects:[];
  masterInventories=Object.fromEntries(seedProjects.map(seed=>[seed.seedType,structuredClone(seed.inventory)]));
  originalInventory=structuredClone(masterInventories["world-cup-2026-main"]||originalInventory);
- const appliedRevision=localStorage.getItem(MASTER_SEED_KEY);
- if(!projects||!Object.keys(projects).length){
-   migrateLegacy(seedProjects);
-   localStorage.setItem(MASTER_SEED_KEY,seedData.revision||DATA_REVISION);
+
+ // Build 700.7: los datos existentes pertenecen al usuario y nunca se sobrescriben
+ // por una actualización de código o por una nueva revisión del archivo seed.
+ if(projects&&Object.keys(projects).length){
+   Object.values(projects).forEach(ensureProjectTeamOrder);
+   if(!projects[activeProjectId])activeProjectId=Object.keys(projects)[0];
    return;
  }
- if(appliedRevision===(seedData.revision||DATA_REVISION))return;
- seedProjects.forEach(seed=>{
-   let project=findSeedProject(seed);
-   if(!project){
-     project=defaultProject(seed.name,seed.target,seed.inventory,seed.seedType);
-     projects[project.id]=project;
-   }else{
-     project.name=seed.name;
-     project.target=Number(seed.target)||project.target||1;
-     project.seedType=seed.seedType;
-     project.inventory=structuredClone(seed.inventory);
-     project.teamOrder=Object.keys(seed.inventory);
-     project.pendingSync={};
-     project.lastSyncedAt=null;
-     project.selectedTeam=project.inventory[project.selectedTeam]?project.selectedTeam:project.teamOrder[0];
-   }
- });
- Object.values(projects).forEach(ensureProjectTeamOrder);
- if(!projects[activeProjectId])activeProjectId=Object.keys(projects)[0];
- persistProjects();
+
+ migrateLegacy(seedProjects);
  localStorage.setItem(MASTER_SEED_KEY,seedData.revision||DATA_REVISION);
 }
 function getMasterInventoryForProject(project){
@@ -118,7 +103,7 @@ function cloudMeta(){return readJSON(CLOUD_LOCAL_META_KEY,{revision:0,updatedAt:
 function writeCloudMeta(meta){localStorage.setItem(CLOUD_LOCAL_META_KEY,JSON.stringify(meta))}
 function cloudPayload(){
  commitProjectStateLocalOnly();
- return {format:"world-cup-2026-cloud-state",version:APP_VERSION,activeProjectId,projects:structuredClone(projects)};
+ return {format:"world-cup-2026-cloud-state",schemaVersion:DATA_SCHEMA_VERSION,dataOwner:"supabase-user",version:APP_VERSION,activeProjectId,projects:structuredClone(projects)};
 }
 function commitProjectStateLocalOnly(){
  const p=projects[activeProjectId];
@@ -157,6 +142,7 @@ async function applyCloudPayload(row,{silent=false}={}){
  cloudApplying=true;
  try{
    projects=structuredClone(row.payload.projects);
+   // Supabase es la fuente de verdad. El código de la build nunca reinicia inventarios ni objetivos.
    Object.values(projects).forEach(ensureProjectTeamOrder);
    activeProjectId=row.payload.activeProjectId&&projects[row.payload.activeProjectId]?row.payload.activeProjectId:Object.keys(projects)[0];
    cloudRevision=Number(row.revision)||0;cloudLastUpdatedAt=row.updated_at||null;
@@ -251,7 +237,7 @@ async function loadData(){
  const seedData=await s.json();
  projects=readJSON(PROJECTS_KEY,null);
  activeProjectId=localStorage.getItem(ACTIVE_PROJECT_KEY)||"";
- applyMasterSeed(seedData);
+ bootstrapProjectsFromSeed(seedData);
  if(!projects||!Object.keys(projects).length||!projects[activeProjectId])migrateLegacy(seedData.projects);
  loadProjectState();
  renderProjectsList();
@@ -1894,7 +1880,7 @@ $("#collectionSort").onchange=event=>{
  renderGlobalCollection();
 };
 
-const PUBLIC_BUILD_VERSION="700.6";
+const PUBLIC_BUILD_VERSION="700.7";
 let serviceWorkerRegistration=null;
 let updateReloadStarted=false;
 
