@@ -1,3 +1,14 @@
+# Build 703.0
+
+- Nuevo botón **Compartir** dentro de **Me faltan**.
+- Nuevo botón **Compartir** dentro de **Repetidos**.
+- Las listas respetan exactamente el orden guardado del desplegable de selecciones.
+- Los cromos se ordenan numéricamente dentro de cada selección.
+- Las cantidades pendientes o repetidas superiores a una unidad se muestran como `xN`.
+- Uso del menú nativo del móvil mediante Web Share API.
+- Copia automática al portapapeles cuando compartir no está disponible.
+- Nueva caché `wc26-build-703-0`.
+
 # Build 702.2
 
 - Splash de arranque mientras se comprueba sesión y nube.

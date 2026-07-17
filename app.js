@@ -688,7 +688,104 @@ function createGlobalSticker(team,code,qty){
  return item;
 }
 
+function activeShareListType(){
+ const effectiveFilter=currentFilter==="need"?"missing":currentFilter==="offer"?"repeats":collectionFilter;
+ return effectiveFilter==="missing"||effectiveFilter==="repeats"?effectiveFilter:null;
+}
+
+function updateShareCollectionButton(){
+ const button=$("#shareCollectionListButton");
+ if(!button)return;
+ const type=activeShareListType();
+ button.hidden=!type;
+ button.setAttribute("aria-label",type==="missing"?"Compartir cromos que me faltan":"Compartir cromos repetidos");
+}
+
+function buildShareCollectionText(type){
+ const target=getTarget();
+ const projectName=projects?.[activeProjectId]?.name||"Mundial 2026";
+ const groups=[];
+ let totalUnits=0;
+
+ currentTeamOrder().forEach(team=>{
+   const stickers=inventory[team]||{};
+   const items=Object.entries(stickers)
+     .map(([code,raw])=>{
+       const qty=Number(raw)||0;
+       const units=type==="missing"?Math.max(0,target-qty):Math.max(0,qty-target);
+       return {code,units};
+     })
+     .filter(item=>item.units>0)
+     .sort((a,b)=>Number(a.code)-Number(b.code));
+   if(!items.length)return;
+   totalUnits+=items.reduce((sum,item)=>sum+item.units,0);
+   groups.push({team,items});
+ });
+
+ if(!groups.length)return {text:"",totalUnits:0};
+ const missing=type==="missing";
+ const lines=[
+   "🏆 "+projectName,
+   "",
+   missing?`Me faltan ${totalUnits} cromos`:`Tengo ${totalUnits} cromos repetidos para cambiar`,
+   ""
+ ];
+ groups.forEach((group,index)=>{
+   lines.push(group.team);
+   lines.push(group.items.map(item=>item.units>1?`${item.code} x${item.units}`:item.code).join(", "));
+   if(index<groups.length-1)lines.push("");
+ });
+ return {text:lines.join("\n"),totalUnits};
+}
+
+async function copyShareText(text){
+ if(navigator.clipboard?.writeText){
+   await navigator.clipboard.writeText(text);
+   return;
+ }
+ const area=document.createElement("textarea");
+ area.value=text;
+ area.setAttribute("readonly","");
+ area.style.position="fixed";
+ area.style.opacity="0";
+ document.body.appendChild(area);
+ area.select();
+ const copied=document.execCommand("copy");
+ area.remove();
+ if(!copied)throw new Error("No se pudo copiar la lista");
+}
+
+async function shareActiveCollectionList(){
+ const type=activeShareListType();
+ if(!type)return;
+ const {text,totalUnits}=buildShareCollectionText(type);
+ if(!text||!totalUnits){
+   showToast(type==="missing"?"No te falta ningún cromo":"No tienes cromos repetidos");
+   return;
+ }
+ const title=type==="missing"?"Cromos que me faltan":"Cromos repetidos";
+ try{
+   if(navigator.share){
+     await navigator.share({title,text});
+     showToast("Lista compartida ✓");
+     return;
+   }
+   await copyShareText(text);
+   showToast("Lista copiada al portapapeles ✓");
+ }catch(error){
+   if(error?.name==="AbortError")return;
+   try{
+     await copyShareText(text);
+     showToast("Lista copiada al portapapeles ✓");
+   }catch(copyError){
+     console.error("No se pudo compartir la lista",error,copyError);
+     showToast("No se pudo compartir la lista");
+   }
+ }
+}
+
 function renderGlobalCollection(){
+ updateShareCollectionButton();
  const list=$("#globalCollectionList");
  if(!list)return;
  list.innerHTML="";
@@ -1965,6 +2062,8 @@ if(settingsTargetButton)settingsTargetButton.onclick=()=>{
 
 
 document.querySelectorAll(".bottom-nav-button").forEach(button=>button.onclick=()=>setMainTab(button.dataset.mainView));
+$("#shareCollectionListButton")?.addEventListener("click",shareActiveCollectionList);
+
 document.querySelectorAll(".collection-filter-button").forEach(button=>button.onclick=()=>{
  document.querySelectorAll(".collection-filter-button").forEach(x=>x.classList.remove("active"));
  button.classList.add("active");
@@ -2136,7 +2235,7 @@ initialiseAppUpdates();
 loadData().catch(error=>{console.error(error);hideLoading();document.body.innerHTML="<main class='app-main'><h1>Error al cargar</h1><p>Comprueba que todos los archivos estén subidos.</p></main>"});
 
 
-/* Build 702.2 · onboarding completo */
+/* Build 703.0 · compartir listas + onboarding completo */
 document.addEventListener("DOMContentLoaded",()=>{
  $("#onboardingForm")?.addEventListener("submit",createFirstCloudCollection);
  $("#onboardingStartButton")?.addEventListener("click",()=>{closeFirstCollectionOnboarding();switchMainView?.("collection");window.scrollTo({top:0,behavior:"auto"});showToast("Colección creada y sincronizada ✓")});
