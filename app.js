@@ -1,4 +1,4 @@
-const APP_VERSION="7.0.0.2";
+const APP_VERSION="7.0.0.4";
 const DATA_REVISION="2026-07-17-master-inventarios-1";
 const MASTER_SEED_KEY="world-cup-2026-master-seed-revision";
 const PROJECTS_KEY="world-cup-2026-projects-v600";
@@ -20,6 +20,10 @@ let exchange={give:{},receive:{}};
 let projects={},activeProjectId="",pendingSync={},lastSyncedAt=null;
 let mainTab="collection",collectionFilter="all",collectionTeamFilter="all",collectionSort="album";
 let pendingExcelImport=null;
+
+const CLOUD_STATE_TABLE="wc_user_state";
+const CLOUD_LOCAL_META_KEY="world-cup-2026-cloud-meta-v7004";
+let cloudSession=null,cloudSubscription=null,cloudSaveTimer=null,cloudApplying=false,cloudReady=false,cloudRevision=0,cloudLastUpdatedAt=null;
 let pendingBackupRestore=null;
 
 const $=s=>document.querySelector(s);
@@ -90,7 +94,84 @@ function getMasterInventoryForProject(project){
 function persistProjects(){
  localStorage.setItem(PROJECTS_KEY,JSON.stringify(projects));
  localStorage.setItem(ACTIVE_PROJECT_KEY,activeProjectId);
+ if(!cloudApplying)scheduleCloudSave();
 }
+
+function cloudClient(){return window.WCAuth?.client||window.wcSupabase||null}
+function cloudMeta(){return readJSON(CLOUD_LOCAL_META_KEY,{revision:0,updatedAt:null,userId:null})}
+function writeCloudMeta(meta){localStorage.setItem(CLOUD_LOCAL_META_KEY,JSON.stringify(meta))}
+function cloudPayload(){
+ commitProjectStateLocalOnly();
+ return {format:"world-cup-2026-cloud-state",version:APP_VERSION,activeProjectId,projects:structuredClone(projects)};
+}
+function commitProjectStateLocalOnly(){
+ const p=projects[activeProjectId];
+ if(!p)return;
+ p.inventory=structuredClone(inventory);p.history=structuredClone(history.slice(-300));
+ p.finishedSessions=structuredClone(finishedSessions.slice(-100));p.sessionStats=structuredClone(sessionStats);
+ p.exchange=structuredClone(exchange);p.pendingSync=structuredClone(pendingSync);p.lastSyncedAt=lastSyncedAt;
+ p.target=getTarget();p.selectedTeam=teamSelect.value;
+ localStorage.setItem(PROJECTS_KEY,JSON.stringify(projects));
+ localStorage.setItem(ACTIVE_PROJECT_KEY,activeProjectId);
+}
+function setCloudStatus(text,state="idle"){
+ const node=$("#saveStatus");if(node)node.textContent=text;
+ document.body.dataset.cloudState=state;
+}
+function scheduleCloudSave(delay=450){
+ if(!cloudReady||!cloudSession||cloudApplying)return;
+ clearTimeout(cloudSaveTimer);cloudSaveTimer=setTimeout(()=>saveCloudState().catch(console.error),delay);
+}
+async function saveCloudState(){
+ const client=cloudClient();if(!client||!cloudSession||!navigator.onLine)return;
+ clearTimeout(cloudSaveTimer);cloudSaveTimer=null;setCloudStatus("Sincronizando…","syncing");
+ const nextRevision=Math.max(cloudRevision,Number(cloudMeta().revision)||0)+1;
+ const payload=cloudPayload();
+ const {data,error}=await client.from(CLOUD_STATE_TABLE).upsert({
+   user_id:cloudSession.user.id,payload,revision:nextRevision,updated_at:new Date().toISOString()
+ },{onConflict:"user_id"}).select("revision,updated_at").single();
+ if(error){setCloudStatus("Guardado local · pendiente de nube","error");throw error}
+ cloudRevision=Number(data.revision)||nextRevision;cloudLastUpdatedAt=data.updated_at;lastSyncedAt=data.updated_at;
+ Object.values(projects).forEach(p=>{p.pendingSync={};p.lastSyncedAt=data.updated_at});pendingSync={};
+ commitProjectStateLocalOnly();writeCloudMeta({revision:cloudRevision,updatedAt:data.updated_at,userId:cloudSession.user.id});
+ updateSyncUI();setCloudStatus("✓ Guardado en la nube","synced");
+}
+async function applyCloudPayload(row,{silent=false}={}){
+ if(!row?.payload?.projects)return false;
+ cloudApplying=true;
+ try{
+   projects=structuredClone(row.payload.projects);
+   activeProjectId=row.payload.activeProjectId&&projects[row.payload.activeProjectId]?row.payload.activeProjectId:Object.keys(projects)[0];
+   cloudRevision=Number(row.revision)||0;cloudLastUpdatedAt=row.updated_at||null;
+   localStorage.setItem(PROJECTS_KEY,JSON.stringify(projects));localStorage.setItem(ACTIVE_PROJECT_KEY,activeProjectId);
+   writeCloudMeta({revision:cloudRevision,updatedAt:cloudLastUpdatedAt,userId:cloudSession?.user?.id||null});
+   loadProjectState();renderProjectsList();
+   if(!silent)showToast("Datos actualizados desde la nube");
+   setCloudStatus("✓ Sincronizado","synced");return true;
+ }finally{cloudApplying=false}
+}
+async function initialCloudSync(session){
+ const client=cloudClient();if(!client||!session)return;
+ cloudSession=session;setCloudStatus("Conectando con la nube…","syncing");
+ const {data,error}=await client.from(CLOUD_STATE_TABLE).select("payload,revision,updated_at").eq("user_id",session.user.id).maybeSingle();
+ if(error){setCloudStatus("Falta preparar la base de datos","error");console.error(error);return}
+ cloudReady=true;
+ if(data){await applyCloudPayload(data,{silent:true})}else{await saveCloudState()}
+ startRealtime();
+}
+function startRealtime(){
+ const client=cloudClient();if(!client||!cloudSession)return;
+ if(cloudSubscription)client.removeChannel(cloudSubscription);
+ cloudSubscription=client.channel(`wc-state-${cloudSession.user.id}`).on("postgres_changes",{event:"UPDATE",schema:"public",table:CLOUD_STATE_TABLE,filter:`user_id=eq.${cloudSession.user.id}`},payload=>{
+   const row=payload.new;if(!row||Number(row.revision)<=cloudRevision)return;applyCloudPayload(row).catch(console.error);
+ }).subscribe();
+}
+window.addEventListener("wc-auth-ready",event=>{if(event.detail?.session)initialCloudSync(event.detail.session).catch(console.error)});
+window.addEventListener("wc-auth-changed",event=>{
+ const session=event.detail?.session;if(session&&!cloudReady)initialCloudSync(session).catch(console.error);
+ if(!session){cloudSession=null;cloudReady=false;if(cloudSubscription)cloudClient()?.removeChannel(cloudSubscription);cloudSubscription=null}
+});
+window.addEventListener("online",()=>{if(cloudSession){cloudReady=true;scheduleCloudSave(100)}});
 function loadProjectState(){
  const p=projects[activeProjectId];
  inventory=structuredClone(p.inventory);
@@ -109,18 +190,8 @@ function loadProjectState(){
  renderAll();updateNavigationBadges();updateSyncUI();
 }
 function commitProjectState(){
- const p=projects[activeProjectId];
- if(!p)return;
- p.inventory=structuredClone(inventory);
- p.history=structuredClone(history.slice(-300));
- p.finishedSessions=structuredClone(finishedSessions.slice(-100));
- p.sessionStats=structuredClone(sessionStats);
- p.exchange=structuredClone(exchange);
- p.pendingSync=structuredClone(pendingSync);
- p.lastSyncedAt=lastSyncedAt;
- p.target=getTarget();
- p.selectedTeam=teamSelect.value;
- persistProjects();
+ commitProjectStateLocalOnly();
+ scheduleCloudSave();
 }
 
 function updateConnectionStatus(){
