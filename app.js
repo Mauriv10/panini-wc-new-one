@@ -1,4 +1,4 @@
-const APP_VERSION=globalThis.WC26_CONFIG?.version||"703.4.4";
+const APP_VERSION=globalThis.WC26_CONFIG?.version||"703.4.7";
 const DATA_SCHEMA_VERSION=2;
 const DATA_REVISION="2026-07-17-collections-v70111";
 const MASTER_SEED_KEY="world-cup-2026-master-seed-revision";
@@ -251,16 +251,11 @@ window.addEventListener("pageshow",recoverFromForeground);
 window.addEventListener("focus",recoverFromForeground);
 
 
-// Build 703.4.6: iOS standalone PWAs can corrupt the coordinate system used by
-// position:fixed after returning from the native share sheet. Once a native share
-// has completed, switch the bottom navigation to an absolute-position tracker.
-// Its document coordinates are recalculated from scrollY + the layout viewport,
-// bypassing the broken fixed/visual-viewport path until the app is reopened.
-let nativeShareRecoveryArmed=false;
-let nativeShareWasHidden=false;
-let bottomNavAbsoluteTracking=false;
-let bottomNavTrackingFrame=0;
-let bottomNavBottomGap=6;
+// Build 703.4.7: after a successful native share on iOS, persist the
+// current project and perform one controlled reload. This clears the broken
+// WebKit viewport state exactly as closing and reopening the PWA would, without
+// keeping any scroll/position tracker alive afterwards.
+let nativeShareReloadPending=false;
 
 function isIOSStandalonePWA(){
  const ua=navigator.userAgent||"";
@@ -269,84 +264,35 @@ function isIOSStandalonePWA(){
  return Boolean(ios&&standalone);
 }
 
-function layoutViewportHeight(){
- return Math.max(document.documentElement?.clientHeight||0,window.innerHeight||0);
-}
-
-function updateBottomNavigationAbsolutePosition(){
- bottomNavTrackingFrame=0;
- if(!bottomNavAbsoluteTracking)return;
- const nav=document.querySelector(".bottom-app-nav");
- if(!nav)return;
- const viewportHeight=layoutViewportHeight();
- const navHeight=nav.offsetHeight||72;
- const top=Math.max(0,(window.scrollY||window.pageYOffset||0)+viewportHeight-navHeight-bottomNavBottomGap);
- nav.style.setProperty("--wc-absolute-nav-top",`${Math.round(top)}px`);
-}
-
-function requestBottomNavigationAbsolutePosition(){
- if(!bottomNavAbsoluteTracking||bottomNavTrackingFrame)return;
- bottomNavTrackingFrame=requestAnimationFrame(updateBottomNavigationAbsolutePosition);
-}
-
-function enableBottomNavigationAbsoluteTracking(){
- if(!isIOSStandalonePWA()||bottomNavAbsoluteTracking)return;
- const nav=document.querySelector(".bottom-app-nav");
- if(!nav)return;
- const computed=getComputedStyle(nav);
- bottomNavBottomGap=Math.max(0,parseFloat(computed.bottom)||6);
- const rect=nav.getBoundingClientRect();
- nav.style.setProperty("--wc-absolute-nav-left",`${Math.round(rect.left+(window.scrollX||0))}px`);
- nav.style.setProperty("--wc-absolute-nav-width",`${Math.round(rect.width)}px`);
- bottomNavAbsoluteTracking=true;
- document.body.classList.remove("native-share-active","share-sheet-open");
- nav.classList.remove("native-share-position-lock");
- nav.classList.add("ios-share-absolute-nav");
- updateBottomNavigationAbsolutePosition();
-}
-
-function armNativeShareRecovery(){
- nativeShareRecoveryArmed=isIOSStandalonePWA();
- nativeShareWasHidden=false;
- try{commitProjectStateLocalOnly()}catch(error){console.warn("No se pudo guardar el estado previo a compartir",error)}
-}
-
-function cancelNativeShareRecovery(){
- nativeShareRecoveryArmed=false;
- nativeShareWasHidden=false;
-}
-
-function recoverBottomNavigationAfterShareReturn(){
- if(!nativeShareRecoveryArmed)return;
- nativeShareRecoveryArmed=false;
- nativeShareWasHidden=false;
- // Let the native sheet finish its closing animation, then leave fixed mode.
- requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(enableBottomNavigationAbsoluteTracking,120)));
-}
-
 function resetBottomNavigationAfterNativeUI(){
  document.body.classList.remove("native-share-active","share-sheet-open");
-}
-function scheduleBottomNavigationReset(){
- if(bottomNavAbsoluteTracking)requestBottomNavigationAbsolutePosition();
+ const nav=document.querySelector(".bottom-app-nav");
+ nav?.classList.remove("native-share-position-lock","ios-share-absolute-nav");
+ nav?.removeAttribute("style");
 }
 
-document.addEventListener("visibilitychange",()=>{
- if(!nativeShareRecoveryArmed)return;
- if(document.visibilityState==="hidden")nativeShareWasHidden=true;
- else if(document.visibilityState==="visible")recoverBottomNavigationAfterShareReturn();
-});
-window.addEventListener("pagehide",()=>{if(nativeShareRecoveryArmed)nativeShareWasHidden=true});
-window.addEventListener("pageshow",()=>{
- if(nativeShareRecoveryArmed&&nativeShareWasHidden)recoverBottomNavigationAfterShareReturn();
- else scheduleBottomNavigationReset();
-});
-window.addEventListener("focus",()=>{
- if(nativeShareRecoveryArmed&&nativeShareWasHidden)recoverBottomNavigationAfterShareReturn();
-});
-window.addEventListener("scroll",requestBottomNavigationAbsolutePosition,{passive:true});
-window.addEventListener("resize",requestBottomNavigationAbsolutePosition,{passive:true});
-window.addEventListener("orientationchange",()=>setTimeout(requestBottomNavigationAbsolutePosition,180),{passive:true});
+async function persistBeforeNativeShareReload(){
+ try{commitProjectStateLocalOnly()}catch(error){console.warn("No se pudo guardar el estado local",error)}
+ if(cloudReady&&cloudSession&&navigator.onLine){
+   try{
+     await Promise.race([
+       saveCloudState(),
+       new Promise(resolve=>setTimeout(resolve,1800))
+     ]);
+   }catch(error){console.warn("La nube continuará sincronizando tras la recarga",error)}
+ }
+}
+
+async function reloadAfterSuccessfulNativeShare(){
+ if(nativeShareReloadPending)return;
+ nativeShareReloadPending=true;
+ resetBottomNavigationAfterNativeUI();
+ await persistBeforeNativeShareReload();
+ try{sessionStorage.setItem("wc26-share-reloaded-at",String(Date.now()))}catch{}
+ // replace() avoids leaving a duplicate history entry and starts a fresh
+ // viewport/compositor session inside the installed PWA.
+ window.location.replace(window.location.href.split("#")[0]);
+}
 
 function loadProjectState(){
  const p=projects[activeProjectId];
@@ -947,20 +893,10 @@ async function runShareOption(mode){
        shareSheet.hidden=true;
      }
      resetBottomNavigationAfterNativeUI();
-     armNativeShareRecovery();
      await new Promise(resolve=>setTimeout(resolve,80));
-     try{
-       await navigator.share({title,text});
-       showToast("Lista compartida ✓");
-       // If WC26 never became hidden, the user cancelled or completed sharing
-       // without leaving the app. Do not reload in that case.
-       if(!nativeShareWasHidden){
-         nativeShareRecoveryArmed=false;
-         setTimeout(enableBottomNavigationAbsoluteTracking,120);
-       }
-     }finally{
-       scheduleBottomNavigationReset();
-     }
+     await navigator.share({title,text});
+     showToast("Lista compartida ✓ · refrescando…");
+     await reloadAfterSuccessfulNativeShare();
      return;
    }
    await copyShareText(text);
@@ -976,7 +912,7 @@ async function runShareOption(mode){
    }
  }finally{
    document.body.classList.remove("share-sheet-open");
-   scheduleBottomNavigationReset();
+   resetBottomNavigationAfterNativeUI();
  }
 }
 
@@ -2438,7 +2374,7 @@ initialiseAppUpdates();
 loadData().catch(error=>{console.error(error);hideLoading();document.body.innerHTML="<main class='app-main'><h1>Error al cargar</h1><p>Comprueba que todos los archivos estén subidos.</p></main>"});
 
 
-/* Build 703.4.5 · actualización verificable + recuperación tras compartir */
+/* Build 703.4.7 · recarga controlada tras compartir */
 document.addEventListener("DOMContentLoaded",()=>{
  $("#onboardingForm")?.addEventListener("submit",createFirstCloudCollection);
  $("#onboardingStartButton")?.addEventListener("click",()=>{closeFirstCollectionOnboarding();switchMainView?.("collection");window.scrollTo({top:0,behavior:"auto"});showToast("Colección creada y sincronizada ✓")});

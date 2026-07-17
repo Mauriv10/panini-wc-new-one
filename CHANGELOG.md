@@ -1,3 +1,10 @@
+# Build 703.4.7 — Recarga controlada tras compartir
+
+- Elimina el seguimiento continuo de la barra que producía vibración.
+- Tras compartir correctamente mediante el panel nativo, guarda el proyecto y recarga la PWA una sola vez.
+- La cancelación del panel de compartir no provoca recarga.
+- Corrige la versión visible en Ajustes y renueva la caché de la aplicación.
+
 # Build 703.4.6
 
 - Corrige el desplazamiento acumulativo de la barra inferior después de compartir por WhatsApp en la PWA de iOS.
