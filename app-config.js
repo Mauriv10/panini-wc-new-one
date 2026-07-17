@@ -1,8 +1,8 @@
 /* Central build metadata. Update this file for every published build. */
 (function (scope) {
   scope.WC26_CONFIG = Object.freeze({
-    version: "703.3",
-    label: "Build 703.3",
-    cacheName: "wc26-build-703-3"
+    version: "703.4",
+    label: "Build 703.4",
+    cacheName: "wc26-build-703-4"
   });
 })(typeof self !== "undefined" ? self : globalThis);

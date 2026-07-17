@@ -1,9 +1,9 @@
-# Build 703.3
+# Build 703.4
 
-- Corrige la barra inferior que podía quedarse desplazada hacia el centro de la pantalla después de compartir mediante WhatsApp u otra aplicación.
-- Recupera el viewport al volver desde el menú nativo de compartir en iPhone/PWA y navegadores de escritorio.
-- Añade varias comprobaciones de reparación tras recuperar el foco, volver a una pestaña o cerrar el panel de compartir.
-- Mantiene las funciones de compartir con banderas, copiar texto y copiar compacto de la Build 703.2.
+- Barra inferior anclada al viewport visible real mediante VisualViewport.
+- Recolocación tras compartir, volver de segundo plano, cambiar de pestaña, redimensionar u orientar el dispositivo.
+- Eliminación preventiva del bloqueo de scroll del menú de compartir.
+- Versión y caché actualizadas a 703.4.
 
 # Build 703.2
 
