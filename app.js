@@ -1,4 +1,4 @@
-const APP_VERSION="7.0.0.4";
+const APP_VERSION="7.0.0.5";
 const DATA_REVISION="2026-07-17-master-inventarios-1";
 const MASTER_SEED_KEY="world-cup-2026-master-seed-revision";
 const PROJECTS_KEY="world-cup-2026-projects-v600";
@@ -37,9 +37,23 @@ function defaultProject(name,target,projectInventory,seedType="custom"){
  return {
    id:makeId(),name,target:Number(target)||1,seedType,inventory:structuredClone(projectInventory),
    history:[],finishedSessions:[],sessionStats:{plus:0,minus:0,startedAt:new Date().toISOString()},
-   exchange:{give:{},receive:{}},selectedTeam:Object.keys(projectInventory)[0]||"",
+   exchange:{give:{},receive:{}},teamOrder:Object.keys(projectInventory),selectedTeam:Object.keys(projectInventory)[0]||"",
    pendingSync:{},lastSyncedAt:null,createdAt:new Date().toISOString()
  };
+}
+function projectTeamOrder(project=projects?.[activeProjectId],sourceInventory=project?.inventory||inventory){
+ const available=Object.keys(sourceInventory||{});
+ const preferred=Array.isArray(project?.teamOrder)&&project.teamOrder.length
+   ? project.teamOrder
+   : Object.keys(masterInventories[project?.seedType]||{});
+ const seen=new Set();
+ return [...preferred,...available].filter(team=>available.includes(team)&&!seen.has(team)&&seen.add(team));
+}
+function currentTeamOrder(){return projectTeamOrder(projects?.[activeProjectId],inventory)}
+function ensureProjectTeamOrder(project){
+ if(!project)return;
+ project.teamOrder=projectTeamOrder(project,project.inventory);
+ if(!project.selectedTeam||!project.inventory?.[project.selectedTeam])project.selectedTeam=project.teamOrder[0]||"";
 }
 function migrateLegacy(seedProjects=[]){
  const created=seedProjects.map(seed=>defaultProject(seed.name,seed.target,seed.inventory,seed.seedType));
@@ -79,11 +93,13 @@ function applyMasterSeed(seedData){
      project.target=Number(seed.target)||project.target||1;
      project.seedType=seed.seedType;
      project.inventory=structuredClone(seed.inventory);
+     project.teamOrder=Object.keys(seed.inventory);
      project.pendingSync={};
      project.lastSyncedAt=null;
-     project.selectedTeam=project.inventory[project.selectedTeam]?project.selectedTeam:Object.keys(project.inventory)[0];
+     project.selectedTeam=project.inventory[project.selectedTeam]?project.selectedTeam:project.teamOrder[0];
    }
  });
+ Object.values(projects).forEach(ensureProjectTeamOrder);
  if(!projects[activeProjectId])activeProjectId=Object.keys(projects)[0];
  persistProjects();
  localStorage.setItem(MASTER_SEED_KEY,seedData.revision||DATA_REVISION);
@@ -141,6 +157,7 @@ async function applyCloudPayload(row,{silent=false}={}){
  cloudApplying=true;
  try{
    projects=structuredClone(row.payload.projects);
+   Object.values(projects).forEach(ensureProjectTeamOrder);
    activeProjectId=row.payload.activeProjectId&&projects[row.payload.activeProjectId]?row.payload.activeProjectId:Object.keys(projects)[0];
    cloudRevision=Number(row.revision)||0;cloudLastUpdatedAt=row.updated_at||null;
    localStorage.setItem(PROJECTS_KEY,JSON.stringify(projects));localStorage.setItem(ACTIVE_PROJECT_KEY,activeProjectId);
@@ -174,6 +191,7 @@ window.addEventListener("wc-auth-changed",event=>{
 window.addEventListener("online",()=>{if(cloudSession){cloudReady=true;scheduleCloudSave(100)}});
 function loadProjectState(){
  const p=projects[activeProjectId];
+ ensureProjectTeamOrder(p);
  inventory=structuredClone(p.inventory);
  history=structuredClone(p.history||[]);
  finishedSessions=structuredClone(p.finishedSessions||[]);
@@ -184,7 +202,7 @@ function loadProjectState(){
  targetInput.value=String(p.target||1);
  targetValue.textContent=String(p.target||1);
  populateTeams();
- teamSelect.value=inventory[p.selectedTeam]?p.selectedTeam:Object.keys(inventory)[0];
+ teamSelect.value=inventory[p.selectedTeam]?p.selectedTeam:currentTeamOrder()[0];
  updateCurrentTeamUI();
  $("#activeProjectName").textContent=p.name;
  renderAll();updateNavigationBadges();updateSyncUI();
@@ -290,12 +308,12 @@ function saveAll(message="Todo guardado"){
 }
 function populateTeams(){
  teamSelect.innerHTML="";
- Object.keys(inventory).forEach(team=>{
+ currentTeamOrder().forEach(team=>{
    const option=document.createElement("option");
    option.value=team;option.textContent=team;
    teamSelect.appendChild(option);
  });
- renderTeamList(Object.keys(inventory));
+ renderTeamList(currentTeamOrder());
 }
 
 function updateCurrentTeamUI(){
@@ -312,7 +330,7 @@ function selectTeam(team){
  if(collectionTeamFilter==="all"){
    // Keep a valid internal team selected so legacy counters/renderers never fail.
    if(!inventory[teamSelect.value]){
-     teamSelect.value=Object.keys(inventory)[0];
+     teamSelect.value=currentTeamOrder()[0];
    }
 
    $("#currentTeamName").textContent="Todas las selecciones";
@@ -445,7 +463,7 @@ function matchesFilter(qty){
  return currentFilter==="all"||(currentFilter==="need"&&kind==="need")||(currentFilter==="offer"&&kind==="offer");
 }
 function renderCards(){
- const team=inventory[teamSelect.value]?teamSelect.value:Object.keys(inventory)[0];
+ const team=inventory[teamSelect.value]?teamSelect.value:currentTeamOrder()[0];
  if(!team||!inventory[team])return;
  grid.innerHTML="";
  Object.entries(inventory[team]).sort(([a],[b])=>Number(a)-Number(b)).forEach(([code,q])=>{
@@ -480,7 +498,7 @@ function updateGlobalDashboard(){
 }
 
 function updateSummary(){
- const team=inventory[teamSelect.value]?teamSelect.value:Object.keys(inventory)[0];
+ const team=inventory[teamSelect.value]?teamSelect.value:currentTeamOrder()[0];
  if(!team||!inventory[team])return;
  const values=Object.values(inventory[team]).map(Number);
  let need=0,offer=0,total=0,needCards=0,offerCards=0;
@@ -647,7 +665,7 @@ function renderGlobalCollection(){
  const list=$("#globalCollectionList");
  if(!list)return;
  list.innerHTML="";
- let teams=Object.entries(inventory);
+ let teams=currentTeamOrder().map(team=>[team,inventory[team]]);
  if(collectionSort==="az")teams.sort(([a],[b])=>a.localeCompare(b,"es"));
  if(collectionSort==="most-repeats"){
    teams.sort(([,a],[,b])=>{
@@ -818,7 +836,7 @@ teamSelect.onchange=()=>{updateCurrentTeamUI();saveAll();renderAll()};
 teamSearch.oninput=()=>{
  const q=normalize(teamSearch.value);
  if(!q){suggestions.hidden=true;return}
- const matches=Object.keys(inventory).filter(team=>normalize(team).includes(q)).slice(0,8);
+ const matches=currentTeamOrder().filter(team=>normalize(team).includes(q)).slice(0,8);
  const worldMatch=["todo","todos","mundo","global","selecciones"].some(word=>word.includes(q)||q.includes(word));
  suggestions.innerHTML=(worldMatch?`<button class="suggestion" data-team="all"><span>🌍</span><strong>Todas las selecciones</strong></button>`:"")
    +matches.map(team=>`<button class="suggestion" data-team="${team}">${flagHTML(team)}<strong>${team}</strong></button>`).join("");
@@ -826,9 +844,9 @@ teamSearch.oninput=()=>{
  suggestions.querySelectorAll("button").forEach(button=>button.onclick=()=>selectTeam(button.dataset.team));
 };
 document.addEventListener("click",e=>{if(!e.target.closest(".search-wrap"))suggestions.hidden=true});
-$("#teamSelectorButton").onclick=()=>{$("#dialogSearch").value="";renderTeamList(Object.keys(inventory));$("#teamDialog").showModal()};
+$("#teamSelectorButton").onclick=()=>{$("#dialogSearch").value="";renderTeamList(currentTeamOrder());$("#teamDialog").showModal()};
 $("#closeTeamDialog").onclick=()=>$("#teamDialog").close();
-$("#dialogSearch").oninput=e=>renderTeamList(Object.keys(inventory).filter(team=>normalize(team).includes(normalize(e.target.value))));
+$("#dialogSearch").oninput=e=>renderTeamList(currentTeamOrder().filter(team=>normalize(team).includes(normalize(e.target.value))));
 $("#targetLockButton").onclick=()=>{
  const value=prompt("Nuevo objetivo de álbumes:",targetInput.value);
  if(value!==null&&Number(value)>=1&&Number(value)<=20){
@@ -942,7 +960,7 @@ function groupedExchange(type){
 }
 function renderExchangeList(){
  const groups=groupedExchange(exchangeListType);
- const teams=Object.keys(groups);
+ const teams=currentTeamOrder().filter(team=>groups[team]);
  if(!teams.length){$("#exchangeList").innerHTML="<p>No has marcado ningún cromo en esta lista.</p>";return}
  $("#exchangeList").innerHTML=teams.map(team=>`<section class="exchange-team-group">
    <div class="exchange-team-title">${flagHTML(team)}<span>${team}</span></div>
@@ -1013,7 +1031,7 @@ $("#confirmExchangeButton").onclick=()=>{
 // TODOS LOS QUE FALTAN
 // --------------------
 function missingCountries(){
- return Object.entries(inventory).map(([team,stickers])=>{
+ return currentTeamOrder().map(team=>[team,inventory[team]]).map(([team,stickers])=>{
    const missing=Object.entries(stickers)
    .filter(([,qty])=>Number(qty)<getTarget())
    .map(([code,qty])=>({code,qty:Number(qty),need:getTarget()-Number(qty)}))
@@ -1025,7 +1043,7 @@ function renderMissing(){
  const sort=$("#missingSort").value;
  const countries=missingCountries();
  if(sort==="album"){
-   const order=new Map(Object.keys(inventory).map((team,index)=>[team,index]));
+   const order=new Map(currentTeamOrder().map((team,index)=>[team,index]));
    countries.sort((a,b)=>(order.get(a.team)??999)-(order.get(b.team)??999));
  }
  if(sort==="most")countries.sort((a,b)=>b.distinct-a.distinct||b.units-a.units||a.team.localeCompare(b.team,"es"));
@@ -1146,7 +1164,7 @@ function xlsxCell(ref,value,styleId=0){
  return `<c r="${ref}" s="${styleId}" t="inlineStr"><is><t>${xmlEscape(value)}</t></is></c>`;
 }
 function buildInventorySheetXml(){
- const teams=Object.keys(inventory);
+ const teams=currentTeamOrder();
  const headers=["Grupo","Selección",...Array.from({length:20},(_,i)=>String(i+1).padStart(2,"0"))];
  const rows=[];
 
