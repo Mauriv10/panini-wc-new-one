@@ -4483,3 +4483,21 @@ body{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
 body.native-share-active .bottom-app-nav{
   transition:none!important;
 }
+
+/* =========================================================
+   BUILD 703.4.6 — IOS SHARE: ABSOLUTE BOTTOM NAV TRACKER
+   ========================================================= */
+.bottom-app-nav.ios-share-absolute-nav{
+  position:absolute!important;
+  top:var(--wc-absolute-nav-top)!important;
+  bottom:auto!important;
+  left:var(--wc-absolute-nav-left)!important;
+  right:auto!important;
+  width:var(--wc-absolute-nav-width)!important;
+  max-width:none!important;
+  transform:none!important;
+  margin:0!important;
+  transition:none!important;
+  animation:none!important;
+  will-change:top!important;
+}

@@ -1,3 +1,9 @@
+# Build 703.4.6
+
+- Corrige el desplazamiento acumulativo de la barra inferior después de compartir por WhatsApp en la PWA de iOS.
+- Tras volver del panel nativo de compartir, la barra abandona `position: fixed` y usa un seguimiento absoluto del viewport durante el resto de la sesión.
+- El inventario, las colecciones y la sincronización no se modifican.
+
 # Build 703.4.5
 
 - Corrige el momento de recuperación tras compartir en iPhone.

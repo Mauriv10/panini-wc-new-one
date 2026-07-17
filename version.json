@@ -1,8 +1,8 @@
 {
-  "version": "703.4.5",
-  "appVersion": "7.0.3.4.5",
-  "releasedAt": "2026-07-18T00:45:00+02:00",
-  "name": "Barra inferior estable tras compartir por WhatsApp",
-  "build": "703.4.5",
-  "label": "Corrección de desplazamiento tras compartir"
+  "version": "703.4.6",
+  "appVersion": "7.0.3.4.6",
+  "releasedAt": "2026-07-18T23:55:00+02:00",
+  "name": "Barra inferior estable tras compartir en iOS",
+  "build": "703.4.6",
+  "label": "Corrección definitiva del viewport tras compartir"
 }

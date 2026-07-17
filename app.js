@@ -251,70 +251,86 @@ window.addEventListener("pageshow",recoverFromForeground);
 window.addEventListener("focus",recoverFromForeground);
 
 
-// Build 703.4.5: keep the bottom navigation physically stable while iOS
-// opens and closes the native share sheet. We snapshot the computed offsets
-// before sharing and release them only after the visual viewport has settled.
-let nativeShareNavUnlockTimer=0;
-function lockBottomNavigationForNativeShare(){
- const nav=document.querySelector(".bottom-app-nav");
- if(!nav)return;
- const style=getComputedStyle(nav);
- nav.style.setProperty("--wc-share-nav-left",style.left);
- nav.style.setProperty("--wc-share-nav-right",style.right);
- nav.style.setProperty("--wc-share-nav-bottom",style.bottom);
- nav.style.setProperty("--wc-share-nav-width",style.width);
- nav.style.setProperty("--wc-share-nav-transform",style.transform==="none"?"none":style.transform);
- nav.classList.add("native-share-position-lock");
- document.body.classList.add("native-share-active");
-}
-function unlockBottomNavigationAfterNativeShare(){
- clearTimeout(nativeShareNavUnlockTimer);
- const release=()=>{
-   const nav=document.querySelector(".bottom-app-nav");
-   document.body.classList.remove("native-share-active","share-sheet-open");
-   if(nav){
-     nav.classList.remove("native-share-position-lock");
-     ["--wc-share-nav-left","--wc-share-nav-right","--wc-share-nav-bottom","--wc-share-nav-width","--wc-share-nav-transform"].forEach(name=>nav.style.removeProperty(name));
-     void nav.offsetHeight;
-   }
- };
- // iOS animates the visual viewport after focus/visibility has already returned.
- requestAnimationFrame(()=>requestAnimationFrame(()=>{
-   nativeShareNavUnlockTimer=setTimeout(release,650);
- }));
-}
-function resetBottomNavigationAfterNativeUI(){
- unlockBottomNavigationAfterNativeShare();
-}
-function scheduleBottomNavigationReset(){
- unlockBottomNavigationAfterNativeShare();
-}
-
+// Build 703.4.6: iOS standalone PWAs can corrupt the coordinate system used by
+// position:fixed after returning from the native share sheet. Once a native share
+// has completed, switch the bottom navigation to an absolute-position tracker.
+// Its document coordinates are recalculated from scrollY + the layout viewport,
+// bypassing the broken fixed/visual-viewport path until the app is reopened.
 let nativeShareRecoveryArmed=false;
 let nativeShareWasHidden=false;
+let bottomNavAbsoluteTracking=false;
+let bottomNavTrackingFrame=0;
+let bottomNavBottomGap=6;
+
 function isIOSStandalonePWA(){
  const ua=navigator.userAgent||"";
  const ios=/iPad|iPhone|iPod/.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
  const standalone=window.matchMedia?.("(display-mode: standalone)")?.matches||navigator.standalone===true;
  return Boolean(ios&&standalone);
 }
+
+function layoutViewportHeight(){
+ return Math.max(document.documentElement?.clientHeight||0,window.innerHeight||0);
+}
+
+function updateBottomNavigationAbsolutePosition(){
+ bottomNavTrackingFrame=0;
+ if(!bottomNavAbsoluteTracking)return;
+ const nav=document.querySelector(".bottom-app-nav");
+ if(!nav)return;
+ const viewportHeight=layoutViewportHeight();
+ const navHeight=nav.offsetHeight||72;
+ const top=Math.max(0,(window.scrollY||window.pageYOffset||0)+viewportHeight-navHeight-bottomNavBottomGap);
+ nav.style.setProperty("--wc-absolute-nav-top",`${Math.round(top)}px`);
+}
+
+function requestBottomNavigationAbsolutePosition(){
+ if(!bottomNavAbsoluteTracking||bottomNavTrackingFrame)return;
+ bottomNavTrackingFrame=requestAnimationFrame(updateBottomNavigationAbsolutePosition);
+}
+
+function enableBottomNavigationAbsoluteTracking(){
+ if(!isIOSStandalonePWA()||bottomNavAbsoluteTracking)return;
+ const nav=document.querySelector(".bottom-app-nav");
+ if(!nav)return;
+ const computed=getComputedStyle(nav);
+ bottomNavBottomGap=Math.max(0,parseFloat(computed.bottom)||6);
+ const rect=nav.getBoundingClientRect();
+ nav.style.setProperty("--wc-absolute-nav-left",`${Math.round(rect.left+(window.scrollX||0))}px`);
+ nav.style.setProperty("--wc-absolute-nav-width",`${Math.round(rect.width)}px`);
+ bottomNavAbsoluteTracking=true;
+ document.body.classList.remove("native-share-active","share-sheet-open");
+ nav.classList.remove("native-share-position-lock");
+ nav.classList.add("ios-share-absolute-nav");
+ updateBottomNavigationAbsolutePosition();
+}
+
 function armNativeShareRecovery(){
  nativeShareRecoveryArmed=isIOSStandalonePWA();
  nativeShareWasHidden=false;
- lockBottomNavigationForNativeShare();
  try{commitProjectStateLocalOnly()}catch(error){console.warn("No se pudo guardar el estado previo a compartir",error)}
 }
+
 function cancelNativeShareRecovery(){
  nativeShareRecoveryArmed=false;
  nativeShareWasHidden=false;
- unlockBottomNavigationAfterNativeShare();
 }
+
 function recoverBottomNavigationAfterShareReturn(){
  if(!nativeShareRecoveryArmed)return;
  nativeShareRecoveryArmed=false;
  nativeShareWasHidden=false;
- unlockBottomNavigationAfterNativeShare();
+ // Let the native sheet finish its closing animation, then leave fixed mode.
+ requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(enableBottomNavigationAbsoluteTracking,120)));
 }
+
+function resetBottomNavigationAfterNativeUI(){
+ document.body.classList.remove("native-share-active","share-sheet-open");
+}
+function scheduleBottomNavigationReset(){
+ if(bottomNavAbsoluteTracking)requestBottomNavigationAbsolutePosition();
+}
+
 document.addEventListener("visibilitychange",()=>{
  if(!nativeShareRecoveryArmed)return;
  if(document.visibilityState==="hidden")nativeShareWasHidden=true;
@@ -328,6 +344,9 @@ window.addEventListener("pageshow",()=>{
 window.addEventListener("focus",()=>{
  if(nativeShareRecoveryArmed&&nativeShareWasHidden)recoverBottomNavigationAfterShareReturn();
 });
+window.addEventListener("scroll",requestBottomNavigationAbsolutePosition,{passive:true});
+window.addEventListener("resize",requestBottomNavigationAbsolutePosition,{passive:true});
+window.addEventListener("orientationchange",()=>setTimeout(requestBottomNavigationAbsolutePosition,180),{passive:true});
 
 function loadProjectState(){
  const p=projects[activeProjectId];
@@ -935,7 +954,10 @@ async function runShareOption(mode){
        showToast("Lista compartida ✓");
        // If WC26 never became hidden, the user cancelled or completed sharing
        // without leaving the app. Do not reload in that case.
-       if(!nativeShareWasHidden)cancelNativeShareRecovery();
+       if(!nativeShareWasHidden){
+         nativeShareRecoveryArmed=false;
+         setTimeout(enableBottomNavigationAbsoluteTracking,120);
+       }
      }finally{
        scheduleBottomNavigationReset();
      }
