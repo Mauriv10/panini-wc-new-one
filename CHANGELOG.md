@@ -1,4 +1,4 @@
-# Build 703.4.7 — Recarga controlada tras compartir
+# Build 703.4.8 — Recarga controlada tras compartir
 
 - Elimina el seguimiento continuo de la barra que producía vibración.
 - Tras compartir correctamente mediante el panel nativo, guarda el proyecto y recarga la PWA una sola vez.

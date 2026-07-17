@@ -1,4 +1,4 @@
-const APP_VERSION=globalThis.WC26_CONFIG?.version||"703.4.7";
+const APP_VERSION=globalThis.WC26_CONFIG?.version||"703.4.8";
 const DATA_SCHEMA_VERSION=2;
 const DATA_REVISION="2026-07-17-collections-v70111";
 const MASTER_SEED_KEY="world-cup-2026-master-seed-revision";
@@ -251,10 +251,9 @@ window.addEventListener("pageshow",recoverFromForeground);
 window.addEventListener("focus",recoverFromForeground);
 
 
-// Build 703.4.7: after a successful native share on iOS, persist the
-// current project and perform one controlled reload. This clears the broken
-// WebKit viewport state exactly as closing and reopening the PWA would, without
-// keeping any scroll/position tracker alive afterwards.
+// Build 703.4.8: wait until the native share sheet has fully released the
+// iOS viewport, then force a genuinely new navigation. Reloading immediately
+// when navigator.share() resolves can preserve the damaged WebKit compositor.
 let nativeShareReloadPending=false;
 
 function isIOSStandalonePWA(){
@@ -275,12 +274,33 @@ async function persistBeforeNativeShareReload(){
  try{commitProjectStateLocalOnly()}catch(error){console.warn("No se pudo guardar el estado local",error)}
  if(cloudReady&&cloudSession&&navigator.onLine){
    try{
-     await Promise.race([
-       saveCloudState(),
-       new Promise(resolve=>setTimeout(resolve,1800))
-     ]);
+     await Promise.race([saveCloudState(),new Promise(resolve=>setTimeout(resolve,1800))]);
    }catch(error){console.warn("La nube continuará sincronizando tras la recarga",error)}
  }
+}
+
+function waitForStableIOSViewport(timeout=2400){
+ return new Promise(resolve=>{
+   const started=Date.now();
+   let previous=null;
+   let stableSamples=0;
+   const sample=()=>{
+     if(document.visibilityState&&document.visibilityState!=="visible"){
+       setTimeout(sample,100);
+       return;
+     }
+     const vv=window.visualViewport;
+     const current=[Math.round(vv?.height||window.innerHeight),Math.round(vv?.offsetTop||0),Math.round(vv?.pageTop||window.scrollY||0)].join(":");
+     stableSamples=current===previous?stableSamples+1:0;
+     previous=current;
+     if(stableSamples>=5||Date.now()-started>=timeout){
+       requestAnimationFrame(()=>requestAnimationFrame(resolve));
+       return;
+     }
+     setTimeout(sample,90);
+   };
+   setTimeout(sample,180);
+ });
 }
 
 async function reloadAfterSuccessfulNativeShare(){
@@ -288,11 +308,22 @@ async function reloadAfterSuccessfulNativeShare(){
  nativeShareReloadPending=true;
  resetBottomNavigationAfterNativeUI();
  await persistBeforeNativeShareReload();
+ await waitForStableIOSViewport();
  try{sessionStorage.setItem("wc26-share-reloaded-at",String(Date.now()))}catch{}
- // replace() avoids leaving a duplicate history entry and starts a fresh
- // viewport/compositor session inside the installed PWA.
- window.location.replace(window.location.href.split("#")[0]);
+ const url=new URL(window.location.href);
+ url.hash="";
+ url.searchParams.set("share-recovery",String(Date.now()));
+ window.location.replace(url.toString());
 }
+
+// Remove the one-use cache-busting parameter without causing another load.
+try{
+ const startupUrl=new URL(window.location.href);
+ if(startupUrl.searchParams.has("share-recovery")){
+   startupUrl.searchParams.delete("share-recovery");
+   history.replaceState(history.state,"",startupUrl.pathname+(startupUrl.search?startupUrl.search:"")+startupUrl.hash);
+ }
+}catch{}
 
 function loadProjectState(){
  const p=projects[activeProjectId];
@@ -2374,7 +2405,7 @@ initialiseAppUpdates();
 loadData().catch(error=>{console.error(error);hideLoading();document.body.innerHTML="<main class='app-main'><h1>Error al cargar</h1><p>Comprueba que todos los archivos estén subidos.</p></main>"});
 
 
-/* Build 703.4.7 · recarga controlada tras compartir */
+/* Build 703.4.8 · recuperación completa del viewport tras compartir */
 document.addEventListener("DOMContentLoaded",()=>{
  $("#onboardingForm")?.addEventListener("submit",createFirstCloudCollection);
  $("#onboardingStartButton")?.addEventListener("click",()=>{closeFirstCollectionOnboarding();switchMainView?.("collection");window.scrollTo({top:0,behavior:"auto"});showToast("Colección creada y sincronizada ✓")});

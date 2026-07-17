@@ -4462,3 +4462,18 @@ body{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
 @media(min-width:601px){
   .bottom-app-nav{left:50%!important;right:auto!important;width:min(calc(100% - 20px),620px)!important;transform:translateX(-50%)!important}
 }
+
+/* =========================================================
+   BUILD 703.4.8 — iOS SHARE / COLLECTION COMPOSITOR FIX
+   Cromos is the only view with a sticky translucent layer. On iOS standalone
+   that combination can keep the native-share compositor damaged and make the
+   fixed bottom navigation oscillate. Keep the sticky behaviour, but remove
+   the live backdrop sampling on iPhone/iPad PWAs.
+   ========================================================= */
+@supports (-webkit-touch-callout:none){
+  .collection-tabs-sticky{
+    -webkit-backdrop-filter:none!important;
+    backdrop-filter:none!important;
+    background:rgba(245,245,247,.98)!important;
+  }
+}
