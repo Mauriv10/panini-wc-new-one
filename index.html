@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="World Cup 2026">
-  <title>World Cup 2026 · Build 701.2</title>
+  <title>World Cup 2026 · Build 701.3.1</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="canonical" href="https://mauriv10.github.io/wc26/">
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/icons/world-cup-2026-apple-v522.png">
@@ -56,8 +56,9 @@
 <header class="app-header premium-home-header compact-home-header">
   <div class="compact-home-titlebar">
     <div class="compact-home-copy">
-      <small>MI COLECCIÓN</small>
+      <span class="collection-header-kicker">WORLD CUP 2026</span>
       <h1 id="homeCollectionName">Colección</h1>
+      <small class="collection-header-subtitle">Mi colección</small>
     </div>
     <div class="top-actions">
       <button id="undoButton" class="icon-action" disabled aria-label="Deshacer">↩</button>
@@ -527,7 +528,7 @@
         <div><strong>Información</strong><small>World Cup 2026</small></div>
       </div>
       <div class="settings-info-list">
-        <div><span>Versión</span><strong>Build 701.2 · Interfaz limpia</strong></div>
+        <div><span>Versión</span><strong>Build 701.3.1 · Premium UI</strong></div>
         <div><span>Modo</span><strong>Disponible offline</strong></div>
       </div>
     </section>
@@ -720,6 +721,36 @@
 </aside>
 
 <div id="toast" class="toast">Guardado</div>
+
+<dialog id="editCollectionDialog" class="collection-edit-dialog">
+  <form id="editCollectionForm" method="dialog">
+    <div class="collection-edit-handle" aria-hidden="true"></div>
+    <header class="collection-edit-header">
+      <div><span>COLECCIÓN</span><h2>Editar colección</h2></div>
+      <button id="closeEditCollectionDialog" type="button" aria-label="Cerrar">✕</button>
+    </header>
+    <input id="editCollectionId" type="hidden">
+    <label class="collection-edit-field">
+      <span>Nombre</span>
+      <input id="editCollectionName" type="text" maxlength="60" required autocomplete="off">
+    </label>
+    <label class="collection-edit-field">
+      <span>Objetivo de álbumes</span>
+      <div class="collection-target-editor">
+        <button id="editTargetMinus" type="button" aria-label="Reducir objetivo">−</button>
+        <input id="editCollectionTarget" type="number" min="1" max="20" required inputmode="numeric">
+        <button id="editTargetPlus" type="button" aria-label="Aumentar objetivo">＋</button>
+      </div>
+      <small>Define cuántas copias quieres completar.</small>
+    </label>
+    <button class="collection-save-button" type="submit">Guardar cambios</button>
+    <div class="collection-edit-secondary">
+      <button id="duplicateCollectionButton" type="button">Duplicar colección</button>
+      <button id="deleteCollectionButton" class="danger" type="button">Eliminar colección</button>
+    </div>
+  </form>
+</dialog>
+
 <script src="./assets/vendor/jszip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./supabase-config.js"></script>

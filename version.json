@@ -1,8 +1,8 @@
 {
-  "version": "701.2",
+  "version": "701.3.1",
   "appVersion": "7.0.0.8",
-  "releasedAt": "2026-07-17T17:45:00+02:00",
-  "name": "Ruta wc26",
-  "build": "701.2",
-  "label": "Colecciones"
+  "releasedAt": "2026-07-17T21:15:00+02:00",
+  "name": "Premium UI",
+  "build": "701.3.1",
+  "label": "Premium UI"
 }

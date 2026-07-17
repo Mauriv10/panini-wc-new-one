@@ -1326,21 +1326,25 @@ function collectionProgress(p){
  }));
  return {total,different,pending,progress:required?Math.min(100,Math.round(useful/required*100)):0};
 }
+function collectionSafeText(value){
+ return String(value??"").replace(/[&<>'"]/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
+}
 function renderCollections(){
  const list=$("#collectionsList");if(!list)return;
  const items=Object.values(projects);
  list.innerHTML=items.map(p=>{
    const s=collectionProgress(p),active=p.id===activeProjectId;
    return `<article class="collection-library-card clean-library-card ${active?"active":""}" data-collection-id="${p.id}">
-    <button type="button" class="collection-card-main" data-open-collection="${p.id}" aria-label="Abrir ${p.name}">
-      <div class="collection-album-icon" aria-hidden="true">📔</div>
+    <button type="button" class="collection-card-main" data-open-collection="${p.id}" aria-label="Abrir ${collectionSafeText(p.name)}">
+      <div class="collection-album-icon" aria-hidden="true"><span>26</span></div>
       <div class="collection-library-copy">
-        <div class="collection-title-line"><h3>${p.name}</h3>${active?'<span class="collection-active-badge">Activa</span>':''}</div>
-        <span class="collection-brief">Objetivo: ${p.target} ${albumWord(p.target)} · ${s.progress}% completado</span>
+        <div class="collection-title-line"><h3>${collectionSafeText(p.name)}</h3>${active?'<span class="collection-active-badge">Activa</span>':''}</div>
+        <span class="collection-brief">${s.progress}% completado · Objetivo ${p.target} ${albumWord(p.target)}</span>
         <div class="collection-progress-track"><div class="collection-progress-fill" style="width:${s.progress}%"></div></div>
       </div>
       <span class="collection-card-chevron">›</span>
     </button>
+    <button type="button" class="collection-card-menu" data-edit-collection="${p.id}" aria-label="Editar ${collectionSafeText(p.name)}">•••</button>
    </article>`;
  }).join("");
  list.querySelectorAll("[data-open-collection]").forEach(button=>button.onclick=()=>{
@@ -1348,6 +1352,51 @@ function renderCollections(){
    if(id!==activeProjectId)switchProject(id);
    setMainTab("collection");
  });
+ list.querySelectorAll("[data-edit-collection]").forEach(button=>button.onclick=event=>{
+   event.stopPropagation();openEditCollection(button.dataset.editCollection);
+ });
+}
+function openEditCollection(id){
+ const p=projects[id],dialog=$("#editCollectionDialog");if(!p||!dialog)return;
+ $("#editCollectionId").value=id;
+ $("#editCollectionName").value=p.name||"Colección";
+ $("#editCollectionTarget").value=Math.max(1,Number(p.target)||1);
+ $("#deleteCollectionButton").hidden=Object.keys(projects).length<=1;
+ dialog.showModal();
+ setTimeout(()=>$("#editCollectionName")?.focus(),80);
+}
+function closeEditCollection(){const dialog=$("#editCollectionDialog");if(dialog?.open)dialog.close()}
+function changeEditTarget(delta){
+ const input=$("#editCollectionTarget");if(!input)return;
+ input.value=String(Math.min(20,Math.max(1,(Number(input.value)||1)+delta)));
+}
+function saveEditedCollection(){
+ const id=$("#editCollectionId").value,p=projects[id];if(!p)return;
+ const name=$("#editCollectionName").value.trim();
+ const target=Math.min(20,Math.max(1,Number($("#editCollectionTarget").value)||1));
+ if(!name){$("#editCollectionName").focus();return}
+ if(id===activeProjectId)commitProjectState();
+ p.name=name;p.target=target;
+ persistProjects();
+ if(id===activeProjectId)loadProjectState();
+ renderAll();renderProjectsList();closeEditCollection();showToast("Colección actualizada");
+}
+function duplicateEditedCollection(){
+ const id=$("#editCollectionId").value,p=projects[id];if(!p)return;
+ if(id===activeProjectId)commitProjectState();
+ const copy=structuredClone(p);copy.id=makeId();copy.name=`${p.name} · copia`;
+ copy.createdAt=new Date().toISOString();copy.updatedAt=copy.createdAt;
+ projects[copy.id]=copy;persistProjects();renderCollections();renderProjectsList();closeEditCollection();showToast("Colección duplicada");
+}
+function deleteEditedCollection(){
+ const id=$("#editCollectionId").value,p=projects[id];if(!p||Object.keys(projects).length<=1)return;
+ if(!confirm(`¿Eliminar la colección "${p.name}"? Esta acción no se puede deshacer.`))return;
+ createAutomaticBackup("antes-de-eliminar-colección");
+ if(id===activeProjectId){
+   const replacement=Object.keys(projects).find(projectId=>projectId!==id);
+   delete projects[id];activeProjectId=replacement;persistProjects();loadProjectState();
+ }else{delete projects[id];persistProjects()}
+ renderAll();renderProjectsList();closeEditCollection();showToast("Colección eliminada");
 }
 
 function renderProjectsList(){
@@ -2031,3 +2080,16 @@ function initialiseAppUpdates(){
 
 initialiseAppUpdates();
 loadData().catch(error=>{console.error(error);hideLoading();document.body.innerHTML="<main class='app-main'><h1>Error al cargar</h1><p>Comprueba que todos los archivos estén subidos.</p></main>"});
+
+
+/* Build 701.3.1 · Premium UI and collection editor */
+document.addEventListener("DOMContentLoaded",()=>{
+ const form=$("#editCollectionForm");
+ if(form)form.addEventListener("submit",event=>{event.preventDefault();saveEditedCollection()});
+ $("#closeEditCollectionDialog")?.addEventListener("click",closeEditCollection);
+ $("#editTargetMinus")?.addEventListener("click",()=>changeEditTarget(-1));
+ $("#editTargetPlus")?.addEventListener("click",()=>changeEditTarget(1));
+ $("#duplicateCollectionButton")?.addEventListener("click",duplicateEditedCollection);
+ $("#deleteCollectionButton")?.addEventListener("click",deleteEditedCollection);
+ $("#editCollectionDialog")?.addEventListener("click",event=>{if(event.target===$("#editCollectionDialog"))closeEditCollection()});
+});
