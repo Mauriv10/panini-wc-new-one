@@ -1,4 +1,4 @@
-const APP_VERSION="701.2";
+const APP_VERSION=globalThis.WC26_CONFIG?.version||"701.3.2";
 const DATA_SCHEMA_VERSION=2;
 const DATA_REVISION="2026-07-17-collections-v70111";
 const MASTER_SEED_KEY="world-cup-2026-master-seed-revision";
@@ -1960,7 +1960,7 @@ window.addEventListener("scroll",()=>{
  },180);
 },{passive:true});
 
-const PUBLIC_BUILD_VERSION="701.2";
+const PUBLIC_BUILD_VERSION=globalThis.WC26_CONFIG?.version||APP_VERSION;
 let serviceWorkerRegistration=null;
 let updateReloadStarted=false;
 
@@ -2008,8 +2008,10 @@ async function checkPublishedVersion(){
 function watchInstallingWorker(worker){
  if(!worker)return;
  worker.addEventListener("statechange",()=>{
+   // An installed worker is not enough to announce an update: old/stale
+   // registrations can remain waiting. Confirm against version.json first.
    if(worker.state==="installed"&&navigator.serviceWorker.controller){
-     showAppUpdate();
+     checkPublishedVersion();
    }
  });
 }
@@ -2059,7 +2061,8 @@ function initialiseAppUpdates(){
    try{
      const registration=await navigator.serviceWorker.register("./service-worker.js",{updateViaCache:"none"});
      serviceWorkerRegistration=registration;
-     if(registration.waiting&&navigator.serviceWorker.controller)showAppUpdate();
+     // Do not show the banner merely because a worker is waiting. The
+     // published version check below is the source of truth.
      watchInstallingWorker(registration.installing);
      registration.addEventListener("updatefound",()=>watchInstallingWorker(registration.installing));
      await registration.update().catch(()=>{});
@@ -2082,7 +2085,7 @@ initialiseAppUpdates();
 loadData().catch(error=>{console.error(error);hideLoading();document.body.innerHTML="<main class='app-main'><h1>Error al cargar</h1><p>Comprueba que todos los archivos estén subidos.</p></main>"});
 
 
-/* Build 701.3.1 · Premium UI and collection editor */
+/* Build 701.3.2 · Update-loop fix and repository cleanup */
 document.addEventListener("DOMContentLoaded",()=>{
  const form=$("#editCollectionForm");
  if(form)form.addEventListener("submit",event=>{event.preventDefault();saveEditedCollection()});

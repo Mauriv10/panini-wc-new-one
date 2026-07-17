@@ -1,21 +1,16 @@
-# World Cup 2026 — Build 615.13 Premium Feedback
+# World Cup 2026
 
-- Cápsula superior estilo iOS.
-- Mensajes para añadir, quitar, dar y recibir.
-- Muestra selección, número y cantidad resultante.
-- Agrupa pulsaciones rápidas sobre el mismo cromo.
-- Animación del contador.
-- Vibración, destello y burbuja local conservados.
-- Toast inferior oculto visualmente.
-- Caché: `world-cup-2026-build-615-13`.
+PWA para gestionar colecciones de cromos, intercambios e inventarios con sincronización mediante Supabase.
 
+## Versión
+Build **701.3.2 · Estabilidad y limpieza**.
 
-## Build 700.3
+## Publicación
+Sube el contenido de este ZIP a la raíz del repositorio `wc26`. GitHub Pages servirá la aplicación desde esa misma raíz.
 
-Incluye los inventarios del proyecto principal y Panini Swiss Edition desde el Excel maestro.
-
-## Build 700.3
-- Compatible con claves nuevas `sb_publishable_...` y claves legacy `eyJ...`.
-- Acepta `publishableKey` y `anonKey` para evitar errores de nombres.
-- `supabase-config.js` se solicita siempre a la red para evitar que el Service Worker conserve una configuración antigua.
-- La URL del proyecto ya está incluida. Solo falta pegar la Publishable key entre comillas.
+## Configuración
+- `app-config.js`: versión visible y nombre de caché.
+- `version.json`: versión publicada que consulta la aplicación.
+- `supabase-config.js`: configuración del backend.
+- `SETUP-SUPABASE.md`: instrucciones de Supabase.
+- `CHANGELOG.md`: historial resumido de versiones.
