@@ -10,6 +10,12 @@
 - Caché: `world-cup-2026-build-615-13`.
 
 
-## Build 700.2
+## Build 700.3
 
 Incluye los inventarios del proyecto principal y Panini Swiss Edition desde el Excel maestro.
+
+## Build 700.3
+- Compatible con claves nuevas `sb_publishable_...` y claves legacy `eyJ...`.
+- Acepta `publishableKey` y `anonKey` para evitar errores de nombres.
+- `supabase-config.js` se solicita siempre a la red para evitar que el Service Worker conserve una configuración antigua.
+- La URL del proyecto ya está incluida. Solo falta pegar la Publishable key entre comillas.

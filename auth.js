@@ -1,8 +1,13 @@
 (() => {
   "use strict";
   const $ = (selector) => document.querySelector(selector);
-  const config = window.WC_SUPABASE_CONFIG || {};
-  const configured = /^https:\/\/.+\.supabase\.co$/i.test(config.url || "") && Boolean(config.publishableKey);
+  const rawConfig = window.WC_SUPABASE_CONFIG || window.SUPABASE_CONFIG || {};
+  const config = {
+    url: String(rawConfig.url || rawConfig.supabaseUrl || "").trim(),
+    publishableKey: String(rawConfig.publishableKey || rawConfig.anonKey || rawConfig.key || "").trim()
+  };
+  const keyLooksValid = /^(sb_publishable_|eyJ)/.test(config.publishableKey);
+  const configured = /^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(config.url) && keyLooksValid;
   const state = { client: null, session: null, signUpMode: false, localBypass: false, ready: false };
 
   function emit(name, detail = {}) {
@@ -84,7 +89,10 @@
     const configuredPanel = $("#authConfiguredPanel");
     const setupPanel = $("#authSetupPanel");
     if (!configured || !window.supabase?.createClient) {
-      configuredPanel.hidden = true; setupPanel.hidden = false; openGate();
+      configuredPanel.hidden = true; setupPanel.hidden = false;
+      const setupText = setupPanel.querySelector("p");
+      if (setupText) setupText.innerHTML = 'Revisa <code>supabase-config.js</code>: la URL debe ser la de tu proyecto y la Publishable key debe empezar por <code>sb_publishable_</code> y estar entre comillas.';
+      openGate();
       state.ready = true; updateAccountUI(); emit("wc-auth-ready", { session: null, configured: false }); return;
     }
     setupPanel.hidden = true; configuredPanel.hidden = false;
