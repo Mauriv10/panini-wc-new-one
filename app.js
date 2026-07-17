@@ -827,6 +827,47 @@ async function copyShareText(text){
  if(!copied)throw new Error("No se pudo copiar la lista");
 }
 
+
+
+/* Build 703.3 · reparación del viewport tras cerrar el menú nativo de compartir */
+let shareViewportRepairTimers=[];
+function clearShareViewportRepairTimers(){
+  shareViewportRepairTimers.forEach(timer=>clearTimeout(timer));
+  shareViewportRepairTimers=[];
+}
+function repairBottomNavigationViewport(){
+  const nav=document.querySelector('.bottom-app-nav');
+  if(!nav)return;
+  const active=document.activeElement;
+  if(active&&typeof active.blur==='function'&&active!==document.body)active.blur();
+
+  const viewport=window.visualViewport;
+  const layoutHeight=Math.max(document.documentElement.clientHeight||0,window.innerHeight||0);
+  const visibleBottom=viewport?viewport.height+viewport.offsetTop:layoutHeight;
+  const correction=Math.max(0,Math.round(layoutHeight-visibleBottom));
+  document.documentElement.style.setProperty('--share-viewport-correction',`${correction}px`);
+  document.body.classList.toggle('share-viewport-repair',correction>2);
+
+  nav.classList.remove('nav-viewport-refresh');
+  void nav.offsetHeight;
+  nav.classList.add('nav-viewport-refresh');
+  requestAnimationFrame(()=>nav.classList.remove('nav-viewport-refresh'));
+}
+function scheduleBottomNavigationRepair(){
+  clearShareViewportRepairTimers();
+  [0,80,220,500,900,1500].forEach(delay=>{
+    shareViewportRepairTimers.push(setTimeout(repairBottomNavigationViewport,delay));
+  });
+}
+
+window.visualViewport?.addEventListener('resize',repairBottomNavigationViewport,{passive:true});
+window.visualViewport?.addEventListener('scroll',repairBottomNavigationViewport,{passive:true});
+window.addEventListener('focus',scheduleBottomNavigationRepair);
+window.addEventListener('pageshow',scheduleBottomNavigationRepair);
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible')scheduleBottomNavigationRepair();
+});
+
 async function runShareOption(mode){
  const type=$("#shareOptionsSheet")?.dataset.type||activeShareListType();
  if(!type)return;
@@ -856,6 +897,8 @@ async function runShareOption(mode){
      console.error("No se pudo compartir la lista",error,copyError);
      showToast("No se pudo compartir la lista");
    }
+ }finally{
+   scheduleBottomNavigationRepair();
  }
 }
 
@@ -2317,7 +2360,7 @@ initialiseAppUpdates();
 loadData().catch(error=>{console.error(error);hideLoading();document.body.innerHTML="<main class='app-main'><h1>Error al cargar</h1><p>Comprueba que todos los archivos estén subidos.</p></main>"});
 
 
-/* Build 703.2 · formatos de compartir y copiar + recuperación al volver a primer plano */
+/* Build 703.3 · viewport estable después de compartir */
 document.addEventListener("DOMContentLoaded",()=>{
  $("#onboardingForm")?.addEventListener("submit",createFirstCloudCollection);
  $("#onboardingStartButton")?.addEventListener("click",()=>{closeFirstCollectionOnboarding();switchMainView?.("collection");window.scrollTo({top:0,behavior:"auto"});showToast("Colección creada y sincronizada ✓")});

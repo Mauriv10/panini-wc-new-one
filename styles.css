@@ -4442,3 +4442,24 @@ body.share-sheet-open{overflow:hidden}
 .share-option-button.primary{border-color:#cfe0f7;background:#f7fbff}.share-option-button:active{transform:scale(.988)}
 @media(min-width:760px){.share-options-sheet{align-items:center;padding:24px}.share-options-panel{border-radius:26px;padding:14px 20px 20px;transform:translateY(18px) scale(.98);opacity:0}.share-options-sheet.open .share-options-panel{transform:none;opacity:1}.share-options-handle{display:none}}
 @media(prefers-color-scheme:dark){.share-options-panel{background:#172231;color:#f4f7fb}.share-option-button{background:#111b28;border-color:#314054;color:#f4f7fb}.share-option-button.primary{background:#14263a;border-color:#33577f}.share-option-button>span,#shareOptionsClose{background:#243348;color:#dceaff}.share-option-button small,.share-options-panel header span{color:#9cadc2}}
+
+
+/* =========================================================
+   BUILD 703.3 — STABLE BOTTOM NAV AFTER NATIVE SHARE SHEET
+   ========================================================= */
+:root{--share-viewport-correction:0px}
+.bottom-app-nav{
+  top:auto!important;
+  margin:0!important;
+  will-change:transform;
+  transform:translateX(-50%) translateY(var(--share-viewport-correction))!important;
+}
+.bottom-app-nav.nav-viewport-refresh{contain:layout paint style}
+@media(max-width:600px){
+  .bottom-app-nav{
+    left:6px!important;
+    right:6px!important;
+    width:auto!important;
+    transform:translateY(var(--share-viewport-correction))!important;
+  }
+}

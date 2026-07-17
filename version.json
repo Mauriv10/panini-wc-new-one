@@ -1,8 +1,8 @@
 {
-  "version": "703.2",
-  "appVersion": "7.0.3.2",
-  "releasedAt": "2026-07-17T23:55:00+02:00",
-  "name": "Compartir con banderas y copiar texto",
-  "build": "703.2",
-  "label": "Build 703.2"
+  "version": "703.3",
+  "appVersion": "7.0.3.3",
+  "releasedAt": "2026-07-17T23:45:00+02:00",
+  "name": "Corrección barra inferior tras compartir",
+  "build": "703.3",
+  "label": "Build 703.3"
 }

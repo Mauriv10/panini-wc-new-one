@@ -1,3 +1,10 @@
+# Build 703.3
+
+- Corrige la barra inferior que podía quedarse desplazada hacia el centro de la pantalla después de compartir mediante WhatsApp u otra aplicación.
+- Recupera el viewport al volver desde el menú nativo de compartir en iPhone/PWA y navegadores de escritorio.
+- Añade varias comprobaciones de reparación tras recuperar el foco, volver a una pestaña o cerrar el panel de compartir.
+- Mantiene las funciones de compartir con banderas, copiar texto y copiar compacto de la Build 703.2.
+
 # Build 703.2
 
 - Nuevo menú al pulsar **Compartir** en «Me faltan» o «Repetidos».
