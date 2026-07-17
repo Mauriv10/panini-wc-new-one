@@ -1,4 +1,4 @@
-const APP_VERSION=globalThis.WC26_CONFIG?.version||"703.4.11";
+const APP_VERSION=globalThis.WC26_CONFIG?.version||"703.4.13";
 const DATA_SCHEMA_VERSION=2;
 const DATA_REVISION="2026-07-17-collections-v70111";
 const MASTER_SEED_KEY="world-cup-2026-master-seed-revision";
@@ -251,7 +251,7 @@ window.addEventListener("pageshow",recoverFromForeground);
 window.addEventListener("focus",recoverFromForeground);
 
 
-// Build 703.4.12: wait until the native share sheet has fully released the
+// Build 703.4.13: wait until the native share sheet has fully released the
 // iOS viewport, then force a genuinely new navigation. Reloading immediately
 // when navigator.share() resolves can preserve the damaged WebKit compositor.
 let nativeShareReloadPending=false;
@@ -309,32 +309,22 @@ async function reloadAfterSuccessfulNativeShare(){
  resetBottomNavigationAfterNativeUI();
  await persistBeforeNativeShareReload();
  await waitForStableIOSViewport();
- try{
-   sessionStorage.setItem("wc26-share-reloaded-at",String(Date.now()));
-   sessionStorage.setItem("wc26-ios-scroll-isolation","1");
- }catch{}
- const url=new URL(window.location.href);
- url.hash="";
- url.searchParams.set("share-recovery",String(Date.now()));
- window.location.replace(url.toString());
+ try{sessionStorage.setItem("wc26-share-reloaded-at",String(Date.now()))}catch{}
+ // iOS can preserve the damaged compositor when the same document reloads.
+ // Move through a separate minimal document so WebKit destroys the current
+ // Cromos view before rebuilding the app from scratch.
+ const recoveryUrl=new URL("./share-recovery.html",window.location.href);
+ recoveryUrl.searchParams.set("t",String(Date.now()));
+ window.location.replace(recoveryUrl.toString());
 }
 
-// Remove the one-use cache-busting parameter without causing another load.
+
+// Remove the one-use hard-restart parameter without another navigation.
 try{
  const startupUrl=new URL(window.location.href);
- if(startupUrl.searchParams.has("share-recovery")){
-   startupUrl.searchParams.delete("share-recovery");
+ if(startupUrl.searchParams.has("post-share-restart")){
+   startupUrl.searchParams.delete("post-share-restart");
    history.replaceState(history.state,"",startupUrl.pathname+(startupUrl.search?startupUrl.search:"")+startupUrl.hash);
- }
-}catch{}
-
-// Build 703.4.12: after returning from the native iOS share sheet, isolate
-// the Cromos scroll from the document. The fixed bottom navigation then lives
-// in a separate compositor layer while Todos/Pedir/Entregar remains sticky
-// inside the inventory scroller.
-try{
- if(isIOSStandalonePWA()&&sessionStorage.getItem("wc26-ios-scroll-isolation")==="1"){
-   document.body.classList.add("ios-share-scroll-isolation");
  }
 }catch{}
 
@@ -2412,7 +2402,7 @@ initialiseAppUpdates();
 loadData().catch(error=>{console.error(error);hideLoading();document.body.innerHTML="<main class='app-main'><h1>Error al cargar</h1><p>Comprueba que todos los archivos estén subidos.</p></main>"});
 
 
-/* Build 703.4.11 · recuperación completa del viewport tras compartir */
+/* Build 703.4.13 · recuperación completa del viewport tras compartir */
 document.addEventListener("DOMContentLoaded",()=>{
  $("#onboardingForm")?.addEventListener("submit",createFirstCloudCollection);
  $("#onboardingStartButton")?.addEventListener("click",()=>{closeFirstCollectionOnboarding();switchMainView?.("collection");window.scrollTo({top:0,behavior:"auto"});showToast("Colección creada y sincronizada ✓")});

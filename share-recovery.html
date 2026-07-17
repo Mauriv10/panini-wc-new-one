@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+<meta name="theme-color" content="#f5f5f7">
+<title>Recuperando app…</title>
+<style>
+html,body{margin:0;width:100%;height:100%;background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{display:grid;place-items:center;color:#526276}
+main{text-align:center;padding:24px}
+.spinner{width:28px;height:28px;margin:0 auto 12px;border:3px solid #d6dde6;border-top-color:#2563eb;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<main><div class="spinner" aria-hidden="true"></div><div>Restaurando la app…</div></main>
+<script>
+(function(){
+  try{ sessionStorage.setItem('wc26-share-hard-restart','1'); }catch(e){}
+  var next=new URL('./index.html',location.href);
+  next.searchParams.set('post-share-restart',String(Date.now()));
+  setTimeout(function(){ location.replace(next.toString()); },180);
+})();
+</script>
+</body>
+</html>
