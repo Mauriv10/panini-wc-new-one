@@ -1,5 +1,6 @@
-const APP_VERSION="6.1.5.13";
-const DATA_REVISION="2026-07-16-master-4";
+const APP_VERSION="7.0.0.2";
+const DATA_REVISION="2026-07-17-master-inventarios-1";
+const MASTER_SEED_KEY="world-cup-2026-master-seed-revision";
 const PROJECTS_KEY="world-cup-2026-projects-v600";
 const ACTIVE_PROJECT_KEY="world-cup-2026-active-project-v600";
 const LEGACY_KEYS={
@@ -12,7 +13,7 @@ const LEGACY_KEYS={
  exchange:"panini-mercat-exchange-v423"
 };
 
-let originalInventory={},inventory={},flags={},teamGroups={},history=[],finishedSessions=[];
+let originalInventory={},masterInventories={},inventory={},flags={},teamGroups={},history=[],finishedSessions=[];
 let sessionStats={plus:0,minus:0,startedAt:new Date().toISOString()};
 let currentFilter="all",currentView="inventory",exchangeType="give",exchangeListType="give";
 let exchange={give:{},receive:{}};
@@ -28,20 +29,63 @@ const toast=$("#toast"),undoButton=$("#undoButton"),emptyState=$("#emptyState");
 
 function makeId(){return crypto.randomUUID?.()||`p-${Date.now()}-${Math.random().toString(16).slice(2)}`}
 function emptyInventory(){return Object.fromEntries(Object.entries(originalInventory).map(([team,stickers])=>[team,Object.fromEntries(Object.keys(stickers).map(code=>[code,0]))]))}
-function defaultProject(name,target,projectInventory){
+function defaultProject(name,target,projectInventory,seedType="custom"){
  return {
-   id:makeId(),name,target:Number(target)||1,inventory:structuredClone(projectInventory),
+   id:makeId(),name,target:Number(target)||1,seedType,inventory:structuredClone(projectInventory),
    history:[],finishedSessions:[],sessionStats:{plus:0,minus:0,startedAt:new Date().toISOString()},
    exchange:{give:{},receive:{}},selectedTeam:Object.keys(projectInventory)[0]||"",
    pendingSync:{},lastSyncedAt:null,createdAt:new Date().toISOString()
  };
 }
-function migrateLegacy(){
- // El Excel maestro incorporado en esta versión es la fuente de verdad.
- const p=defaultProject("Mundial 2026 · 5 álbumes",5,structuredClone(originalInventory));
- p.selectedTeam=localStorage.getItem(LEGACY_KEYS.team)||Object.keys(originalInventory)[0];
- projects={[p.id]:p};activeProjectId=p.id;
+function migrateLegacy(seedProjects=[]){
+ const created=seedProjects.map(seed=>defaultProject(seed.name,seed.target,seed.inventory,seed.seedType));
+ if(!created.length){
+   created.push(defaultProject("Mundial 2026 · 5 álbumes",5,structuredClone(originalInventory),"world-cup-2026-main"));
+ }
+ created[0].selectedTeam=localStorage.getItem(LEGACY_KEYS.team)||Object.keys(created[0].inventory)[0];
+ projects=Object.fromEntries(created.map(project=>[project.id,project]));
+ activeProjectId=created[0].id;
  persistProjects();
+}
+function findSeedProject(seed){
+ return Object.values(projects).find(project=>
+   project.seedType===seed.seedType||
+   (seed.seedType==="panini-swiss-edition"&&normalize(project.name).includes("swiss"))||
+   (seed.seedType==="world-cup-2026-main"&&(normalize(project.name).includes("mundial 2026")||normalize(project.name).includes("world cup")))
+ );
+}
+function applyMasterSeed(seedData){
+ const seedProjects=Array.isArray(seedData?.projects)?seedData.projects:[];
+ masterInventories=Object.fromEntries(seedProjects.map(seed=>[seed.seedType,structuredClone(seed.inventory)]));
+ originalInventory=structuredClone(masterInventories["world-cup-2026-main"]||originalInventory);
+ const appliedRevision=localStorage.getItem(MASTER_SEED_KEY);
+ if(!projects||!Object.keys(projects).length){
+   migrateLegacy(seedProjects);
+   localStorage.setItem(MASTER_SEED_KEY,seedData.revision||DATA_REVISION);
+   return;
+ }
+ if(appliedRevision===(seedData.revision||DATA_REVISION))return;
+ seedProjects.forEach(seed=>{
+   let project=findSeedProject(seed);
+   if(!project){
+     project=defaultProject(seed.name,seed.target,seed.inventory,seed.seedType);
+     projects[project.id]=project;
+   }else{
+     project.name=seed.name;
+     project.target=Number(seed.target)||project.target||1;
+     project.seedType=seed.seedType;
+     project.inventory=structuredClone(seed.inventory);
+     project.pendingSync={};
+     project.lastSyncedAt=null;
+     project.selectedTeam=project.inventory[project.selectedTeam]?project.selectedTeam:Object.keys(project.inventory)[0];
+   }
+ });
+ if(!projects[activeProjectId])activeProjectId=Object.keys(projects)[0];
+ persistProjects();
+ localStorage.setItem(MASTER_SEED_KEY,seedData.revision||DATA_REVISION);
+}
+function getMasterInventoryForProject(project){
+ return structuredClone(masterInventories[project?.seedType]||originalInventory);
 }
 function persistProjects(){
  localStorage.setItem(PROJECTS_KEY,JSON.stringify(projects));
@@ -108,15 +152,18 @@ window.addEventListener("offline",updateConnectionStatus);
 
 async function loadData(){
  showLoading("Preparando tus proyectos…");
- const [i,f,g]=await Promise.all([
+ const [i,f,g,s]=await Promise.all([
    fetch("./data/inventory.json"),
    fetch("./data/flags-v4.json"),
-   fetch("./data/team-groups.json")
+   fetch("./data/team-groups.json"),
+   fetch("./data/projects-seed.json")
  ]);
  originalInventory=await i.json();flags=await f.json();teamGroups=await g.json();
+ const seedData=await s.json();
  projects=readJSON(PROJECTS_KEY,null);
  activeProjectId=localStorage.getItem(ACTIVE_PROJECT_KEY)||"";
- if(!projects||!Object.keys(projects).length||!projects[activeProjectId])migrateLegacy();
+ applyMasterSeed(seedData);
+ if(!projects||!Object.keys(projects).length||!projects[activeProjectId])migrateLegacy(seedData.projects);
  loadProjectState();
  renderProjectsList();
  setupSettingsCenter();
@@ -1190,7 +1237,7 @@ async function exportProjectXlsx(){
 }
 $("#excelButton").onclick=exportProjectXlsx;
 
-$("#resetButton").onclick=()=>{if(confirm("¿Restaurar el inventario cargado desde el último Excel maestro?")){inventory=structuredClone(originalInventory);history=[];sessionStats={plus:0,minus:0,startedAt:new Date().toISOString()};exchange={give:{},receive:{}};saveAll("Inventario restaurado");renderAll()}};
+$("#resetButton").onclick=()=>{if(confirm("¿Restaurar este proyecto con el inventario cargado desde el último Excel maestro?")){inventory=getMasterInventoryForProject(projects[activeProjectId]);history=[];sessionStats={plus:0,minus:0,startedAt:new Date().toISOString()};exchange={give:{},receive:{}};pendingSync={};saveAll("Inventario restaurado");renderAll()}};
 
 
 function projectStats(p){

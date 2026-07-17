@@ -8,3 +8,8 @@
 - Vibración, destello y burbuja local conservados.
 - Toast inferior oculto visualmente.
 - Caché: `world-cup-2026-build-615-13`.
+
+
+## Build 700.2
+
+Incluye los inventarios del proyecto principal y Panini Swiss Edition desde el Excel maestro.
