@@ -1,6 +1,6 @@
-const APP_VERSION="7.0.0.7";
+const APP_VERSION="7.0.0.8";
 const DATA_SCHEMA_VERSION=2;
-const DATA_REVISION="2026-07-17-cloud-owned-projects-v2";
+const DATA_REVISION="2026-07-17-ui-state-v7008";
 const MASTER_SEED_KEY="world-cup-2026-master-seed-revision";
 const PROJECTS_KEY="world-cup-2026-projects-v600";
 const ACTIVE_PROJECT_KEY="world-cup-2026-active-project-v600";
@@ -39,7 +39,7 @@ function defaultProject(name,target,projectInventory,seedType="custom"){
    id:makeId(),name,target:Number(target)||1,seedType,inventory:structuredClone(projectInventory),
    history:[],finishedSessions:[],sessionStats:{plus:0,minus:0,startedAt:new Date().toISOString()},
    exchange:{give:{},receive:{}},teamOrder:Object.keys(projectInventory),selectedTeam:Object.keys(projectInventory)[0]||"",
-   pendingSync:{},lastSyncedAt:null,createdAt:new Date().toISOString()
+   pendingSync:{},lastSyncedAt:null,ui:{teamFilter:"all",collectionFilter:"all",currentFilter:"all",sort:"album",mainTab:"collection",scrollY:0},createdAt:new Date().toISOString()
  };
 }
 function projectTeamOrder(project=projects?.[activeProjectId],sourceInventory=project?.inventory||inventory){
@@ -55,6 +55,8 @@ function ensureProjectTeamOrder(project){
  if(!project)return;
  project.teamOrder=projectTeamOrder(project,project.inventory);
  if(!project.selectedTeam||!project.inventory?.[project.selectedTeam])project.selectedTeam=project.teamOrder[0]||"";
+ project.ui={teamFilter:"all",collectionFilter:"all",currentFilter:"all",sort:"album",mainTab:"collection",scrollY:0,...(project.ui||{})};
+ if(project.ui.teamFilter!=="all"&&!project.inventory?.[project.ui.teamFilter])project.ui.teamFilter="all";
 }
 function migrateLegacy(seedProjects=[]){
  const created=seedProjects.map(seed=>defaultProject(seed.name,seed.target,seed.inventory,seed.seedType));
@@ -111,7 +113,8 @@ function commitProjectStateLocalOnly(){
  p.inventory=structuredClone(inventory);p.history=structuredClone(history.slice(-300));
  p.finishedSessions=structuredClone(finishedSessions.slice(-100));p.sessionStats=structuredClone(sessionStats);
  p.exchange=structuredClone(exchange);p.pendingSync=structuredClone(pendingSync);p.lastSyncedAt=lastSyncedAt;
- p.target=getTarget();p.selectedTeam=teamSelect.value;
+ p.target=getTarget();if(inventory[teamSelect.value])p.selectedTeam=teamSelect.value;
+ p.ui={...(p.ui||{}),teamFilter:collectionTeamFilter,collectionFilter,currentFilter,sort:collectionSort,mainTab,scrollY:Math.max(0,Math.round(window.scrollY||0))};
  localStorage.setItem(PROJECTS_KEY,JSON.stringify(projects));
  localStorage.setItem(ACTIVE_PROJECT_KEY,activeProjectId);
 }
@@ -187,11 +190,21 @@ function loadProjectState(){
  lastSyncedAt=p.lastSyncedAt||null;
  targetInput.value=String(p.target||1);
  targetValue.textContent=String(p.target||1);
+ const ui=p.ui||{};
+ collectionTeamFilter=ui.teamFilter||"all";
+ collectionFilter=ui.collectionFilter||"all";
+ currentFilter=ui.currentFilter||"all";
+ collectionSort=ui.sort||"album";
+ mainTab=ui.mainTab||"collection";
  populateTeams();
- teamSelect.value=inventory[p.selectedTeam]?p.selectedTeam:currentTeamOrder()[0];
+ teamSelect.value=collectionTeamFilter==="all"?"all":(inventory[collectionTeamFilter]?collectionTeamFilter:"all");
  updateCurrentTeamUI();
+ const sortNode=$("#collectionSort");if(sortNode)sortNode.value=collectionSort;
+ document.querySelectorAll(".collection-filter-button").forEach(button=>button.classList.toggle("active",button.dataset.collectionFilter===collectionFilter));
+ document.querySelectorAll(".tab").forEach(button=>button.classList.toggle("active",button.dataset.filter===currentFilter));
  $("#activeProjectName").textContent=p.name;
  renderAll();updateNavigationBadges();updateSyncUI();
+ requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo({top:Number(ui.scrollY)||0,left:0,behavior:"auto"})));
 }
 function commitProjectState(){
  commitProjectStateLocalOnly();
@@ -294,6 +307,9 @@ function saveAll(message="Todo guardado"){
 }
 function populateTeams(){
  teamSelect.innerHTML="";
+ const allOption=document.createElement("option");
+ allOption.value="all";allOption.textContent="Todas las selecciones";
+ teamSelect.appendChild(allOption);
  currentTeamOrder().forEach(team=>{
    const option=document.createElement("option");
    option.value=team;option.textContent=team;
@@ -303,51 +319,25 @@ function populateTeams(){
 }
 
 function updateCurrentTeamUI(){
- const team=teamSelect.value;
- $("#currentTeamName").textContent=team;
- $("#currentTeamFlag").src=flags[team]||"";
-}
-function selectTeam(team){
- collectionTeamFilter=team||"all";
- teamSearch.value="";
- $("#dialogSearch").value="";
- suggestions.hidden=true;
-
- if(collectionTeamFilter==="all"){
-   // Keep a valid internal team selected so legacy counters/renderers never fail.
-   if(!inventory[teamSelect.value]){
-     teamSelect.value=currentTeamOrder()[0];
-   }
-
-   $("#currentTeamName").textContent="Todas las selecciones";
-   $("#currentTeamFlag").removeAttribute("src");
-   $("#currentTeamFlag").alt="Todas";
-   $("#currentTeamFlag").style.display="none";
-
-   collectionFilter="all";
-   currentFilter="all";
-
-   document.querySelectorAll(".collection-filter-button").forEach(button=>{
-     button.classList.toggle("active",button.dataset.collectionFilter==="all");
-   });
-   document.querySelectorAll(".tab").forEach(button=>{
-     button.classList.toggle("active",button.dataset.filter==="all");
-   });
-
-   saveAll();
-   renderAll();
-
-   // renderAll may refresh legacy UI; force the global label afterwards.
+ const team=teamSelect.value||"all";
+ if(team==="all"){
    $("#currentTeamName").textContent="Todas las selecciones";
    $("#currentTeamFlag").removeAttribute("src");
    $("#currentTeamFlag").alt="Todas";
    $("#currentTeamFlag").style.display="none";
    return;
  }
-
- if(!inventory[team])return;
+ $("#currentTeamName").textContent=team;
  $("#currentTeamFlag").style.display="";
- teamSelect.value=team;
+ $("#currentTeamFlag").src=flags[team]||"";
+ $("#currentTeamFlag").alt=team;
+}
+function selectTeam(team){
+ collectionTeamFilter=team&&inventory[team]?team:"all";
+ teamSelect.value=collectionTeamFilter;
+ teamSearch.value="";
+ $("#dialogSearch").value="";
+ suggestions.hidden=true;
  updateCurrentTeamUI();
  saveAll();
  renderAll();
@@ -818,7 +808,7 @@ document.querySelectorAll(".tab").forEach(button=>button.onclick=()=>{
  renderGlobalCollection();
 });
 
-teamSelect.onchange=()=>{updateCurrentTeamUI();saveAll();renderAll()};
+teamSelect.onchange=()=>{collectionTeamFilter=teamSelect.value||"all";updateCurrentTeamUI();saveAll();renderAll()};
 teamSearch.oninput=()=>{
  const q=normalize(teamSearch.value);
  if(!q){suggestions.hidden=true;return}
@@ -1854,11 +1844,6 @@ $("#openClassicExchangeButton").onclick=()=>{
 };
 
 
-teamSelect.addEventListener("change",()=>{
- collectionTeamFilter=teamSelect.value||"all";
- renderGlobalCollection();
-});
-
 
 $("#openGlobalExchangeListButton").onclick=()=>{
  exchangeListType="give";
@@ -1880,7 +1865,17 @@ $("#collectionSort").onchange=event=>{
  renderGlobalCollection();
 };
 
-const PUBLIC_BUILD_VERSION="700.7";
+let scrollSaveTimer=null;
+window.addEventListener("scroll",()=>{
+ clearTimeout(scrollSaveTimer);
+ scrollSaveTimer=setTimeout(()=>{
+   const p=projects?.[activeProjectId];if(!p)return;
+   p.ui={...(p.ui||{}),scrollY:Math.max(0,Math.round(window.scrollY||0))};
+   localStorage.setItem(PROJECTS_KEY,JSON.stringify(projects));
+ },180);
+},{passive:true});
+
+const PUBLIC_BUILD_VERSION="700.8";
 let serviceWorkerRegistration=null;
 let updateReloadStarted=false;
 
