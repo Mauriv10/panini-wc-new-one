@@ -1,4 +1,4 @@
-const APP_VERSION=globalThis.WC26_CONFIG?.version||"703.4.2";
+const APP_VERSION=globalThis.WC26_CONFIG?.version||"703.4.3";
 const DATA_SCHEMA_VERSION=2;
 const DATA_REVISION="2026-07-17-collections-v70111";
 const MASTER_SEED_KEY="world-cup-2026-master-seed-revision";
@@ -251,7 +251,7 @@ window.addEventListener("pageshow",recoverFromForeground);
 window.addEventListener("focus",recoverFromForeground);
 
 
-// Build 703.4.2: native-share recovery without locking the nav to VisualViewport.
+// Build 703.4.3: native-share recovery without locking the nav to VisualViewport.
 // The previous top-coordinate strategy could move the bar while scrolling because
 // visualViewport.offsetTop changes during browser UI animations.
 function resetBottomNavigationAfterNativeUI(){
@@ -272,32 +272,59 @@ function scheduleBottomNavigationReset(){
  [50,180,420,850,1400].forEach(delay=>setTimeout(resetBottomNavigationAfterNativeUI,delay));
 }
 
-// Build 703.4.2: iOS can keep a permanently compressed visual viewport after
-// returning from the native share sheet. CSS and resize events cannot repair
-// that browser-level state reliably. In the installed iPhone/iPad PWA we save
-// the current UI state and perform a controlled reload once the app is visible
-// again. This reproduces the manual close/reopen workaround without losing the
-// active collection, filters, selected team or scroll position.
-let nativeShareReloadScheduled=false;
+// Build 703.4.3: recover only after a real background/foreground cycle.
+// The previous build could reload too early because navigator.share() may resolve
+// before WhatsApp actually takes the foreground. We now arm recovery before
+// sharing, remember that WC26 genuinely became hidden, and reload only when it
+// becomes visible again.
+let nativeShareRecoveryArmed=false;
+let nativeShareWasHidden=false;
+let nativeShareReloading=false;
 function isIOSStandalonePWA(){
  const ua=navigator.userAgent||"";
  const ios=/iPad|iPhone|iPod/.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
  const standalone=window.matchMedia?.("(display-mode: standalone)")?.matches||navigator.standalone===true;
  return Boolean(ios&&standalone);
 }
-function recoverIOSViewportAfterNativeShare(){
- if(!isIOSStandalonePWA()||nativeShareReloadScheduled)return;
- nativeShareReloadScheduled=true;
+function armNativeShareRecovery(){
+ if(!isIOSStandalonePWA())return;
+ nativeShareRecoveryArmed=true;
+ nativeShareWasHidden=false;
+ nativeShareReloading=false;
+ try{
+   commitProjectStateLocalOnly();
+   sessionStorage.setItem("wc26-native-share-recovery-armed","1");
+ }catch(error){console.warn("No se pudo guardar el estado previo a compartir",error)}
+}
+function cancelNativeShareRecovery(){
+ nativeShareRecoveryArmed=false;
+ nativeShareWasHidden=false;
+ try{sessionStorage.removeItem("wc26-native-share-recovery-armed")}catch{}
+}
+function reloadAfterNativeShareReturn(){
+ if(!nativeShareRecoveryArmed||!nativeShareWasHidden||nativeShareReloading)return;
+ nativeShareReloading=true;
  try{
    commitProjectStateLocalOnly();
    sessionStorage.setItem("wc26-native-share-recovery","1");
+   sessionStorage.removeItem("wc26-native-share-recovery-armed");
  }catch(error){console.warn("No se pudo guardar el estado previo a la recuperación",error)}
- const reload=()=>setTimeout(()=>window.location.reload(),220);
- if(document.visibilityState==="visible")reload();
- else document.addEventListener("visibilitychange",()=>{
-   if(document.visibilityState==="visible")reload();
- },{once:true});
+ setTimeout(()=>window.location.reload(),320);
 }
+document.addEventListener("visibilitychange",()=>{
+ if(!nativeShareRecoveryArmed)return;
+ if(document.visibilityState==="hidden"){
+   nativeShareWasHidden=true;
+   return;
+ }
+ if(document.visibilityState==="visible")reloadAfterNativeShareReturn();
+});
+window.addEventListener("pagehide",()=>{
+ if(nativeShareRecoveryArmed)nativeShareWasHidden=true;
+});
+window.addEventListener("pageshow",()=>{
+ if(nativeShareRecoveryArmed&&nativeShareWasHidden)reloadAfterNativeShareReturn();
+});
 window.addEventListener("pageshow",scheduleBottomNavigationReset);
 window.addEventListener("focus",scheduleBottomNavigationReset);
 document.addEventListener("visibilitychange",()=>{
@@ -903,13 +930,16 @@ async function runShareOption(mode){
        shareSheet.hidden=true;
      }
      resetBottomNavigationAfterNativeUI();
+     armNativeShareRecovery();
      await new Promise(resolve=>setTimeout(resolve,80));
      try{
        await navigator.share({title,text});
        showToast("Lista compartida ✓");
+       // If WC26 never became hidden, the user cancelled or completed sharing
+       // without leaving the app. Do not reload in that case.
+       if(!nativeShareWasHidden)cancelNativeShareRecovery();
      }finally{
        scheduleBottomNavigationReset();
-       recoverIOSViewportAfterNativeShare();
      }
      return;
    }
@@ -2388,7 +2418,7 @@ initialiseAppUpdates();
 loadData().catch(error=>{console.error(error);hideLoading();document.body.innerHTML="<main class='app-main'><h1>Error al cargar</h1><p>Comprueba que todos los archivos estén subidos.</p></main>"});
 
 
-/* Build 703.4.2 · actualización verificable + recuperación tras compartir */
+/* Build 703.4.3 · actualización verificable + recuperación tras compartir */
 document.addEventListener("DOMContentLoaded",()=>{
  $("#onboardingForm")?.addEventListener("submit",createFirstCloudCollection);
  $("#onboardingStartButton")?.addEventListener("click",()=>{closeFirstCollectionOnboarding();switchMainView?.("collection");window.scrollTo({top:0,behavior:"auto"});showToast("Colección creada y sincronizada ✓")});

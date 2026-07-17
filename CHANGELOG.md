@@ -1,4 +1,12 @@
-# Build 703.4.2
+# Build 703.4.3
+
+- Corrige el momento de recuperación tras compartir en iPhone.
+- La recarga ya no se ejecuta al resolverse `navigator.share()`, porque podía ocurrir antes de salir hacia WhatsApp.
+- La app espera un ciclo real `hidden → visible` y recarga únicamente al volver a WC26.
+- Conserva la colección activa y el estado local antes de la recuperación.
+- Mantiene las correcciones de caché, versión y barra inferior de las builds anteriores.
+
+# Build 703.4.3
 
 - Corrige el viewport comprimido que iOS puede conservar después de compartir con WhatsApp u otra aplicación.
 - En la PWA instalada de iPhone/iPad guarda el estado actual y realiza una recarga controlada al regresar.

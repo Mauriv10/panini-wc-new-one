@@ -1,8 +1,8 @@
 {
-  "version": "703.4.2",
-  "appVersion": "7.0.3.4.1",
-  "releasedAt": "2026-07-18T00:20:00+02:00",
-  "name": "Corrección de actualización y barra inferior",
-  "build": "703.4.2",
-  "label": "Build 703.4.2"
+  "version": "703.4.3",
+  "appVersion": "7.0.3.4.3",
+  "releasedAt": "2026-07-18T00:45:00+02:00",
+  "name": "Recuperación tras retorno real desde compartir",
+  "build": "703.4.3",
+  "label": "Build 703.4.3"
 }
