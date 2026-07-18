@@ -981,7 +981,7 @@ function setMainTab(tab){
  if(tab==="statistics")renderStatistics();
  if(tab==="collections")renderCollections();
 
- window.scrollTo({top:0,behavior:"smooth"});
+ window.scrollTo({top:0,behavior:"auto"});
 }
 
 function renderAll(){
@@ -1141,7 +1141,7 @@ function enterManualExchange(){
 
  requestAnimationFrame(()=>{
    document.querySelector(".collection-sticky-controls")?.scrollIntoView({
-     behavior:"smooth",
+     behavior:"auto",
      block:"start"
    });
  });

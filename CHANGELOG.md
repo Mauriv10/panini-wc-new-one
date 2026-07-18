@@ -1,3 +1,9 @@
+# Build 703.2.1
+
+- Prueba dirigida para iOS PWA después de usar el menú nativo de compartir.
+- Los desplazamientos programáticos de cambio de pestaña y entrada en modo intercambio pasan de suaves a instantáneos.
+- No se modifica la barra inferior, el diseño, los filtros ni la sincronización.
+
 # Build 703.2
 
 - Nuevo menú al pulsar **Compartir** en «Me faltan» o «Repetidos».
