@@ -1,7 +1,7 @@
 {
-  "build": "704.3.2",
-  "label": "Asistente claro y marco inferior fijo",
+  "build": "704.3.3",
+  "label": "Listas visibles y scroll corregido",
   "released": "2026-07-18",
-  "version": "704.3.2",
-  "name": "Flujo de intercambio separado y navegación inferior sólida"
+  "version": "704.3.3",
+  "name": "Listas verificables y barra restaurada desde 704.1.1"
 }

@@ -1,4 +1,8 @@
-# Build 704.3.2
+# Build 704.3.3
+
+- El resultado del intercambio y la lista ofrecible se pueden revisar completos antes de copiar.
+- El cuerpo del asistente dispone de scroll táctil independiente en iPhone.
+- La barra inferior recupera la geometría de la Build 704.1.1 validada.
 
 - Aclara que la primera lista contiene los cromos que la otra persona quiere de ti.
 - La segunda lista contiene los cromos que la otra persona te dará.
