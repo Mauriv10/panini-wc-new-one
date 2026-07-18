@@ -1,3 +1,10 @@
+# Build 704.3.5
+
+- Se mantiene sin cambios el marco inferior estable de la 704.3.4.
+- El asistente utiliza una sola superficie de scroll: el propio diálogo.
+- Se elimina el scroll anidado que Safari iOS bloqueaba al desplegar listas largas.
+- Ahora se puede recorrer por completo “Lo que puedes ofrecer” y la propuesta equilibrada hasta los botones finales.
+
 # Build 704.3.4
 
 - La navegación inferior deja de ser flotante o fija sobre el documento: ahora forma parte de un marco estable fuera del área de scroll.

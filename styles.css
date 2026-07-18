@@ -4852,3 +4852,47 @@ body.external-share-active .bottom-app-nav{
   .trade-analyzer-dialog[open],.trade-analyzer-dialog::backdrop{background:#0e1723!important}
   .trade-analyzer-dialog .dialog-header{background:#152130!important;border-color:#2b394b!important}
 }
+
+/* =========================================================
+   BUILD 704.3.5 — SCROLL ÚNICO DEL ASISTENTE
+   Mantiene intacto el marco/barra inferior estable de 704.3.4.
+   El propio diálogo es la única superficie desplazable, evitando
+   el bloqueo táctil de Safari con scroll anidado dentro de <dialog>.
+   ========================================================= */
+.trade-analyzer-dialog[open]{
+  display:block!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior-y:contain!important;
+  touch-action:pan-y!important;
+  scroll-behavior:auto!important;
+  height:100dvh!important;
+  min-height:100dvh!important;
+  max-height:100dvh!important;
+}
+.trade-analyzer-dialog .dialog-header{
+  position:sticky!important;
+  top:0!important;
+  z-index:20!important;
+}
+.trade-analyzer-body{
+  display:block!important;
+  min-height:auto!important;
+  height:auto!important;
+  overflow:visible!important;
+  touch-action:auto!important;
+  padding-bottom:calc(42px + env(safe-area-inset-bottom))!important;
+}
+.trade-analyzer-entry,
+.trade-analyzer-result,
+.trade-clean-card,
+.trade-offer-preview,
+.trade-offer-preview .balanced-sticker-list,
+.balanced-sticker-list,
+.balanced-sticker-section,
+.balanced-sticker-groups{
+  overflow:visible!important;
+  max-height:none!important;
+  touch-action:auto!important;
+}

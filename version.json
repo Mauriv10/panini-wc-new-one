@@ -1,7 +1,7 @@
 {
-  "build": "704.3.4",
-  "label": "Navegación estructural y asistente reparado",
+  "build": "704.3.5",
+  "label": "Scroll completo del asistente con barra estable",
   "released": "2026-07-18",
-  "version": "704.3.4",
-  "name": "Marco inferior fuera del scroll y asistente completo"
+  "version": "704.3.5",
+  "name": "Asistente con scroll único y barra inferior estable"
 }
