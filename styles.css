@@ -4686,3 +4686,169 @@ body.external-share-active .bottom-app-nav{left:6px!important;right:6px!importan
  .bottom-app-nav{background:rgba(18,28,41,.98)!important;border-color:#2b394b!important}
  .trade-offer-preview{background:#172331;border-color:#2d3c50}.trade-offer-preview>summary{background:#111b28;color:#75b3ff}
 }
+
+/* =========================================================
+   BUILD 704.3.4 — APP SHELL ESTABLE + ASISTENTE REPARADO
+   ========================================================= */
+html,body{
+  width:100%;
+  height:100%;
+  min-height:100%;
+  overflow:hidden!important;
+  overscroll-behavior:none;
+  scroll-behavior:auto!important;
+}
+body{
+  padding:0!important;
+}
+.app-shell{
+  position:fixed;
+  inset:0;
+  z-index:1;
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  min-height:0;
+  overflow:hidden;
+  background:transparent;
+}
+.app-scroll{
+  flex:1 1 auto;
+  min-width:0;
+  min-height:0;
+  overflow-y:auto;
+  overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior-y:contain;
+  touch-action:pan-y;
+  scroll-behavior:auto!important;
+}
+.app-main{
+  padding-bottom:24px!important;
+}
+.bottom-app-nav{
+  position:relative!important;
+  inset:auto!important;
+  left:auto!important;
+  right:auto!important;
+  bottom:auto!important;
+  transform:none!important;
+  -webkit-transform:none!important;
+  flex:0 0 auto;
+  width:100%!important;
+  max-width:none!important;
+  margin:0!important;
+  padding:7px 8px calc(7px + env(safe-area-inset-bottom))!important;
+  border:0!important;
+  border-top:1px solid #dfe5ec!important;
+  border-radius:0!important;
+  background:#fff!important;
+  box-shadow:0 -5px 18px rgba(20,35,55,.08)!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+  contain:layout paint;
+  z-index:30!important;
+}
+body.external-share-active .bottom-app-nav{
+  position:relative!important;
+  inset:auto!important;
+  transform:none!important;
+  -webkit-transform:none!important;
+}
+
+/* El diálogo es una pantalla completa; solo su cuerpo hace scroll. */
+.trade-analyzer-dialog:not([open]){display:none!important}
+.trade-analyzer-dialog[open]{
+  position:fixed!important;
+  inset:0!important;
+  z-index:1000!important;
+  display:flex!important;
+  flex-direction:column!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+  max-width:none!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  overflow:hidden!important;
+  touch-action:auto!important;
+  background:#f4f7fb!important;
+}
+.trade-analyzer-dialog::backdrop{
+  background:#f4f7fb!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+.trade-analyzer-dialog .dialog-header{
+  position:relative!important;
+  top:auto!important;
+  flex:0 0 auto!important;
+  padding:max(14px,env(safe-area-inset-top)) 18px 13px!important;
+  background:#fff!important;
+  border-bottom:1px solid #e1e8f0!important;
+}
+.trade-analyzer-body{
+  flex:1 1 auto;
+  min-height:0;
+  overflow-y:auto;
+  overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior-y:contain;
+  touch-action:pan-y;
+  scroll-behavior:auto!important;
+  padding:20px 16px calc(28px + env(safe-area-inset-bottom));
+  box-sizing:border-box;
+}
+.trade-analyzer-entry,
+.trade-analyzer-result{
+  display:block!important;
+  width:min(100%,760px)!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  margin:0 auto!important;
+  padding:0!important;
+  overflow:visible!important;
+  border:0!important;
+  touch-action:auto!important;
+}
+.trade-analyzer-entry[hidden],
+.trade-analyzer-result[hidden]{display:none!important}
+.trade-analyzer-dialog #tradeAnalyzerInput{
+  display:block!important;
+  width:100%!important;
+  min-height:210px!important;
+  max-height:none!important;
+  margin:0!important;
+  resize:vertical!important;
+  box-sizing:border-box!important;
+}
+.trade-analyzer-actions{
+  position:relative!important;
+  display:grid!important;
+  grid-template-columns:minmax(90px,.75fr) minmax(0,1.6fr)!important;
+  gap:10px!important;
+  padding:13px 0 0!important;
+  background:transparent!important;
+}
+.trade-main-action{
+  width:100%;
+  margin-top:12px;
+}
+.trade-offer-preview,
+.balanced-sticker-list,
+.balanced-sticker-section{
+  touch-action:auto!important;
+}
+@media(max-width:430px){
+  .trade-analyzer-body{padding-left:14px;padding-right:14px}
+  .trade-analyzer-actions{grid-template-columns:112px minmax(0,1fr)!important}
+}
+@media(prefers-color-scheme:dark){
+  .bottom-app-nav{background:#121c29!important;border-top-color:#2b394b!important}
+  .trade-analyzer-dialog[open],.trade-analyzer-dialog::backdrop{background:#0e1723!important}
+  .trade-analyzer-dialog .dialog-header{background:#152130!important;border-color:#2b394b!important}
+}

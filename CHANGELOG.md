@@ -1,3 +1,11 @@
+# Build 704.3.4
+
+- La navegación inferior deja de ser flotante o fija sobre el documento: ahora forma parte de un marco estable fuera del área de scroll.
+- Solo el contenido central de la app se desplaza.
+- Compartir abre WhatsApp directamente y evita el Web Share API que alteraba el viewport en iOS.
+- Reparado el diseño roto de «Analizar lista».
+- El asistente usa una única zona de scroll y permite revisar y copiar listas completas.
+
 # Build 704.3.3
 
 - El resultado del intercambio y la lista ofrecible se pueden revisar completos antes de copiar.

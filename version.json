@@ -1,7 +1,7 @@
 {
-  "build": "704.3.3",
-  "label": "Listas visibles y scroll corregido",
+  "build": "704.3.4",
+  "label": "Navegación estructural y asistente reparado",
   "released": "2026-07-18",
-  "version": "704.3.3",
-  "name": "Listas verificables y barra restaurada desde 704.1.1"
+  "version": "704.3.4",
+  "name": "Marco inferior fuera del scroll y asistente completo"
 }

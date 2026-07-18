@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="World Cup 2026">
-  <title>World Cup 2026 · Build 704.3.3</title>
+  <title>World Cup 2026 · Build 704.3.4</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="canonical" href="https://mauriv10.github.io/wc26/">
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/icons/world-cup-2026-apple-v522.png">
@@ -93,7 +93,8 @@
   </span>
 </div>
 
-
+<div class="app-shell" id="appShell">
+  <div class="app-scroll" id="appScroll">
 <header class="app-header premium-home-header compact-home-header">
   <div class="compact-home-titlebar">
     <div class="compact-home-copy">
@@ -166,23 +167,7 @@
   <button class="mode-button" data-view="missing"><b id="missingBadge">0</b></button>
 </nav>
 
-<nav class="bottom-app-nav" aria-label="Navegación principal">
-  <button class="bottom-nav-button active" data-main-view="collection">
-    <span class="bottom-nav-icon">▦</span><span>Cromos</span>
-  </button>
-  <button class="bottom-nav-button" data-main-view="statistics">
-    <span class="bottom-nav-icon">◔</span><span>Estadísticas</span>
-  </button>
-  <button class="bottom-nav-button" data-main-view="trade">
-    <span class="bottom-nav-icon">⇄</span><span>Cambiar</span>
-  </button>
-  <button class="bottom-nav-button" data-main-view="collections">
-    <span class="bottom-nav-icon">📔</span><span>Colecciones</span>
-  </button>
-  <button class="bottom-nav-button" data-main-view="settings">
-    <span class="bottom-nav-icon">⚙</span><span>Ajustes</span>
-  </button>
-</nav>
+
 
 
 <main class="app-main">
@@ -607,6 +592,25 @@
   <div id="collectionsList" class="collections-grid"></div>
 </section>
 </main>
+  </div>
+<nav class="bottom-app-nav" aria-label="Navegación principal">
+  <button class="bottom-nav-button active" data-main-view="collection">
+    <span class="bottom-nav-icon">▦</span><span>Cromos</span>
+  </button>
+  <button class="bottom-nav-button" data-main-view="statistics">
+    <span class="bottom-nav-icon">◔</span><span>Estadísticas</span>
+  </button>
+  <button class="bottom-nav-button" data-main-view="trade">
+    <span class="bottom-nav-icon">⇄</span><span>Cambiar</span>
+  </button>
+  <button class="bottom-nav-button" data-main-view="collections">
+    <span class="bottom-nav-icon">📔</span><span>Colecciones</span>
+  </button>
+  <button class="bottom-nav-button" data-main-view="settings">
+    <span class="bottom-nav-icon">⚙</span><span>Ajustes</span>
+  </button>
+</nav>
+</div>
 
 
 
@@ -808,12 +812,14 @@
 
 <dialog id="tradeAnalyzerDialog" class="trade-analyzer-dialog">
   <div class="dialog-header"><div><span class="dialog-kicker">ASISTENTE DE INTERCAMBIO</span><h2 id="tradeAnalyzerTitle">Comparar intercambio</h2></div><button id="closeTradeAnalyzerDialog" type="button" aria-label="Cerrar">✕</button></div>
-  <section id="tradeAnalyzerEntry" class="trade-analyzer-entry">
-    <p class="trade-context-label">Pega la lista de cromos que la otra persona quiere de ti</p>
-    <textarea id="tradeAnalyzerInput" rows="7" placeholder="Ejemplo: España 6 · Brasil 9,11"></textarea>
-    <div class="trade-analyzer-actions"><button id="clearTradeAnalyzerButton" type="button" class="secondary">Limpiar</button><button id="runTradeAnalyzerButton" type="button" class="primary">Analizar lo que pide</button></div>
-  </section>
-  <section id="tradeAnalyzerResult" class="trade-analyzer-result" hidden></section>
+  <div class="trade-analyzer-body" id="tradeAnalyzerBody">
+    <section id="tradeAnalyzerEntry" class="trade-analyzer-entry">
+      <p class="trade-context-label">Pega la lista de cromos que la otra persona quiere de ti</p>
+      <textarea id="tradeAnalyzerInput" rows="7" placeholder="Ejemplo: España 6 · Brasil 9,11"></textarea>
+      <div class="trade-analyzer-actions"><button id="clearTradeAnalyzerButton" type="button" class="secondary">Limpiar</button><button id="runTradeAnalyzerButton" type="button" class="primary">Analizar lo que pide</button></div>
+    </section>
+    <section id="tradeAnalyzerResult" class="trade-analyzer-result" hidden></section>
+  </div>
 </dialog>
 
 <div id="shareOptionsSheet" class="share-options-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="shareOptionsTitle">
