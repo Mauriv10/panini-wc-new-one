@@ -1000,7 +1000,7 @@ body.exchange-active .exchange-action-placeholder{
   --shadow-soft:0 8px 24px rgba(23,58,89,.08);
 }
 html{
-  scroll-behavior:smooth;
+  scroll-behavior:auto!important;
 }
 body{
   background:
@@ -4463,3 +4463,28 @@ body.share-sheet-open{overflow:hidden}
 .trade-analyzer-section{margin-top:16px}.trade-analyzer-section>h3{margin:0 0 9px;font-size:.95rem}.trade-analyzer-group{padding:11px 12px;border-radius:14px;background:#f7f9fc;margin-top:8px}.trade-analyzer-group-title{display:flex;align-items:center;gap:7px;font-weight:850;margin-bottom:6px}.trade-analyzer-items{line-height:1.65;font-weight:720;color:#344054}.trade-analyzer-items .available{color:#087443}.trade-analyzer-items .unavailable{color:#a43b3b}.trade-analyzer-warning{padding:11px 12px;border-radius:14px;background:#fff7e8;color:#805b13;margin-top:8px;line-height:1.55}.trade-analyzer-copy{width:100%;margin-top:14px}.trade-analyzer-empty{padding:14px;border-radius:14px;background:#f4f7fa;color:#66768c;text-align:center}
 @media(max-width:600px){.trade-analyzer-dialog{align-self:end;width:100%;max-width:none;margin:0;border-radius:25px 25px 0 0;padding-bottom:env(safe-area-inset-bottom)}.trade-analyzer-result{max-height:42dvh}.trade-analyzer-summary{grid-template-columns:repeat(3,1fr)}.trade-analyzer-summary span{font-size:.64rem}}
 @media(prefers-color-scheme:dark){.trade-analyzer-card{background:#14263a;border-color:#33577f}.trade-analyzer-dialog{background:#172231;color:#f4f7fb}.trade-analyzer-help{color:#a8b7ca}#tradeAnalyzerInput{background:#111b28;border-color:#314054}.trade-analyzer-summary div,.trade-analyzer-group,.trade-analyzer-empty{background:#111b28}.trade-analyzer-items{color:#d7e1ed}#closeTradeAnalyzerDialog,.trade-analyzer-actions .secondary{background:#243348;color:#dceaff}}
+
+
+/* Build 704.1.1 · correcciones del analizador e iOS */
+html,body{scroll-behavior:auto!important}
+.trade-analyzer-card{color:#17263b!important}
+.trade-analyzer-card .trade-option-copy span{color:#45617f!important}
+.trade-analyzer-card .trade-option-copy h3{color:#17263b!important}
+.trade-analyzer-card .trade-option-copy p{color:#526276!important}
+.trade-analyzer-card .trade-option-icon{background:#fff!important;color:#1473e6!important}
+.trade-analyzer-card>button{background:#1473e6!important;color:#fff!important}
+.trade-analyzer-dialog,.trade-analyzer-dialog h2,.trade-analyzer-dialog h3,.trade-analyzer-dialog strong,.trade-analyzer-group-title{color:#17263b}
+.trade-analyzer-dialog.analyzed .trade-analyzer-help,
+.trade-analyzer-dialog.analyzed #tradeAnalyzerInput,
+.trade-analyzer-dialog.analyzed .trade-analyzer-actions{display:none!important}
+.trade-analyzer-edit{width:100%;min-height:46px;margin:0 0 14px;border:1px solid #cdd9e7;border-radius:14px;background:#fff;color:#1473e6;font:inherit;font-weight:820}
+.trade-analyzer-suggestion{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px}
+.trade-analyzer-suggestion button{min-height:38px;padding:0 16px;border:0;border-radius:999px;background:#1473e6;color:#fff;font:inherit;font-weight:820}
+@media(prefers-color-scheme:dark){
+ .trade-analyzer-card{color:#f4f7fb!important}
+ .trade-analyzer-card .trade-option-copy span{color:#a8bdd5!important}
+ .trade-analyzer-card .trade-option-copy h3{color:#f4f7fb!important}
+ .trade-analyzer-card .trade-option-copy p{color:#c0cede!important}
+ .trade-analyzer-dialog,.trade-analyzer-dialog h2,.trade-analyzer-dialog h3,.trade-analyzer-dialog strong,.trade-analyzer-group-title{color:#f4f7fb}
+ .trade-analyzer-edit{background:#111b28;border-color:#314054;color:#75b3ff}
+}

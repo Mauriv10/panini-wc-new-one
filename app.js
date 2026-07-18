@@ -876,13 +876,21 @@ async function runShareOption(mode){
  try{
    if(mode==="share"&&navigator.share){
      await navigator.share({title,text});
+     document.documentElement.style.scrollBehavior="auto";
+     document.body.style.scrollBehavior="auto";
+     requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo({top:window.scrollY,left:0,behavior:"auto"})));
      showToast("Lista compartida ✓");
      return;
    }
    await copyShareText(text);
    showToast(mode==="compact"?"Lista compacta copiada ✓":"Lista copiada al portapapeles ✓");
  }catch(error){
-   if(error?.name==="AbortError")return;
+   if(error?.name==="AbortError"){
+     document.documentElement.style.scrollBehavior="auto";
+     document.body.style.scrollBehavior="auto";
+     requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo({top:window.scrollY,left:0,behavior:"auto"})));
+     return;
+   }
    try{
      await copyShareText(text);
      showToast("Lista copiada al portapapeles ✓");
@@ -966,12 +974,36 @@ function groupTradeAnalysis(items){
  return Object.entries(groups).sort((a,b)=>order.indexOf(a[0])-order.indexOf(b[0]));
 }
 
+function escapeTradeHtml(value){
+ return String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"})[char]);
+}
+
+function applyTradeAnalyzerSuggestion(raw,replacement){
+ const input=$("#tradeAnalyzerInput");
+ if(!input||!raw||!replacement)return;
+ const escaped=String(raw).replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+ input.value=input.value.replace(new RegExp(escaped,"i"),replacement);
+ renderTradeAnalyzerResult();
+}
+
+function editTradeAnalyzerList(){
+ const dialog=$("#tradeAnalyzerDialog");
+ dialog?.classList.remove("analyzed");
+ setTimeout(()=>$("#tradeAnalyzerInput")?.focus(),60);
+}
+
 function renderTradeAnalyzerResult(){
  const input=$("#tradeAnalyzerInput");
  const result=$("#tradeAnalyzerResult");
+ const dialog=$("#tradeAnalyzerDialog");
  if(!input||!result)return;
  const parsed=parseTradeList(input.value);
- if(!parsed.found.length&&!parsed.invalid.length){result.hidden=false;result.innerHTML='<div class="trade-analyzer-empty">No se ha encontrado ningún código de cromo. Prueba con formatos como ESP10, KSA15 o JPN 03.</div>';return;}
+ if(!parsed.found.length&&!parsed.invalid.length){
+   dialog?.classList.remove("analyzed");
+   result.hidden=false;
+   result.innerHTML='<div class="trade-analyzer-empty">No se ha encontrado ningún código de cromo. Prueba con formatos como ESP10, KSA15 o JPN 03.</div>';
+   return;
+ }
  const target=getTarget();
  const analysed=parsed.found.map(item=>{
    const owned=Number(inventory?.[item.team]?.[item.internalCode])||0;
@@ -982,9 +1014,16 @@ function renderTradeAnalyzerResult(){
  const unavailable=analysed.filter(item=>item.available<=0);
  const availableUnits=available.reduce((sum,item)=>sum+item.available,0);
  const renderGroups=(items,kind)=>groupTradeAnalysis(items).map(([team,rows])=>`<div class="trade-analyzer-group"><div class="trade-analyzer-group-title"><span>${TEAM_FLAG_EMOJI[team]||""}</span><span>${TEAM_TO_PANINI_CODE[team]||team}</span></div><div class="trade-analyzer-items">${rows.map(row=>kind==="available"?`<span class="available">${row.displayCode} ×${row.available}</span>`:`<span class="unavailable">${row.displayCode}</span>`).join(" · ")}</div></div>`).join("");
- const invalidHtml=parsed.invalid.length?`<section class="trade-analyzer-section"><h3>⚠️ No reconocidos (${parsed.invalid.length})</h3>${parsed.invalid.map(item=>`<div class="trade-analyzer-warning"><strong>${item.raw}</strong> · ${item.reason}${item.suggestion?`<br>¿Querías decir <b>${item.suggestion}</b>?`:""}</div>`).join("")}</section>`:"";
- result.innerHTML=`<div class="trade-analyzer-summary"><div><strong>${analysed.length}</strong><span>SOLICITADOS</span></div><div><strong>${available.length}</strong><span>DISPONIBLES</span></div><div><strong>${availableUnits}</strong><span>UNIDADES PARA DAR</span></div></div>${available.length?`<section class="trade-analyzer-section"><h3>✅ Puedes entregar</h3>${renderGroups(available,"available")}</section><button id="copyTradeAnalyzerAvailable" class="trade-analyzer-copy" type="button">Copiar disponibles</button>`:'<div class="trade-analyzer-empty">No tienes ninguno de estos cromos por encima de tu objetivo.</div>'}${unavailable.length?`<section class="trade-analyzer-section"><h3>❌ No disponibles (${unavailable.length})</h3>${renderGroups(unavailable,"unavailable")}</section>`:""}${invalidHtml}`;
+ const invalidHtml=parsed.invalid.length?`<section class="trade-analyzer-section"><h3>⚠️ No reconocidos (${parsed.invalid.length})</h3>${parsed.invalid.map((item,index)=>{
+   const numberMatch=String(item.raw).match(/(\d{1,2})/);
+   const replacement=item.suggestion&&numberMatch?`${item.suggestion}${String(numberMatch[1]).padStart(2,"0")}`:"";
+   return `<div class="trade-analyzer-warning"><strong>${escapeTradeHtml(item.raw)}</strong> · ${escapeTradeHtml(item.reason)}${replacement?`<div class="trade-analyzer-suggestion"><span>¿Querías decir <b>${escapeTradeHtml(replacement)}</b>?</span><button type="button" data-trade-suggestion="${index}" data-raw="${escapeTradeHtml(item.raw)}" data-replacement="${escapeTradeHtml(replacement)}">Sí</button></div>`:""}</div>`;
+ }).join("")}</section>`:"";
+ result.innerHTML=`<button id="editTradeAnalyzerList" class="trade-analyzer-edit" type="button">Editar lista pegada</button><div class="trade-analyzer-summary"><div><strong>${analysed.length}</strong><span>SOLICITADOS</span></div><div><strong>${available.length}</strong><span>DISPONIBLES</span></div><div><strong>${availableUnits}</strong><span>UNIDADES PARA DAR</span></div></div>${available.length?`<section class="trade-analyzer-section"><h3>✅ Puedes entregar</h3>${renderGroups(available,"available")}</section><button id="copyTradeAnalyzerAvailable" class="trade-analyzer-copy" type="button">Copiar disponibles</button>`:'<div class="trade-analyzer-empty">No tienes ninguno de estos cromos por encima de tu objetivo.</div>'}${unavailable.length?`<section class="trade-analyzer-section"><h3>❌ No disponibles (${unavailable.length})</h3>${renderGroups(unavailable,"unavailable")}</section>`:""}${invalidHtml}`;
  result.hidden=false;
+ dialog?.classList.add("analyzed");
+ $("#editTradeAnalyzerList")?.addEventListener("click",editTradeAnalyzerList);
+ result.querySelectorAll("[data-trade-suggestion]").forEach(button=>button.addEventListener("click",()=>applyTradeAnalyzerSuggestion(button.dataset.raw,button.dataset.replacement)));
  const copyButton=$("#copyTradeAnalyzerAvailable");
  if(copyButton)copyButton.onclick=async()=>{
    const lines=groupTradeAnalysis(available).map(([team,rows])=>`${TEAM_FLAG_EMOJI[team]||""} ${TEAM_TO_PANINI_CODE[team]||team}: ${rows.map(row=>row.available>1?`${row.displayCode} x${row.available}`:row.displayCode).join(", ")}`);
@@ -995,6 +1034,7 @@ function renderTradeAnalyzerResult(){
 function openTradeAnalyzer(){
  const dialog=$("#tradeAnalyzerDialog");
  if(!dialog)return;
+ dialog.classList.remove("analyzed");
  $("#tradeAnalyzerResult").hidden=true;
  dialog.showModal();
  setTimeout(()=>$("#tradeAnalyzerInput")?.focus(),80);
@@ -2289,7 +2329,7 @@ document.querySelectorAll("[data-share-option]").forEach(button=>button.addEvent
 $("#openTradeAnalyzerButton")?.addEventListener("click",openTradeAnalyzer);
 $("#closeTradeAnalyzerDialog")?.addEventListener("click",()=>$("#tradeAnalyzerDialog")?.close());
 $("#runTradeAnalyzerButton")?.addEventListener("click",renderTradeAnalyzerResult);
-$("#clearTradeAnalyzerButton")?.addEventListener("click",()=>{const input=$("#tradeAnalyzerInput");if(input)input.value="";const result=$("#tradeAnalyzerResult");if(result){result.hidden=true;result.innerHTML="";}input?.focus();});
+$("#clearTradeAnalyzerButton")?.addEventListener("click",()=>{const input=$("#tradeAnalyzerInput");if(input)input.value="";const dialog=$("#tradeAnalyzerDialog");dialog?.classList.remove("analyzed");const result=$("#tradeAnalyzerResult");if(result){result.hidden=true;result.innerHTML="";}input?.focus();});
 $("#tradeAnalyzerDialog")?.addEventListener("click",event=>{if(event.target===$("#tradeAnalyzerDialog"))$("#tradeAnalyzerDialog").close();});
 
 document.querySelectorAll(".collection-filter-button").forEach(button=>button.onclick=()=>{

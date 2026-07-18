@@ -1,3 +1,10 @@
+# Build 704.1.1
+
+- Desactiva definitivamente el desplazamiento suave para evitar el movimiento de la barra inferior al volver de WhatsApp en iOS.
+- Oculta el texto pegado después de analizar y prioriza los resultados; añade “Editar lista pegada”.
+- Añade un botón “Sí” en las sugerencias para aplicar la corrección y recalcular automáticamente.
+- Corrige colores y contraste de la tarjeta y del diálogo del analizador.
+
 # Build 704.1
 
 - Nuevo **Analizador de listas** dentro de Cambiar.
