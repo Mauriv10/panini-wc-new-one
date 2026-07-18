@@ -1,7 +1,7 @@
 {
-  "build": "704.3.1",
-  "label": "Corrección de apertura y actualización",
+  "build": "704.3.2",
+  "label": "Asistente claro y marco inferior fijo",
   "released": "2026-07-18",
-  "version": "704.3.1",
-  "name": "Asistente cerrado y actualización coherente"
+  "version": "704.3.2",
+  "name": "Flujo de intercambio separado y navegación inferior sólida"
 }

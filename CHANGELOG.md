@@ -1,3 +1,13 @@
+# Build 704.3.2
+
+- Aclara que la primera lista contiene los cromos que la otra persona quiere de ti.
+- La segunda lista contiene los cromos que la otra persona te dará.
+- Las líneas no reconocidas de la lista recibida ya no bloquean el intercambio; se muestran plegadas como ignoradas.
+- Ignora automáticamente encabezados habituales de otras aplicaciones.
+- La propuesta equilibrada muestra los cromos exactos, separados entre normales y especiales.
+- El asistente ocupa toda la pantalla del iPhone.
+- La navegación inferior pasa a ser un marco sólido de ancho completo, sin aspecto flotante.
+
 # Build 704.3.1
 
 - Corrige el asistente apareciendo incrustado en la página de inicio: el diálogo permanece oculto mientras no tenga el atributo `open`.

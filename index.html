@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="World Cup 2026">
-  <title>World Cup 2026 · Build 704.3.1</title>
+  <title>World Cup 2026 · Build 704.3.2</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="canonical" href="https://mauriv10.github.io/wc26/">
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/icons/world-cup-2026-apple-v522.png">
@@ -808,7 +808,11 @@
 
 <dialog id="tradeAnalyzerDialog" class="trade-analyzer-dialog">
   <div class="dialog-header"><div><span class="dialog-kicker">ASISTENTE DE INTERCAMBIO</span><h2 id="tradeAnalyzerTitle">Comparar intercambio</h2></div><button id="closeTradeAnalyzerDialog" type="button" aria-label="Cerrar">✕</button></div>
-  <section id="tradeAnalyzerEntry" class="trade-analyzer-entry"><textarea id="tradeAnalyzerInput" rows="7" placeholder="Pega aquí la lista"></textarea><div class="trade-analyzer-actions"><button id="clearTradeAnalyzerButton" type="button" class="secondary">Limpiar</button><button id="runTradeAnalyzerButton" type="button" class="primary">Analizar</button></div></section>
+  <section id="tradeAnalyzerEntry" class="trade-analyzer-entry">
+    <p class="trade-context-label">Pega la lista de cromos que la otra persona quiere de ti</p>
+    <textarea id="tradeAnalyzerInput" rows="7" placeholder="Ejemplo: España 6 · Brasil 9,11"></textarea>
+    <div class="trade-analyzer-actions"><button id="clearTradeAnalyzerButton" type="button" class="secondary">Limpiar</button><button id="runTradeAnalyzerButton" type="button" class="primary">Analizar lo que pide</button></div>
+  </section>
   <section id="tradeAnalyzerResult" class="trade-analyzer-result" hidden></section>
 </dialog>
 
