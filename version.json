@@ -1,7 +1,7 @@
 {
-  "build": "704.3",
-  "label": "Estabilidad, protección y feedback",
+  "build": "704.3.1",
+  "label": "Corrección de apertura y actualización",
   "released": "2026-07-18",
-  "version": "704.3",
-  "name": "Estabilización y flujo claro"
+  "version": "704.3.1",
+  "name": "Asistente cerrado y actualización coherente"
 }

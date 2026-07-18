@@ -4579,3 +4579,8 @@ body.trade-analyzer-open{overflow:auto!important;touch-action:auto!important}
  .trade-analyzer-entry,.trade-analyzer-result{padding-left:16px!important;padding-right:16px!important}
 }
 @media(prefers-color-scheme:dark){.trade-analyzer-dialog,.trade-analyzer-dialog .dialog-header{background:#172231!important;color:#f4f7fb!important}.trade-analyzer-entry textarea,#tradeReceiveList{background:#111b28;border-color:#314054;color:#f4f7fb}.trade-clean-card h3{color:#f4f7fb}.trade-clean-status{background:#132a40}.trade-clean-status strong{color:#cde5ff}.trade-inline-alert{background:#302714;color:#f6d98d}.trade-settings-row,#tradeProtectionDetails{background:#111b28}.trade-settings-row strong{color:#eef4fb}.trade-settings-row small{color:#a8b7ca}}
+
+
+/* Build 704.3.1 · el asistente solo existe visualmente cuando el dialog está abierto */
+#tradeAnalyzerDialog:not([open]){display:none!important;}
+#tradeAnalyzerDialog[open]{display:block!important;}

@@ -1,3 +1,9 @@
+# Build 704.3.1
+
+- Corrige el asistente apareciendo incrustado en la página de inicio: el diálogo permanece oculto mientras no tenga el atributo `open`.
+- Corrige la versión interna desactualizada que hacía que el aviso «Nueva versión disponible» reapareciera incluso después de actualizar.
+- Renueva el nombre de caché del service worker para forzar la instalación limpia de los archivos corregidos.
+
 # Build 704.3
 
 - Recuperada la estrategia estable de compartir de la 704.1.1, sin bloquear ni reposicionar el body.
