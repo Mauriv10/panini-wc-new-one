@@ -1,7 +1,7 @@
 {
-  "build": "704.3.6",
-  "label": "Scroll completo del asistente con barra estable",
-  "released": "2026-07-18",
-  "version": "704.3.6",
-  "name": "Asistente con scroll único y barra inferior estable"
+  "build": "704.3.7",
+  "label": "Contadores sin teclado ni zoom en iOS",
+  "released": "2026-07-19",
+  "version": "704.3.7",
+  "name": "Cantidades con botones más y menos"
 }

@@ -1,3 +1,9 @@
+# Build 704.3.7
+
+- Sustituye los campos numéricos de Normales y Especiales por controles + y −.
+- Evita abrir el teclado y elimina el zoom automático de Safari/iOS.
+- Mantiene intactos la barra inferior, el scroll estable y el resto del asistente de la 704.3.6.
+
 # Build 704.3.6
 
 - Corrige el contraste del texto pegado en el asistente cuando iOS está en modo oscuro.

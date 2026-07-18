@@ -4973,3 +4973,15 @@ body.external-share-active .bottom-app-nav{
   }
   .settings-chevron{color:#a8b4c4}
 }
+
+/* Build 704.3.7 · Contadores sin teclado ni zoom en iOS */
+#tradeReceiveCountsPanel{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.trade-count-stepper{display:grid;gap:10px;padding:14px;border:1px solid #d8e2ee;border-radius:16px;background:#fff}
+.trade-count-stepper>span{font-size:.85rem;font-weight:850;color:#637489;text-align:center}
+.trade-count-controls{display:grid;grid-template-columns:48px minmax(54px,1fr) 48px;align-items:center;gap:8px}
+.trade-count-controls output{display:grid;place-items:center;min-height:48px;border:1px solid #d8e2ee;border-radius:12px;background:#f7f9fc;color:#17263b;font-size:1.25rem;font-weight:900;font-variant-numeric:tabular-nums}
+.trade-count-btn{min-width:48px;min-height:48px;border:1px solid #d8e2ee;border-radius:12px;background:#eef3f8;color:#17263b;font-size:1.55rem;font-weight:900;line-height:1;touch-action:manipulation}
+.trade-count-btn.primary{background:#1473e6;border-color:#1473e6;color:#fff}
+.trade-count-btn:active{transform:scale(.94)}
+@media(max-width:520px){#tradeReceiveCountsPanel{grid-template-columns:1fr}.trade-count-stepper{padding:12px}}
+@media(prefers-color-scheme:dark){.trade-count-stepper{background:#111b28;border-color:#314054}.trade-count-stepper>span{color:#aabbd0}.trade-count-controls output{background:#172331;border-color:#314054;color:#f4f7fb}.trade-count-btn{background:#243348;border-color:#314054;color:#f4f7fb}.trade-count-btn.primary{background:#1473e6;border-color:#1473e6;color:#fff}}
