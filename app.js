@@ -881,13 +881,6 @@ async function copyShareText(text){
  if(!copied)throw new Error("No se pudo copiar la lista");
 }
 
-function enforceInstantScrolling(){
- document.documentElement.style.setProperty("scroll-behavior","auto","important");
- document.body.style.setProperty("scroll-behavior","auto","important");
- document.querySelectorAll(".trade-analyzer-scroll,.share-options-sheet,.dialog-content").forEach(node=>node.style.setProperty("scroll-behavior","auto","important"));
-}
-window.addEventListener("pageshow",enforceInstantScrolling);
-document.addEventListener("visibilitychange",()=>{if(!document.hidden)enforceInstantScrolling();});
 
 async function runShareOption(mode){
  const type=$("#shareOptionsSheet")?.dataset.type||activeShareListType();
@@ -903,9 +896,7 @@ async function runShareOption(mode){
  closeShareOptions();
  try{
    if(mode==="share"&&navigator.share){
-     enforceInstantScrolling();
      await navigator.share({title,text});
-     enforceInstantScrolling();
      document.documentElement.style.scrollBehavior="auto";
      document.body.style.scrollBehavior="auto";
      requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo({top:window.scrollY,left:0,behavior:"auto"})));
@@ -1024,10 +1015,29 @@ function escapeTradeHtml(value){return String(value??"").replace(/[&<>"']/g,char
 function applyTradeAnalyzerSuggestion(raw,replacement){const input=$("#tradeAnalyzerInput");if(!input||!raw||!replacement)return;const escaped=String(raw).replace(/[.*+?^${}()|[\]\\]/g,"\\$&");input.value=input.value.replace(new RegExp(escaped,"i"),replacement);renderTradeAnalyzerResult();}
 function editTradeAnalyzerList(){const dialog=$("#tradeAnalyzerDialog");dialog?.classList.remove("analyzed");$("#tradeAnalyzerEntry").hidden=false;setTimeout(()=>$("#tradeAnalyzerInput")?.focus(),60);}
 function tradeCopyLines(items,includeQuantities=true){return groupTradeAnalysis(items).map(([team,rows])=>`${TEAM_FLAG_EMOJI[team]||""} ${TEAM_TO_PANINI_CODE[team]||team}: ${rows.map(row=>{const units=Object.prototype.hasOwnProperty.call(row,"selectedUnits")?row.selectedUnits:row.available;return includeQuantities&&units>1?`${row.displayCode} x${units}`:row.displayCode;}).join(" ")}`);}
-function chooseBalancedTrade(available,normalNeeded,specialNeeded){
- const pool=available.filter(x=>!isTradeProtected(x)).sort((a,b)=>b.available-a.available||Number(a.displayCode)-Number(b.displayCode));
- const take=(category,needed)=>{const selected=[];let left=Math.max(0,Number(needed)||0);for(const item of pool.filter(x=>tradeStickerCategory(x)===category)){if(left<=0)break;const units=Math.min(item.available,left);if(units>0){selected.push({...item,selectedUnits:units});left-=units;}}return {selected,left};};
- const normals=take("normal",normalNeeded),specials=take("special",specialNeeded);return {items:[...normals.selected,...specials.selected],missingNormal:normals.left,missingSpecial:specials.left};
+function chooseBalancedTrade(available,normalNeeded,specialNeeded,allowDuplicates=false){
+ const pool=available.filter(x=>!isTradeProtected(x)).sort((a,b)=>b.available-a.available||currentTeamOrder().indexOf(a.team)-currentTeamOrder().indexOf(b.team)||Number(a.displayCode)-Number(b.displayCode));
+ const take=(category,needed)=>{
+   const candidates=pool.filter(x=>tradeStickerCategory(x)===category),selected=[];let left=Math.max(0,Number(needed)||0);
+   for(const item of candidates){if(left<=0)break;selected.push({...item,selectedUnits:1});left--;}
+   if(allowDuplicates&&left>0){
+     let pass=2;
+     while(left>0){let added=false;for(const item of candidates){if(left<=0)break;if(item.available>=pass){const row=selected.find(x=>tradeStickerKey(x)===tradeStickerKey(item));row.selectedUnits++;left--;added=true;}}if(!added)break;pass++;}
+   }
+   return {selected,left};
+ };
+ const normals=take("normal",normalNeeded),specials=take("special",specialNeeded);
+ return {items:[...normals.selected,...specials.selected],missingNormal:normals.left,missingSpecial:specials.left,allowDuplicates};
+}
+function renderBalancedTrade(box,available,normalNeeded,specialNeeded,allowDuplicates=null,invalidCount=0){
+ const balanced=chooseBalancedTrade(available,normalNeeded,specialNeeded,allowDuplicates===true);
+ const delivered=balanced.items.reduce((sum,item)=>sum+(item.selectedUnits||1),0);
+ const repeated=balanced.items.reduce((sum,item)=>sum+Math.max(0,(item.selectedUnits||1)-1),0);
+ const short=balanced.missingNormal+balanced.missingSpecial;
+ box.innerHTML=`<div class="balanced-summary"><strong>${delivered} cromos para entregar</strong><span>${balanced.items.length} diferentes${repeated?` · ${repeated} repetidos`:""}${invalidCount?` · ${invalidCount} no reconocidos`:""}</span></div>${short&&allowDuplicates===null?`<div class="trade-balance-choice"><strong>Faltan ${short} para igualar.</strong><span>¿Quieres completar con cartas iguales?</span><div><button type="button" data-balance-choice="different">Solo diferentes</button><button type="button" class="primary" data-balance-choice="duplicates">Añadir iguales</button></div></div>`:short?`<div class="trade-analyzer-warning">No hay más cromos disponibles para completar los ${short} restantes.</div>`:""}${balanced.items.length?`<button id="copyBalancedTrade" class="trade-analyzer-copy" type="button">Copiar intercambio</button>`:""}`;
+ box.querySelector('[data-balance-choice="different"]')?.addEventListener("click",()=>renderBalancedTrade(box,available,normalNeeded,specialNeeded,false,invalidCount));
+ box.querySelector('[data-balance-choice="duplicates"]')?.addEventListener("click",()=>renderBalancedTrade(box,available,normalNeeded,specialNeeded,true,invalidCount));
+ $("#copyBalancedTrade")?.addEventListener("click",async()=>{try{await copyShareText(tradeCopyLines(balanced.items,true).join("\n"));showToast("Intercambio copiado ✓");}catch{showToast("No se pudo copiar");}});
 }
 function renderTradeItem(item,kind){
  const star=isTradeStar(item),protectedItem=isTradeProtected(item),name=tradeStarName(item),category=tradeStickerCategory(item);
@@ -1058,14 +1068,12 @@ function renderTradeAnalyzerResult(){
  $("#generateBalancedTrade")?.addEventListener("click",()=>{
    const usingList=!$("#tradeReceiveListPanel").hidden;let normalNeeded=0,specialNeeded=0,invalidCount=0;
    if(usingList){const received=parseTradeList($("#tradeReceiveList").value);normalNeeded=received.found.filter(x=>tradeStickerCategory(x)==="normal").length;specialNeeded=received.found.length-normalNeeded;invalidCount=received.invalid.length;}else{normalNeeded=Number($("#tradeReceiveNormalCount").value)||0;specialNeeded=Number($("#tradeReceiveSpecialCount").value)||0;}
-   const balanced=chooseBalancedTrade(available,normalNeeded,specialNeeded),box=$("#balancedTradeResult");
+   const box=$("#balancedTradeResult");
    if(!normalNeeded&&!specialNeeded){box.innerHTML='<div class="trade-analyzer-warning">Indica al menos un cromo que vas a recibir.</div>';return;}
-   const selectedNormal=normalNeeded-balanced.missingNormal,selectedSpecial=specialNeeded-balanced.missingSpecial;
-   box.innerHTML=`<div class="balanced-summary"><strong>Recibes ${normalNeeded+specialNeeded}</strong><span>${normalNeeded} normales · ${specialNeeded} especiales${invalidCount?` · ${invalidCount} no reconocidos`:""}</span><strong>Entregas ${selectedNormal+selectedSpecial}</strong><span>${selectedNormal} normales · ${selectedSpecial} especiales</span></div>${balanced.missingNormal||balanced.missingSpecial?`<div class="trade-analyzer-warning">No hay suficientes cromos sin proteger: faltan ${balanced.missingNormal} normales y ${balanced.missingSpecial} especiales.</div>`:""}${balanced.items.length?`<button id="copyBalancedTrade" class="trade-analyzer-copy" type="button">Copiar intercambio equilibrado</button>`:""}`;
-   $("#copyBalancedTrade")?.addEventListener("click",async()=>{try{await copyShareText(tradeCopyLines(balanced.items,true).join("\n"));showToast("Intercambio copiado ✓");}catch{showToast("No se pudo copiar");}});
+   renderBalancedTrade(box,available,normalNeeded,specialNeeded,null,invalidCount);
  });
 }
-function openTradeAnalyzer(){const dialog=$("#tradeAnalyzerDialog");if(!dialog)return;dialog.classList.remove("analyzed");$("#tradeAnalyzerEntry").hidden=false;$("#tradeAnalyzerResult").hidden=true;dialog.showModal();setTimeout(()=>$("#tradeAnalyzerInput")?.focus(),80);}
+function openTradeAnalyzer(){const dialog=$("#tradeAnalyzerDialog");if(!dialog)return;dialog.classList.remove("analyzed");$("#tradeAnalyzerEntry").hidden=false;$("#tradeAnalyzerResult").hidden=true;if(!dialog.open)dialog.show();setTimeout(()=>$("#tradeAnalyzerInput")?.focus(),80);}
 
 async function shareActiveCollectionList(){
  openShareOptions();

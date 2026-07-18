@@ -4513,7 +4513,10 @@ html,body{scroll-behavior:auto!important}
 @media(max-width:600px){.trade-analyzer-dialog{align-self:auto;width:100%;max-width:none;margin:0;border-radius:0}.trade-analyzer-result{max-height:none}.trade-analyzer-scroll{padding-left:12px;padding-right:12px}.trade-analyzer-summary span{font-size:.62rem}.trade-analyzer-section,.trade-balance-card{padding:14px}.trade-sticker-pill small{display:none}}
 @media(prefers-color-scheme:dark){.trade-analyzer-dialog,.trade-analyzer-shell{background:#0e1723;color:#f4f7fb}.trade-analyzer-dialog::backdrop{background:#0e1723}.trade-analyzer-dialog .dialog-header{background:#152130;border-color:#2b394b}.trade-analyzer-dialog #closeTradeAnalyzerDialog{background:#243348;color:#e6eef8}.trade-analyzer-section,.trade-balance-card{background:#172331;border-color:#2d3c50}.trade-analyzer-group{background:#111b28}.trade-sticker-pill{background:#192737;border-color:#34465b;color:#69d79f}.trade-sticker-pill small{color:#aabbd0}.trade-sticker-pill button{background:#26374b;color:#d9e6f4}.trade-sticker-pill.is-star{background:#302b1b;border-color:#8d7434}.trade-receive-tabs{background:#101a27}.trade-receive-tabs button.active{background:#27384c;color:#75b3ff}#tradeReceiveList,#tradeReceiveCountsPanel input{background:#111b28;border-color:#314054;color:#f3f7fb}.balanced-summary{background:#132a40}.balanced-summary strong{color:#cde5ff}.balanced-summary span{color:#a9bdd2}}
 
-/* Build 704.2.1 · parser bilingüe y prevención de scroll suave en iOS */
-html,body,*{scroll-behavior:auto!important}
-.trade-analyzer-scroll{scroll-behavior:auto!important;-webkit-overflow-scrolling:auto!important}
-.trade-analyzer-dialog{height:100dvh;max-height:100dvh}
+
+/* Build 704.2.2 · asistente estable y selección de repetidos */
+.trade-analyzer-dialog{z-index:120;height:100%;max-height:none}
+.trade-balance-choice{display:grid;gap:8px;margin-top:12px;padding:13px;border:1px solid #dce6f0;border-radius:14px;background:#fff}
+.trade-balance-choice>span{font-size:.82rem;color:#65768a}.trade-balance-choice>div{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.trade-balance-choice button{min-height:42px;border:1px solid #d8e2ee;border-radius:11px;background:#f4f7fb;color:#33485f;font-weight:800}.trade-balance-choice button.primary{background:#1473e6;border-color:#1473e6;color:#fff}
+@media(prefers-color-scheme:dark){.trade-balance-choice{background:#172331;border-color:#2d3c50}.trade-balance-choice>span{color:#a9bdd2}.trade-balance-choice button{background:#243348;border-color:#34465b;color:#e6eef8}.trade-balance-choice button.primary{background:#1473e6;border-color:#1473e6;color:#fff}}

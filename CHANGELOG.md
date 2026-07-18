@@ -1,3 +1,11 @@
+# Build 704.2.2
+
+- El asistente se abre como capa fija no modal para evitar la regresión del viewport de iOS.
+- Restaurado el flujo de compartir de la versión estable 704.1.1.
+- El intercambio equilibrado prioriza una unidad de cada cromo.
+- Si no hay suficientes modelos diferentes, pregunta si se desean añadir cartas iguales.
+- Resultado simplificado para mantener una experiencia clara.
+
 ## Build 704.2.1
 - Parser bilingüe para nombres de selecciones en castellano e inglés.
 - Guiones interpretados como separadores (4-17 = 4 y 17), no como rangos.
