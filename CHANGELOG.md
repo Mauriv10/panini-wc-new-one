@@ -1,3 +1,11 @@
+# Build 704.2.3
+
+- Bloqueo/restauración del viewport durante compartir en iOS.
+- El asistente deja de usar el elemento dialog nativo.
+- Copiar lista completa excluye estrellas y protegidos.
+- Revisión de protecciones desde Ajustes.
+- Feedback visual y háptico en acciones del asistente.
+
 # Build 704.2.2
 
 - El asistente se abre como capa fija no modal para evitar la regresión del viewport de iOS.

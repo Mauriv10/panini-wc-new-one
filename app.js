@@ -882,6 +882,42 @@ async function copyShareText(text){
 }
 
 
+function lockViewportForExternalShare(){
+ const y=window.scrollY||document.documentElement.scrollTop||0;
+ document.body.dataset.shareScrollY=String(y);
+ document.body.style.position="fixed";
+ document.body.style.top=`-${y}px`;
+ document.body.style.left="0";
+ document.body.style.right="0";
+ document.body.style.width="100%";
+ document.body.classList.add("external-share-active");
+ return y;
+}
+function unlockViewportAfterExternalShare(y){
+ document.body.classList.remove("external-share-active");
+ document.body.style.position="";
+ document.body.style.top="";
+ document.body.style.left="";
+ document.body.style.right="";
+ document.body.style.width="";
+ document.documentElement.style.scrollBehavior="auto";
+ document.body.style.scrollBehavior="auto";
+ window.scrollTo(0,Number.isFinite(y)?y:Number(document.body.dataset.shareScrollY||0));
+ delete document.body.dataset.shareScrollY;
+ requestAnimationFrame(()=>window.scrollTo(0,Number.isFinite(y)?y:0));
+}
+
+function actionFeedback(button,{busy="Procesando…",done="Hecho ✓",error="Error"}={}){
+ if(!button)return {success(){},fail(){},restore(){}};
+ const original=button.dataset.originalLabel||button.textContent;
+ button.dataset.originalLabel=original;
+ button.disabled=true;button.classList.add("is-working");button.textContent=busy;
+ vibrate();
+ let timer;
+ const finish=(label,cls)=>{clearTimeout(timer);button.classList.remove("is-working","is-success","is-error");button.classList.add(cls);button.textContent=label;timer=setTimeout(()=>{button.disabled=false;button.classList.remove(cls);button.textContent=original;},1100)};
+ return {success(label=done){finish(label,"is-success")},fail(label=error){finish(label,"is-error")},restore(){clearTimeout(timer);button.disabled=false;button.classList.remove("is-working","is-success","is-error");button.textContent=original}};
+}
+
 async function runShareOption(mode){
  const type=$("#shareOptionsSheet")?.dataset.type||activeShareListType();
  if(!type)return;
@@ -896,22 +932,15 @@ async function runShareOption(mode){
  closeShareOptions();
  try{
    if(mode==="share"&&navigator.share){
-     await navigator.share({title,text});
-     document.documentElement.style.scrollBehavior="auto";
-     document.body.style.scrollBehavior="auto";
-     requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo({top:window.scrollY,left:0,behavior:"auto"})));
-     showToast("Lista compartida ✓");
+     const lockedY=lockViewportForExternalShare();
+     try{await navigator.share({title,text});showToast("Lista compartida ✓");}
+     finally{unlockViewportAfterExternalShare(lockedY);}
      return;
    }
    await copyShareText(text);
    showToast(mode==="compact"?"Lista compacta copiada ✓":"Lista copiada al portapapeles ✓");
  }catch(error){
-   if(error?.name==="AbortError"){
-     document.documentElement.style.scrollBehavior="auto";
-     document.body.style.scrollBehavior="auto";
-     requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo({top:window.scrollY,left:0,behavior:"auto"})));
-     return;
-   }
+   if(error?.name==="AbortError")return;
    try{
      await copyShareText(text);
      showToast("Lista copiada al portapapeles ✓");
@@ -1037,7 +1066,7 @@ function renderBalancedTrade(box,available,normalNeeded,specialNeeded,allowDupli
  box.innerHTML=`<div class="balanced-summary"><strong>${delivered} cromos para entregar</strong><span>${balanced.items.length} diferentes${repeated?` · ${repeated} repetidos`:""}${invalidCount?` · ${invalidCount} no reconocidos`:""}</span></div>${short&&allowDuplicates===null?`<div class="trade-balance-choice"><strong>Faltan ${short} para igualar.</strong><span>¿Quieres completar con cartas iguales?</span><div><button type="button" data-balance-choice="different">Solo diferentes</button><button type="button" class="primary" data-balance-choice="duplicates">Añadir iguales</button></div></div>`:short?`<div class="trade-analyzer-warning">No hay más cromos disponibles para completar los ${short} restantes.</div>`:""}${balanced.items.length?`<button id="copyBalancedTrade" class="trade-analyzer-copy" type="button">Copiar intercambio</button>`:""}`;
  box.querySelector('[data-balance-choice="different"]')?.addEventListener("click",()=>renderBalancedTrade(box,available,normalNeeded,specialNeeded,false,invalidCount));
  box.querySelector('[data-balance-choice="duplicates"]')?.addEventListener("click",()=>renderBalancedTrade(box,available,normalNeeded,specialNeeded,true,invalidCount));
- $("#copyBalancedTrade")?.addEventListener("click",async()=>{try{await copyShareText(tradeCopyLines(balanced.items,true).join("\n"));showToast("Intercambio copiado ✓");}catch{showToast("No se pudo copiar");}});
+ $("#copyBalancedTrade")?.addEventListener("click",async event=>{const fb=actionFeedback(event.currentTarget,{busy:"Copiando…",done:"Intercambio copiado ✓"});try{await copyShareText(tradeCopyLines(balanced.items,true).join("\n"));fb.success();showToast("Intercambio copiado ✓");}catch{fb.fail("No se pudo copiar");showToast("No se pudo copiar");}});
 }
 function renderTradeItem(item,kind){
  const star=isTradeStar(item),protectedItem=isTradeProtected(item),name=tradeStarName(item),category=tradeStickerCategory(item);
@@ -1063,17 +1092,19 @@ function renderTradeAnalyzerResult(){
  const itemMap=Object.fromEntries(available.map(x=>[tradeStickerKey(x),x]));
  result.querySelectorAll("[data-trade-star]").forEach(b=>b.addEventListener("click",()=>toggleTradeMark(itemMap[b.dataset.tradeStar],"stars")));
  result.querySelectorAll("[data-trade-protect]").forEach(b=>b.addEventListener("click",()=>toggleTradeMark(itemMap[b.dataset.tradeProtect],"protected")));
- $("#copyTradeAnalyzerAll")?.addEventListener("click",async()=>{try{await copyShareText(tradeCopyLines(available).join("\n"));showToast("Lista completa copiada ✓");}catch{showToast("No se pudo copiar");}});
+ $("#copyTradeAnalyzerAll")?.addEventListener("click",async event=>{const fb=actionFeedback(event.currentTarget,{busy:"Copiando…",done:"Lista copiada ✓"});const safeAvailable=available.filter(item=>!isTradeStar(item)&&!isTradeProtected(item));try{if(!safeAvailable.length)throw new Error("No hay cromos sin proteger");await copyShareText(tradeCopyLines(safeAvailable).join("\n"));fb.success();showToast("Lista copiada sin estrellas ni protegidos ✓");}catch(error){fb.fail("No se pudo copiar");showToast(error.message||"No se pudo copiar");}});
  result.querySelectorAll("[data-receive-mode]").forEach(btn=>btn.addEventListener("click",()=>{result.querySelectorAll("[data-receive-mode]").forEach(x=>x.classList.toggle("active",x===btn));$("#tradeReceiveListPanel").hidden=btn.dataset.receiveMode!=="list";$("#tradeReceiveCountsPanel").hidden=btn.dataset.receiveMode!=="counts";}));
- $("#generateBalancedTrade")?.addEventListener("click",()=>{
+ $("#generateBalancedTrade")?.addEventListener("click",event=>{
+   const fb=actionFeedback(event.currentTarget,{busy:"Generando…",done:"Lista generada ✓"});
    const usingList=!$("#tradeReceiveListPanel").hidden;let normalNeeded=0,specialNeeded=0,invalidCount=0;
    if(usingList){const received=parseTradeList($("#tradeReceiveList").value);normalNeeded=received.found.filter(x=>tradeStickerCategory(x)==="normal").length;specialNeeded=received.found.length-normalNeeded;invalidCount=received.invalid.length;}else{normalNeeded=Number($("#tradeReceiveNormalCount").value)||0;specialNeeded=Number($("#tradeReceiveSpecialCount").value)||0;}
    const box=$("#balancedTradeResult");
-   if(!normalNeeded&&!specialNeeded){box.innerHTML='<div class="trade-analyzer-warning">Indica al menos un cromo que vas a recibir.</div>';return;}
-   renderBalancedTrade(box,available,normalNeeded,specialNeeded,null,invalidCount);
+   if(!normalNeeded&&!specialNeeded){box.innerHTML='<div class="trade-analyzer-warning">Indica al menos un cromo que vas a recibir.</div>';fb.fail("Falta la lista");return;}
+   renderBalancedTrade(box,available,normalNeeded,specialNeeded,null,invalidCount);fb.success();
  });
 }
-function openTradeAnalyzer(){const dialog=$("#tradeAnalyzerDialog");if(!dialog)return;dialog.classList.remove("analyzed");$("#tradeAnalyzerEntry").hidden=false;$("#tradeAnalyzerResult").hidden=true;if(!dialog.open)dialog.show();setTimeout(()=>$("#tradeAnalyzerInput")?.focus(),80);}
+function openTradeAnalyzer(){const dialog=$("#tradeAnalyzerDialog");if(!dialog)return;dialog.classList.remove("analyzed");$("#tradeAnalyzerEntry").hidden=false;$("#tradeAnalyzerResult").hidden=true;dialog.hidden=false;document.body.classList.add("trade-analyzer-open");setTimeout(()=>$("#tradeAnalyzerInput")?.focus(),80);}
+function closeTradeAnalyzer(){const dialog=$("#tradeAnalyzerDialog");if(!dialog)return;dialog.hidden=true;document.body.classList.remove("trade-analyzer-open");}
 
 async function shareActiveCollectionList(){
  openShareOptions();
@@ -2287,6 +2318,20 @@ $("#markSyncedButton").onclick=()=>{
 };
 
 
+function renderTradeProtectionSettings(){
+ const root=$("#tradeProtectionSettings");if(!root)return;
+ const prefs=currentTradePreferences();
+ const customStars=Object.keys(prefs.stars||{});const customProtected=Object.keys(prefs.protected||{});
+ const defaults=Object.keys(DEFAULT_TOP_STARS);
+ const chips=[...new Set([...defaults,...customStars,...customProtected])].map(key=>{
+   const [code,num]=key.split("|");const label=DEFAULT_TOP_STARS[key]||`${code}${num}`;
+   const tags=[defaults.includes(key)?"TOP":"",customStars.includes(key)?"Estrella":"",customProtected.includes(key)?"Protegido":""].filter(Boolean).join(" · ");
+   return `<span class="trade-setting-chip"><strong>${escapeTradeHtml(label)}</strong><small>${escapeTradeHtml(code+num)} · ${tags}</small></span>`;
+ }).join("");
+ root.innerHTML=`<p>Las listas copiadas y los intercambios automáticos excluyen estos cromos.</p><div class="trade-setting-chips">${chips||'<span class="trade-settings-empty">Sin marcas personalizadas.</span>'}</div>${customStars.length||customProtected.length?'<button id="resetCustomTradeMarks" type="button">Quitar marcas personalizadas</button>':""}`;
+ $("#resetCustomTradeMarks")?.addEventListener("click",event=>{const fb=actionFeedback(event.currentTarget,{busy:"Restableciendo…",done:"Restablecido ✓"});prefs.stars={};prefs.protected={};persistProjects();renderTradeProtectionSettings();fb.success();showToast("Marcas personalizadas eliminadas");});
+}
+
 function setupSettingsCenter(){
  const dialog=$("#settingsDialog");
  if(!dialog)return;
@@ -2305,6 +2350,7 @@ function setupSettingsCenter(){
 
  const openSettings=()=>{
    if(dialog.open)return;
+   renderTradeProtectionSettings();
    document.body.classList.add("settings-overlay-open");
    dialog.showModal();
    const scrollArea=dialog.querySelector(".settings-groups");
@@ -2362,10 +2408,10 @@ $("#shareOptionsClose")?.addEventListener("click",closeShareOptions);
 $("#shareOptionsBackdrop")?.addEventListener("click",closeShareOptions);
 document.querySelectorAll("[data-share-option]").forEach(button=>button.addEventListener("click",()=>runShareOption(button.dataset.shareOption)));
 $("#openTradeAnalyzerButton")?.addEventListener("click",openTradeAnalyzer);
-$("#closeTradeAnalyzerDialog")?.addEventListener("click",()=>$("#tradeAnalyzerDialog")?.close());
-$("#runTradeAnalyzerButton")?.addEventListener("click",renderTradeAnalyzerResult);
+$("#closeTradeAnalyzerDialog")?.addEventListener("click",closeTradeAnalyzer);
+$("#runTradeAnalyzerButton")?.addEventListener("click",event=>{const fb=actionFeedback(event.currentTarget,{busy:"Analizando…",done:"Lista analizada ✓"});try{renderTradeAnalyzerResult();fb.success();}catch(error){console.error(error);fb.fail("No se pudo analizar");}});
 $("#clearTradeAnalyzerButton")?.addEventListener("click",()=>{const input=$("#tradeAnalyzerInput");if(input)input.value="";const dialog=$("#tradeAnalyzerDialog");dialog?.classList.remove("analyzed");const result=$("#tradeAnalyzerResult");if(result){result.hidden=true;result.innerHTML="";}input?.focus();});
-$("#tradeAnalyzerDialog")?.addEventListener("click",event=>{if(event.target===$("#tradeAnalyzerDialog"))$("#tradeAnalyzerDialog").close();});
+$("#tradeAnalyzerDialog")?.addEventListener("click",event=>{if(event.target===$("#tradeAnalyzerDialog"))closeTradeAnalyzer();});
 
 document.querySelectorAll(".collection-filter-button").forEach(button=>button.onclick=()=>{
  document.querySelectorAll(".collection-filter-button").forEach(x=>x.classList.remove("active"));
