@@ -1,3 +1,9 @@
+# Build 704.4
+
+- Zona superior clara para eliminar la franja oscura en la PWA.
+- Cabecera principal más compacta y mejor integrada con el fondo.
+- Cambio visual aislado: barra inferior, scroll, compartir y asistente permanecen intactos respecto a la 704.3.7 estable.
+
 # Build 704.3.7
 
 - Sustituye los campos numéricos de Normales y Especiales por controles + y −.

@@ -1,7 +1,7 @@
 {
-  "build": "704.3.7",
-  "label": "Contadores sin teclado ni zoom en iOS",
+  "build": "704.4",
+  "label": "Cabecera premium integrada",
   "released": "2026-07-19",
-  "version": "704.3.7",
-  "name": "Cantidades con botones más y menos"
+  "version": "704.4",
+  "name": "Zona superior clara y cabecera compacta"
 }
