@@ -1283,9 +1283,41 @@ teamSearch.oninput=()=>{
  suggestions.querySelectorAll("button").forEach(button=>button.onclick=()=>selectTeam(button.dataset.team));
 };
 document.addEventListener("click",e=>{if(!e.target.closest(".search-wrap"))suggestions.hidden=true});
-$("#teamSelectorButton").onclick=()=>{$("#dialogSearch").value="";renderTeamList(currentTeamOrder());$("#teamDialog").showModal()};
+function syncTeamDialogViewport(){
+ const vv=window.visualViewport;
+ const root=document.documentElement;
+ const height=vv?vv.height:window.innerHeight;
+ const top=vv?vv.offsetTop:0;
+ root.style.setProperty("--team-vv-height",`${Math.round(height)}px`);
+ root.style.setProperty("--team-vv-top",`${Math.round(top)}px`);
+ const dialog=$("#teamDialog");
+ if(dialog?.open){
+   const keyboardOpen=height<window.innerHeight-120;
+   dialog.classList.toggle("keyboard-open",keyboardOpen);
+   requestAnimationFrame(()=>$("#teamList")?.scrollTo({top:0,behavior:"auto"}));
+ }
+}
+window.visualViewport?.addEventListener("resize",syncTeamDialogViewport);
+window.visualViewport?.addEventListener("scroll",syncTeamDialogViewport);
+window.addEventListener("orientationchange",()=>setTimeout(syncTeamDialogViewport,120));
+$("#teamSelectorButton").onclick=()=>{
+ $("#dialogSearch").value="";
+ renderTeamList(currentTeamOrder());
+ syncTeamDialogViewport();
+ $("#teamDialog").showModal();
+ requestAnimationFrame(syncTeamDialogViewport);
+};
 $("#closeTeamDialog").onclick=()=>$("#teamDialog").close();
-$("#dialogSearch").oninput=e=>{renderTeamList(filterTeamsByQuery(e.target.value));requestAnimationFrame(()=>$("#teamList")?.scrollTo({top:0,behavior:"auto"}));};
+$("#teamDialog").addEventListener("close",()=>$("#teamDialog").classList.remove("keyboard-open"));
+$("#dialogSearch").addEventListener("focus",()=>{
+ syncTeamDialogViewport();
+ requestAnimationFrame(()=>$("#teamList")?.scrollTo({top:0,behavior:"auto"}));
+});
+$("#dialogSearch").oninput=e=>{
+ renderTeamList(filterTeamsByQuery(e.target.value));
+ syncTeamDialogViewport();
+ requestAnimationFrame(()=>$("#teamList")?.scrollTo({top:0,behavior:"auto"}));
+};
 $("#targetLockButton").onclick=()=>{
  const value=prompt("Nuevo objetivo de álbumes:",targetInput.value);
  if(value!==null&&Number(value)>=1&&Number(value)<=20){

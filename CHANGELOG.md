@@ -1,3 +1,10 @@
+# Build 704.5.2
+
+- Corrige el selector «Elegir selección» en iPhone cuando aparece el teclado.
+- El modal se adapta al viewport visible y mantiene los resultados justo bajo el buscador.
+- La lista dispone de scroll propio y el primer resultado queda visible.
+- No modifica el buscador principal, la barra inferior ni el asistente.
+
 # Build 704.5.1 · Actualización y buscadores
 
 - Fuerza la activación inmediata del nuevo service worker y renueva la caché de la PWA.

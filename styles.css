@@ -5053,3 +5053,43 @@ html,body{background-color:#eef6ff!important}
 #searchSuggestions[hidden]{display:none!important;}
 #searchSuggestions .suggestion{display:flex!important;align-items:center!important;gap:10px!important;width:100%!important;}
 @media(max-height:650px){#searchSuggestions.suggestions{max-height:26dvh!important;}}
+
+/* Build 704.5.2 · selector de selección visible con teclado iOS */
+#teamDialog[open]{
+  position:fixed!important;
+  inset:auto!important;
+  top:calc(var(--team-vv-top, 0px) + max(10px, env(safe-area-inset-top)))!important;
+  left:50%!important;
+  transform:translateX(-50%)!important;
+  width:min(92vw,520px)!important;
+  max-height:calc(var(--team-vv-height, 100dvh) - max(20px, env(safe-area-inset-top)) - 12px)!important;
+  margin:0!important;
+  padding:16px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+}
+#teamDialog .dialog-header,
+#teamDialog .dialog-search{flex:0 0 auto!important;}
+#teamDialog .team-list{
+  flex:1 1 auto!important;
+  min-height:76px!important;
+  max-height:none!important;
+  overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior:contain!important;
+  scroll-padding-top:4px!important;
+  scroll-padding-bottom:12px!important;
+}
+#teamDialog.keyboard-open{
+  width:min(94vw,520px)!important;
+  border-radius:22px!important;
+}
+#teamDialog.keyboard-open .dialog-search{margin-bottom:6px!important;}
+#teamDialog.keyboard-open .team-list{min-height:92px!important;}
+@media(max-width:430px){
+  #teamDialog[open]{
+    width:calc(100vw - 24px)!important;
+    padding:14px!important;
+  }
+}
