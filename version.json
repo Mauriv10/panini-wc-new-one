@@ -1,7 +1,6 @@
 {
-  "build": "704.6.1",
-  "label": "Límite por cantidad solicitada",
+  "version": "704.7",
+  "name": "Colecciones y protegidos",
   "released": "2026-07-21",
-  "version": "704.6.1",
-  "name": "Intercambio limitado a lo pedido"
+  "notes": "Coca-Cola opcional y gestor completo de favoritos/protegidos."
 }

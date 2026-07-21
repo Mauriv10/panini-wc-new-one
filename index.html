@@ -340,6 +340,16 @@
     <button id="openTradeAnalyzerButton" type="button">Analizar</button>
   </section>
 
+  <section class="trade-option-card trade-option-primary trade-protection-card">
+    <div class="trade-option-icon">★</div>
+    <div class="trade-option-copy">
+      <span>GESTIÓN</span>
+      <h3>Favoritos y protegidos</h3>
+      <p>Decide qué cromos debe evitar o excluir el asistente de intercambio.</p>
+    </div>
+    <button id="openTradeProtectionManagerButton" type="button">Gestionar</button>
+  </section>
+
   <section class="trade-option-card trade-option-upcoming">
     <div class="trade-option-icon">QR</div>
     <div class="trade-option-copy">
@@ -569,6 +579,11 @@
     </details>
 
     <details class="settings-group settings-accordion">
+      <summary class="settings-group-title"><span class="settings-glyph red">◉</span><div><strong>Colecciones visibles</strong><small>Activa las colaboraciones que coleccionas</small></div><span class="settings-chevron">›</span></summary>
+      <div class="settings-group-content"><div id="collectionModuleSettings" class="collection-module-settings"></div></div>
+    </details>
+
+    <details class="settings-group settings-accordion">
       <summary class="settings-group-title"><span class="settings-glyph yellow">★</span><div><strong>Intercambios</strong><small>Estrellas y cromos protegidos</small></div><span class="settings-chevron">›</span></summary>
       <div class="settings-group-content"><div id="tradeProtectionSettings" class="trade-protection-settings"></div></div>
     </details>
@@ -577,13 +592,16 @@
       <summary class="settings-group-title"><span class="settings-glyph gray">i</span><div><strong>Información</strong><small>World Cup 2026</small></div><span class="settings-chevron">›</span></summary>
       <div class="settings-group-content">
         <div class="settings-info-list">
-          <div><span>Versión</span><strong>Build 704.6.1 · Cantidades solicitadas</strong></div>
+          <div><span>Versión</span><strong>Build 704.7 · Colecciones y protegidos</strong></div>
           <div><span>Modo</span><strong>Disponible offline</strong></div>
         </div>
       </div>
     </details>
   </div>
 </dialog>
+
+
+
 </body>
 </html> 
     
@@ -856,5 +874,22 @@
 
 
 
+
+
+
+
+<dialog id="tradeProtectionManagerDialog" class="trade-protection-manager-dialog">
+  <header class="trade-manager-header"><div><span>INTERCAMBIOS</span><h2>Favoritos y protegidos</h2></div><button id="closeTradeProtectionManager" type="button" aria-label="Cerrar">✕</button></header>
+  <div class="trade-manager-body">
+    <p class="trade-manager-help">⭐ Favoritos se evitan si hay alternativas. 🔒 Protegidos nunca se ofrecen.</p>
+    <input id="tradeProtectionSearch" class="trade-manager-search" type="search" placeholder="Buscar jugador, selección o código" autocomplete="off">
+    <section class="trade-manager-add">
+      <h3>Añadir cromo</h3>
+      <div class="trade-manager-selects"><select id="tradeProtectionTeam"></select><select id="tradeProtectionNumber"></select></div>
+      <div class="trade-manager-add-actions"><button id="addTradeFavorite" type="button">★ Favorito</button><button id="addTradeProtected" class="primary" type="button">🔒 Nunca intercambiar</button></div>
+    </section>
+    <section><h3>Configurados</h3><div id="tradeProtectionManagerList" class="trade-protection-manager-list"></div></section>
+  </div>
+</dialog>
 </body>
 </html>

@@ -1,4 +1,4 @@
-const APP_VERSION=globalThis.WC26_CONFIG?.version||"704.6.1";
+const APP_VERSION=globalThis.WC26_CONFIG?.version||"704.7";
 const DATA_SCHEMA_VERSION=2;
 const DATA_REVISION="2026-07-17-collections-v70111";
 const MASTER_SEED_KEY="world-cup-2026-master-seed-revision";
@@ -52,7 +52,15 @@ function projectTeamOrder(project=projects?.[activeProjectId],sourceInventory=pr
  const seen=new Set();
  return [...preferred,...available].filter(team=>available.includes(team)&&!seen.has(team)&&seen.add(team));
 }
-function currentTeamOrder(){return projectTeamOrder(projects?.[activeProjectId],inventory)}
+function currentCollectionOptions(){
+ const project=projects?.[activeProjectId];
+ if(!project)return {collaborationEnabled:true};
+ project.collectionOptions=project.collectionOptions||{collaborationEnabled:true};
+ if(typeof project.collectionOptions.collaborationEnabled!=="boolean")project.collectionOptions.collaborationEnabled=true;
+ return project.collectionOptions;
+}
+function collaborationEnabled(){return currentCollectionOptions().collaborationEnabled!==false}
+function currentTeamOrder(){return projectTeamOrder(projects?.[activeProjectId],inventory).filter(team=>team!=="Coca-Cola"||collaborationEnabled())}
 function ensureProjectInventorySchema(project){
  if(!project||!project.inventory)return;
  // FWC se mostraba antiguamente como 01–20. La app usa ahora los códigos reales 00–19.
@@ -983,13 +991,15 @@ function tradeStickerKey(item){return `${item.officialCode}|${item.displayCode}`
 function currentTradePreferences(){
  const project=projects?.[activeProjectId];
  if(!project)return {stars:{},protected:{}};
- project.tradePreferences=project.tradePreferences||{stars:{},protected:{}};
+ project.tradePreferences=project.tradePreferences||{stars:{},protected:{},disabledDefaultStars:{},disabledDefaultProtected:{}};
  project.tradePreferences.stars=project.tradePreferences.stars||{};
  project.tradePreferences.protected=project.tradePreferences.protected||{};
+ project.tradePreferences.disabledDefaultStars=project.tradePreferences.disabledDefaultStars||{};
+ project.tradePreferences.disabledDefaultProtected=project.tradePreferences.disabledDefaultProtected||{};
  return project.tradePreferences;
 }
-function isTradeStar(item){const key=tradeStickerKey(item);return Boolean(DEFAULT_TOP_STARS[key]||currentTradePreferences().stars[key])}
-function isTradeProtected(item){const key=tradeStickerKey(item);return Boolean(DEFAULT_TOP_STARS[key]||currentTradePreferences().protected[key])}
+function isTradeStar(item){const key=tradeStickerKey(item),prefs=currentTradePreferences();return Boolean((DEFAULT_TOP_STARS[key]&&!prefs.disabledDefaultStars[key])||prefs.stars[key])}
+function isTradeProtected(item){const key=tradeStickerKey(item),prefs=currentTradePreferences();return Boolean((DEFAULT_TOP_STARS[key]&&!prefs.disabledDefaultProtected[key])||prefs.protected[key])}
 function tradeStarName(item){return DEFAULT_TOP_STARS[tradeStickerKey(item)]||""}
 function tradeStickerCategory(item){return item.team==="Coca-Cola"?"collaboration":item.team==="FWC"||(item.team!=="Coca-Cola"&&Number(item.displayCode)===1)?"special":"normal"}
 function toggleTradeMark(item,type){
@@ -1023,7 +1033,7 @@ function parseTradeList(rawText){
  const addSticker=(rawCode,number,rawToken,requestedUnits=1)=>{
    let code=String(rawCode||"").toUpperCase();code=PANINI_CODE_ALIASES[code]||code;const team=PANINI_TEAM_CODES[code];
    if(!team){addInvalid(rawToken||`${rawCode}${number}`,"Selección no reconocida",suggestPaniniCode(rawCode)||suggestPaniniTeamName(rawCode)||"");return;}
-   const internalCode=paniniInternalCode(team,number);if(!internalCode){addInvalid(rawToken||`${code}${number}`,team==="FWC"?"FWC admite números del 00 al 19":team==="Coca-Cola"?"CC admite números del 01 al 12":"El número debe estar entre 01 y 20");return;}
+   if(team==="Coca-Cola"&&!collaborationEnabled()){addInvalid(rawToken||`${code}${number}`,"Coca-Cola está desactivada en Ajustes");return;}const internalCode=paniniInternalCode(team,number);if(!internalCode){addInvalid(rawToken||`${code}${number}`,team==="FWC"?"FWC admite números del 00 al 19":team==="Coca-Cola"?"CC admite números del 01 al 12":"El número debe estar entre 01 y 20");return;}
    const key=`${team}|${internalCode}`;const units=Math.max(1,Number(requestedUnits)||1);const existing=foundByKey.get(key);
    if(existing){existing.requestedUnits+=units;return;}
    const item={team,officialCode:code,internalCode,displayCode:paniniDisplayCode(team,internalCode),requestedUnits:units};foundByKey.set(key,item);found.push(item);
@@ -1099,7 +1109,7 @@ function renderBalancedTrade(box,available,normalNeeded,specialNeeded,collaborat
 }
 function renderExchangeStep(available){
  const result=$("#tradeAnalyzerResult"),dialog=$("#tradeAnalyzerDialog");dialog?.classList.add("exchange-step");
- result.innerHTML=`<button id="backToTradeSummary" class="trade-back-button" type="button">← Volver</button><div class="trade-clean-card"><h3>¿Qué te dará la otra persona?</h3><div class="trade-receive-tabs"><button type="button" class="active" data-receive-mode="list">Pegar lista</button><button type="button" data-receive-mode="counts">Cantidades</button></div><div id="tradeReceiveListPanel"><p class="trade-context-label compact">Pega la lista de cromos que vas a recibir</p><textarea id="tradeReceiveList" rows="6" placeholder="Ejemplo: Francia 15 · FWC 18"></textarea></div><div id="tradeReceiveCountsPanel" hidden><div class="trade-count-stepper" data-count-kind="normal"><span>Normales</span><div class="trade-count-controls"><button type="button" class="trade-count-btn" data-count-action="decrease" aria-label="Restar cromo normal">−</button><output id="tradeReceiveNormalCount" aria-live="polite">0</output><button type="button" class="trade-count-btn primary" data-count-action="increase" aria-label="Sumar cromo normal">+</button></div></div><div class="trade-count-stepper" data-count-kind="special"><span>Especiales</span><div class="trade-count-controls"><button type="button" class="trade-count-btn" data-count-action="decrease" aria-label="Restar cromo especial">−</button><output id="tradeReceiveSpecialCount" aria-live="polite">0</output><button type="button" class="trade-count-btn primary" data-count-action="increase" aria-label="Sumar cromo especial">+</button></div></div><div class="trade-count-stepper" data-count-kind="collaboration"><span>Colaboración</span><div class="trade-count-controls"><button type="button" class="trade-count-btn" data-count-action="decrease" aria-label="Restar cromo de colaboración">−</button><output id="tradeReceiveCollaborationCount" aria-live="polite">0</output><button type="button" class="trade-count-btn primary" data-count-action="increase" aria-label="Sumar cromo de colaboración">+</button></div></div></div><button id="generateBalancedTrade" class="primary trade-main-action" type="button">Generar intercambio</button><div id="receivedListErrors"></div><div id="balancedTradeResult"></div></div>`;
+ result.innerHTML=`<button id="backToTradeSummary" class="trade-back-button" type="button">← Volver</button><div class="trade-clean-card"><h3>¿Qué te dará la otra persona?</h3><div class="trade-receive-tabs"><button type="button" class="active" data-receive-mode="list">Pegar lista</button><button type="button" data-receive-mode="counts">Cantidades</button></div><div id="tradeReceiveListPanel"><p class="trade-context-label compact">Pega la lista de cromos que vas a recibir</p><textarea id="tradeReceiveList" rows="6" placeholder="Ejemplo: Francia 15 · FWC 18"></textarea></div><div id="tradeReceiveCountsPanel" hidden><div class="trade-count-stepper" data-count-kind="normal"><span>Normales</span><div class="trade-count-controls"><button type="button" class="trade-count-btn" data-count-action="decrease" aria-label="Restar cromo normal">−</button><output id="tradeReceiveNormalCount" aria-live="polite">0</output><button type="button" class="trade-count-btn primary" data-count-action="increase" aria-label="Sumar cromo normal">+</button></div></div><div class="trade-count-stepper" data-count-kind="special"><span>Especiales</span><div class="trade-count-controls"><button type="button" class="trade-count-btn" data-count-action="decrease" aria-label="Restar cromo especial">−</button><output id="tradeReceiveSpecialCount" aria-live="polite">0</output><button type="button" class="trade-count-btn primary" data-count-action="increase" aria-label="Sumar cromo especial">+</button></div></div><div class="trade-count-stepper" data-count-kind="collaboration" ${collaborationEnabled()?"":"hidden"}><span>Colaboración</span><div class="trade-count-controls"><button type="button" class="trade-count-btn" data-count-action="decrease" aria-label="Restar cromo de colaboración">−</button><output id="tradeReceiveCollaborationCount" aria-live="polite">0</output><button type="button" class="trade-count-btn primary" data-count-action="increase" aria-label="Sumar cromo de colaboración">+</button></div></div></div><button id="generateBalancedTrade" class="primary trade-main-action" type="button">Generar intercambio</button><div id="receivedListErrors"></div><div id="balancedTradeResult"></div></div>`;
  $("#backToTradeSummary")?.addEventListener("click",renderTradeAnalyzerResult);
  result.querySelectorAll("[data-receive-mode]").forEach(btn=>btn.addEventListener("click",()=>{result.querySelectorAll("[data-receive-mode]").forEach(x=>x.classList.toggle("active",x===btn));$("#tradeReceiveListPanel").hidden=btn.dataset.receiveMode!=="list";$("#tradeReceiveCountsPanel").hidden=btn.dataset.receiveMode!=="counts";$("#receivedListErrors").innerHTML="";$("#balancedTradeResult").innerHTML="";}));
  const countState={normal:0,special:0,collaboration:0};
@@ -1164,7 +1174,7 @@ function renderGlobalCollection(){
 function calculateProjectStatistics(){
  const target=getTarget();
  let total=0,missing=0,repeats=0,shiny=0,fwc=0,badges=0,collaboration=0,complete=0;
- Object.entries(inventory).forEach(([team,stickers])=>{
+ currentTeamOrder().map(team=>[team,inventory[team]]).forEach(([team,stickers])=>{
    let teamComplete=true;
    Object.entries(stickers).forEach(([code,raw])=>{
      const qty=Number(raw)||0;
@@ -1178,12 +1188,12 @@ function calculateProjectStatistics(){
    });
    if(teamComplete)complete++;
  });
- const required=Object.values(inventory).reduce((sum,stickers)=>sum+Object.keys(stickers).length,0)*target;
+ const required=currentTeamOrder().reduce((sum,team)=>sum+Object.keys(inventory[team]||{}).length,0)*target;
  return {total,missing,repeats,shiny,fwc,badges,collaboration,complete,progress:required?Math.min(100,Math.round((total-mathExcessForProgress())/required*100)):0};
 }
 function mathExcessForProgress(){
  const target=getTarget();
- return Object.values(inventory).reduce((sum,stickers)=>sum+Object.values(stickers).reduce((s,q)=>s+Math.max(0,Number(q||0)-target),0),0);
+ return currentTeamOrder().reduce((sum,team)=>sum+Object.values(inventory[team]||{}).reduce((s,q)=>s+Math.max(0,Number(q||0)-target),0),0);
 }
 function renderStatistics(){
  const s=calculateProjectStatistics();
@@ -1240,6 +1250,7 @@ function setMainTab(tab){
 }
 
 function renderAll(){
+ updateOptionalCollectionVisibility();
  const homeName=$("#homeCollectionName");if(homeName&&projects[activeProjectId])homeName.textContent=projects[activeProjectId].name;
  if(currentView!=="missing")renderCards();
  updateSummary();
@@ -2358,8 +2369,82 @@ $("#markSyncedButton").onclick=()=>{
 };
 
 
-function renderTradeProtectionSettings(){const root=$("#tradeProtectionSettings");if(!root)return;const prefs=currentTradePreferences(),customStars=Object.keys(prefs.stars||{}),customProtected=Object.keys(prefs.protected||{}),defaults=Object.keys(DEFAULT_TOP_STARS),total=new Set([...defaults,...customStars,...customProtected]).size;root.innerHTML=`<button id="manageTradeProtection" class="trade-settings-row" type="button"><span><strong>Protegidos para intercambios</strong><small>${total} cromos excluidos</small></span><b>Gestionar ›</b></button><div id="tradeProtectionDetails" hidden></div>`;$("#manageTradeProtection")?.addEventListener("click",()=>{const details=$("#tradeProtectionDetails"),opening=details.hidden;details.hidden=!opening;if(!opening)return;const chips=[...new Set([...defaults,...customStars,...customProtected])].map(key=>{const [code,num]=key.split("|"),label=DEFAULT_TOP_STARS[key]||`${code}${num}`;return `<span class="trade-setting-chip"><strong>${escapeTradeHtml(label)}</strong><small>${escapeTradeHtml(code+num)}</small></span>`;}).join("");details.innerHTML=`<div class="trade-setting-chips">${chips}</div>${customStars.length||customProtected.length?'<button id="resetCustomTradeMarks" type="button">Quitar marcas personalizadas</button>':""}`;$("#resetCustomTradeMarks")?.addEventListener("click",()=>{prefs.stars={};prefs.protected={};persistProjects();renderTradeProtectionSettings();showToast("Marcas personalizadas eliminadas");});});}
+function tradeItemFromKey(key){
+ const [officialCode,displayCode]=String(key||"").split("|");
+ const team=PANINI_TEAM_CODES[officialCode];
+ if(!team||!inventory?.[team])return null;
+ const internalCode=paniniInternalCode(team,Number(displayCode));
+ if(!internalCode)return null;
+ return {team,officialCode,displayCode:String(displayCode).padStart(2,"0"),internalCode};
+}
+function setTradeMark(key,type,enabled){
+ const prefs=currentTradePreferences(),isDefault=Boolean(DEFAULT_TOP_STARS[key]);
+ if(type==="stars"){
+   if(isDefault){prefs.disabledDefaultStars[key]=!enabled;if(enabled)delete prefs.disabledDefaultStars[key]}
+   else {if(enabled)prefs.stars[key]=true;else delete prefs.stars[key]}
+ }else{
+   if(isDefault){prefs.disabledDefaultProtected[key]=!enabled;if(enabled)delete prefs.disabledDefaultProtected[key]}
+   else {if(enabled)prefs.protected[key]=true;else delete prefs.protected[key]}
+ }
+ persistProjects();
+}
+function allManagedTradeKeys(){
+ const prefs=currentTradePreferences();
+ return [...new Set([...Object.keys(DEFAULT_TOP_STARS),...Object.keys(prefs.stars||{}),...Object.keys(prefs.protected||{})])];
+}
+function renderTradeProtectionSettings(){
+ const root=$("#tradeProtectionSettings");if(!root)return;
+ const total=allManagedTradeKeys().filter(key=>{const item=tradeItemFromKey(key);return item&&(isTradeStar(item)||isTradeProtected(item))}).length;
+ root.innerHTML=`<button id="manageTradeProtection" class="trade-settings-row" type="button"><span><strong>Protegidos para intercambios</strong><small>${total} cromos configurados</small></span><b>Gestionar ›</b></button>`;
+ $("#manageTradeProtection")?.addEventListener("click",openTradeProtectionManager);
+}
+function renderCollectionModuleSettings(){
+ const root=$("#collectionModuleSettings");if(!root)return;
+ root.innerHTML=`<label class="settings-toggle-row"><span><strong>Coca-Cola · CC</strong><small>Mostrar la colaboración CC01–CC12 en toda la app</small></span><input id="toggleCollaborationCollection" type="checkbox" ${collaborationEnabled()?"checked":""}></label>`;
+ $("#toggleCollaborationCollection")?.addEventListener("change",event=>{
+   currentCollectionOptions().collaborationEnabled=event.currentTarget.checked;
+   if(!event.currentTarget.checked&&collectionTeamFilter==="Coca-Cola")collectionTeamFilter="all";
+   persistProjects();populateTeams();renderAll();renderCollectionModuleSettings();updateOptionalCollectionVisibility();
+   showToast(event.currentTarget.checked?"Coca-Cola activada":"Coca-Cola ocultada");
+ });
+}
+function updateOptionalCollectionVisibility(){document.body.classList.toggle("collaboration-disabled",!collaborationEnabled())}
+function tradeManagerTeamOptions(){return currentTeamOrder().map(team=>`<option value="${escapeTradeHtml(team)}">${escapeTradeHtml(team)}</option>`).join("")}
+function tradeManagerNumberOptions(team){return Object.keys(inventory?.[team]||{}).sort((a,b)=>Number(a)-Number(b)).map(code=>`<option value="${code}">${paniniDisplayCode(team,code)}</option>`).join("")}
+function renderTradeProtectionManager(){
+ const dialog=$("#tradeProtectionManagerDialog"),list=$("#tradeProtectionManagerList");if(!dialog||!list)return;
+ const query=normalizeTradeName($("#tradeProtectionSearch")?.value||"");
+ const rows=allManagedTradeKeys().map(key=>({key,item:tradeItemFromKey(key)})).filter(x=>x.item).filter(({key,item})=>{
+   const label=DEFAULT_TOP_STARS[key]||`${item.officialCode}${item.displayCode}`;
+   return !query||normalizeTradeName(`${label} ${item.team} ${item.officialCode}${item.displayCode}`).includes(query);
+ }).sort((a,b)=>currentTeamOrder().indexOf(a.item.team)-currentTeamOrder().indexOf(b.item.team)||Number(a.item.displayCode)-Number(b.item.displayCode));
+ list.innerHTML=rows.length?rows.map(({key,item})=>{
+   const star=isTradeStar(item),locked=isTradeProtected(item),name=DEFAULT_TOP_STARS[key]||`${item.team} ${item.displayCode}`;
+   return `<article class="trade-protection-row" data-key="${key}"><div>${flagHTML(item.team)}<span><strong>${escapeTradeHtml(name)}</strong><small>${item.officialCode}${item.displayCode}</small></span></div><div class="trade-protection-actions"><button type="button" data-mark="stars" class="${star?"active":""}" aria-label="Favorito">★</button><button type="button" data-mark="protected" class="${locked?"active":""}" aria-label="Nunca intercambiar">🔒</button><button type="button" data-remove aria-label="Quitar marcas">✕</button></div></article>`;
+ }).join(""):'<div class="trade-manager-empty">No hay cromos configurados con esta búsqueda.</div>';
+ list.querySelectorAll("[data-mark]").forEach(button=>button.onclick=()=>{const row=button.closest("[data-key]"),key=row.dataset.key,item=tradeItemFromKey(key),type=button.dataset.mark;setTradeMark(key,type,!button.classList.contains("active"));renderTradeProtectionManager();renderTradeProtectionSettings();});
+ list.querySelectorAll("[data-remove]").forEach(button=>button.onclick=()=>{const key=button.closest("[data-key]").dataset.key;setTradeMark(key,"stars",false);setTradeMark(key,"protected",false);renderTradeProtectionManager();renderTradeProtectionSettings();});
+}
+function openTradeProtectionManager(){
+ const dialog=$("#tradeProtectionManagerDialog");if(!dialog)return;
+ const teamSelect=$("#tradeProtectionTeam");teamSelect.innerHTML=tradeManagerTeamOptions();
+ const refreshNumbers=()=>{$("#tradeProtectionNumber").innerHTML=tradeManagerNumberOptions(teamSelect.value)};
+ teamSelect.onchange=refreshNumbers;refreshNumbers();
+ $("#tradeProtectionSearch").value="";renderTradeProtectionManager();
+ if($("#settingsDialog")?.open)$("#settingsDialog").close();
+ dialog.showModal();
+}
+function addTradeProtectionFromManager(type){
+ const team=$("#tradeProtectionTeam")?.value,internalCode=$("#tradeProtectionNumber")?.value;if(!team||!internalCode)return;
+ const item={team,officialCode:TEAM_TO_PANINI_CODE[team]||team,displayCode:paniniDisplayCode(team,internalCode),internalCode};
+ setTradeMark(tradeStickerKey(item),type,true);renderTradeProtectionManager();renderTradeProtectionSettings();showToast(type==="stars"?"Añadido a favoritos":"Protegido para intercambios");
+}
 
+$("#closeTradeProtectionManager")?.addEventListener("click",()=>$("#tradeProtectionManagerDialog")?.close());
+$("#tradeProtectionSearch")?.addEventListener("input",renderTradeProtectionManager);
+$("#addTradeFavorite")?.addEventListener("click",()=>addTradeProtectionFromManager("stars"));
+$("#addTradeProtected")?.addEventListener("click",()=>addTradeProtectionFromManager("protected"));
+$("#openTradeProtectionManagerButton")?.addEventListener("click",openTradeProtectionManager);
 
 function setupSettingsCenter(){
  const dialog=$("#settingsDialog");
@@ -2379,7 +2464,7 @@ function setupSettingsCenter(){
 
  const openSettings=()=>{
    if(dialog.open)return;
-   renderTradeProtectionSettings();
+   renderTradeProtectionSettings();renderCollectionModuleSettings();updateOptionalCollectionVisibility();
    document.body.classList.add("settings-overlay-open");
    dialog.showModal();
    const scrollArea=dialog.querySelector(".settings-groups");

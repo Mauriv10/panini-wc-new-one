@@ -1,3 +1,10 @@
+# Build 704.7 · Colecciones y protegidos
+
+- Coca-Cola puede activarse u ocultarse desde Ajustes sin borrar su inventario.
+- Nueva pantalla completa para añadir, eliminar y clasificar favoritos/protegidos.
+- Acceso directo desde Cambiar y desde Ajustes.
+- Intercambio manual y QR permanecen visibles sin cambios funcionales.
+
 # Build 704.6.1
 
 - La lista «Lo que puedes ofrecer» limita cada cromo a la cantidad solicitada por la otra persona.
