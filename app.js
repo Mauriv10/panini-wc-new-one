@@ -1,4 +1,4 @@
-const APP_VERSION=globalThis.WC26_CONFIG?.version||"704.8";
+const APP_VERSION=globalThis.WC26_CONFIG?.version||"704.8.1";
 const DATA_SCHEMA_VERSION=2;
 const DATA_REVISION="2026-07-17-collections-v70111";
 const MASTER_SEED_KEY="world-cup-2026-master-seed-revision";
@@ -1851,12 +1851,20 @@ function projectStats(p){
 function albumWord(value){return Number(value)===1?"álbum":"álbumes"}
 function collectionProgress(p){
  const target=Math.max(1,Number(p.target)||1);
- const teams=Object.keys(p.inventory||{}).length;
- const required=teams*20*target;
- let useful=0,total=0,different=0,pending=0;
- Object.values(p.inventory||{}).forEach(stickers=>Object.values(stickers||{}).forEach(q=>{
-   const qty=Math.max(0,Number(q)||0);total+=qty;if(qty>0)different++;useful+=Math.min(qty,target);pending+=Math.max(0,target-qty);
- }));
+ const collaborationVisible=p?.collectionOptions?.collaborationEnabled!==false;
+ const teams=projectTeamOrder(p,p?.inventory||{}).filter(team=>team!=="Coca-Cola"||collaborationVisible);
+ let useful=0,total=0,different=0,pending=0,required=0;
+ teams.forEach(team=>{
+   const stickers=p?.inventory?.[team]||{};
+   Object.values(stickers).forEach(q=>{
+     const qty=Math.max(0,Number(q)||0);
+     total+=qty;
+     required+=target;
+     if(qty>0)different++;
+     useful+=Math.min(qty,target);
+     pending+=Math.max(0,target-qty);
+   });
+ });
  return {total,different,pending,progress:required?Math.min(100,Math.round(useful/required*100)):0};
 }
 function collectionSafeText(value){

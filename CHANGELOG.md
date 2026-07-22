@@ -1,3 +1,10 @@
+# Build 704.8.1
+
+- Corregido el porcentaje mostrado en Colecciones.
+- El cálculo usa ahora el número real de cromos de cada categoría.
+- Coca-Cola queda excluida del progreso cuando está desactivada en esa colección.
+- El porcentaje de la tarjeta coincide con Estadísticas.
+
 # Build 704.7 · Colecciones y protegidos
 
 - Coca-Cola puede activarse u ocultarse desde Ajustes sin borrar su inventario.
