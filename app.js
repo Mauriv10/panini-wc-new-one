@@ -1,4 +1,4 @@
-const APP_VERSION=globalThis.WC26_CONFIG?.version||"704.8.1";
+const APP_VERSION=globalThis.WC26_CONFIG?.version||"704.8.2";
 const DATA_SCHEMA_VERSION=2;
 const DATA_REVISION="2026-07-17-collections-v70111";
 const MASTER_SEED_KEY="world-cup-2026-master-seed-revision";
@@ -1197,7 +1197,10 @@ function calculateProjectStatistics(){
    if(teamComplete)complete++;
  });
  const required=currentTeamOrder().reduce((sum,team)=>sum+Object.keys(inventory[team]||{}).length,0)*target;
- return {total,missing,repeats,shiny,fwc,badges,collaboration,complete,progress:required?Math.min(100,Math.round((total-mathExcessForProgress())/required*100)):0};
+ const useful=Math.max(0,total-mathExcessForProgress());
+ const roundedProgress=required?Math.round(useful/required*100):0;
+ const progress=missing>0?Math.min(99,roundedProgress):Math.min(100,roundedProgress);
+ return {total,missing,repeats,shiny,fwc,badges,collaboration,complete,progress};
 }
 function mathExcessForProgress(){
  const target=getTarget();
@@ -1865,7 +1868,9 @@ function collectionProgress(p){
      pending+=Math.max(0,target-qty);
    });
  });
- return {total,different,pending,progress:required?Math.min(100,Math.round(useful/required*100)):0};
+ const roundedProgress=required?Math.round(useful/required*100):0;
+ const progress=pending>0?Math.min(99,roundedProgress):Math.min(100,roundedProgress);
+ return {total,different,pending,progress};
 }
 function collectionSafeText(value){
  return String(value??"").replace(/[&<>'"]/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));

@@ -1,3 +1,9 @@
+# Build 704.8.2
+
+- Corrige el porcentaje para que una colección con cromos pendientes nunca aparezca como 100% completada.
+- Mantiene el redondeo habitual, pero limita el resultado a 99% mientras quede al menos una unidad pendiente.
+- Aplica la misma regla en Estadísticas y en Colecciones.
+
 # Build 704.8.1
 
 - Corregido el porcentaje mostrado en Colecciones.
