@@ -1,12 +1,11 @@
-# Build 704.9.2
+# Build 704.9.3
 
-- Base funcional 704.8.2 con Extra Stickers y herramientas de inventario.
-- Corrección robusta de Crear proyecto con diálogos heredados duplicados.
-- Scroll único en Ajustes para Safari/iPhone.
-- Extra Stickers activables por acabado: Epic, Bronce, Plata y Oro.
-- Acciones Vaciar cartas y Completar 1 álbum.
+- Corregida la creación de proyectos usando repetidas de otro proyecto.
+- La transferencia genera ahora el inventario destino desde la estructura real del proyecto de origen.
+- Compatible con Extra Stickers, Coca-Cola y ediciones con categorías distintas.
+- No modifica la creación de proyectos vacíos.
 
-# Build 704.9
+# Build 704.8.2
 
 - Corrige el porcentaje para que una colección con cromos pendientes nunca aparezca como 100% completada.
 - Mantiene el redondeo habitual, pero limita el resultado a 99% mientras quede al menos una unidad pendiente.

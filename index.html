@@ -1,905 +1,637 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#eef6ff">
-  <meta name="color-scheme" content="light">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="World Cup 2026">
-  <title>World Cup 2026 · Build 704.6.1</title>
-  <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="canonical" href="https://mauriv10.github.io/wc26/">
-  <link rel="apple-touch-icon" sizes="180x180" href="./assets/icons/world-cup-2026-apple-v522.png">
-  <link rel="stylesheet" href="./styles.css">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
+<meta content="#eef6ff" name="theme-color"/>
+<meta content="light" name="color-scheme"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="default" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="World Cup 2026" name="apple-mobile-web-app-title"/>
+<title>World Cup 2026 · Build 704.6.1</title>
+<link href="./manifest.webmanifest" rel="manifest"/>
+<link href="https://mauriv10.github.io/wc26/" rel="canonical"/>
+<link href="./assets/icons/world-cup-2026-apple-v522.png" rel="apple-touch-icon" sizes="180x180"/>
+<link href="./styles.css" rel="stylesheet"/>
 </head>
 <body>
-
-<div id="appSplash" class="app-splash" aria-live="polite">
-  <div class="splash-mark" aria-hidden="true"><span>10</span></div>
-  <span class="splash-kicker">WORLD CUP 2026</span>
-  <h1>WC26</h1>
-  <div class="splash-spinner" aria-hidden="true"></div>
-  <p id="splashMessage">Sincronizando…</p>
+<div aria-live="polite" class="app-splash" id="appSplash">
+<div aria-hidden="true" class="splash-mark"><span>10</span></div>
+<span class="splash-kicker">WORLD CUP 2026</span>
+<h1>WC26</h1>
+<div aria-hidden="true" class="splash-spinner"></div>
+<p id="splashMessage">Sincronizando…</p>
 </div>
-
-<div id="authGate" class="auth-gate" hidden>
-  <section class="auth-card auth-wizard-card" aria-labelledby="authTitle">
-    <div id="authWelcomeStep" class="auth-step">
-      <div class="auth-brand-mark" aria-hidden="true"><span>10</span></div>
-      <span class="auth-kicker">WORLD CUP 2026</span>
-      <h1 id="authTitle">Bienvenido a WC26</h1>
-      <p>La forma más sencilla de controlar tu colección del Mundial.</p>
-      <button id="authContinueButton" class="auth-primary" type="button">Continuar</button>
-    </div>
-
-    <div id="authLoginStep" class="auth-step" hidden>
-      <button id="authBackButton" class="auth-back" type="button" aria-label="Volver">←</button>
-      <div class="auth-brand-mark compact" aria-hidden="true"><span>10</span></div>
-      <span class="auth-kicker">TU CUENTA</span>
-      <h1>Inicia sesión</h1>
-      <p>Guarda tu colección en la nube y úsala en todos tus dispositivos.</p>
-      <div id="authConfiguredPanel">
-        <button id="authGoogleButton" class="auth-provider" type="button"><span>G</span>Continuar con Google</button>
-        <p id="authMessage" class="auth-message" aria-live="polite"></p>
-      </div>
-      <div id="authSetupPanel" class="auth-setup" hidden>
-        <strong>Falta conectar Supabase</strong>
-        <p>Revisa la configuración de <code>supabase-config.js</code>.</p>
-        <button id="authLocalButton" class="auth-primary" type="button">Entrar temporalmente en modo local</button>
-      </div>
-    </div>
-  </section>
+<div class="auth-gate" hidden="" id="authGate">
+<section aria-labelledby="authTitle" class="auth-card auth-wizard-card">
+<div class="auth-step" id="authWelcomeStep">
+<div aria-hidden="true" class="auth-brand-mark"><span>10</span></div>
+<span class="auth-kicker">WORLD CUP 2026</span>
+<h1 id="authTitle">Bienvenido a WC26</h1>
+<p>La forma más sencilla de controlar tu colección del Mundial.</p>
+<button class="auth-primary" id="authContinueButton" type="button">Continuar</button>
 </div>
-
-<div id="onboardingGate" class="onboarding-gate" hidden>
-  <section class="onboarding-card" aria-labelledby="onboardingTitle">
-    <div id="onboardingCreateStep">
-      <div id="onboardingAvatar" class="onboarding-avatar">👋</div>
-      <span class="auth-kicker">PRIMERA COLECCIÓN</span>
-      <h1 id="onboardingTitle">Hola <span id="onboardingUserName"></span></h1>
-      <p>Vamos a preparar tu primera colección.</p>
-      <form id="onboardingForm">
-        <label class="onboarding-field"><span>Nombre</span><input id="onboardingCollectionName" type="text" maxlength="60" value="Mi Mundial 2026" required autocomplete="off"></label>
-        <fieldset class="onboarding-targets">
-          <legend>Objetivo de álbumes</legend>
-          <div class="onboarding-target-grid">
-            <label><input type="radio" name="onboardingTarget" value="1"><span>1</span></label>
-            <label><input type="radio" name="onboardingTarget" value="2"><span>2</span></label>
-            <label><input type="radio" name="onboardingTarget" value="3"><span>3</span></label>
-            <label><input type="radio" name="onboardingTarget" value="5" checked><span>5</span></label>
-            <label><input type="radio" name="onboardingTarget" value="10"><span>10</span></label>
-          </div>
-        </fieldset>
-        <button id="onboardingCreateButton" class="auth-primary" type="submit">Crear colección</button>
-        <p id="onboardingMessage" class="auth-message" aria-live="polite"></p>
-      </form>
-    </div>
-    <div id="onboardingReadyStep" class="onboarding-ready" hidden>
-      <div class="ready-icon">🎉</div>
-      <span class="auth-kicker">TODO LISTO</span>
-      <h1>Tu colección está preparada</h1>
-      <p>Ya puedes empezar a registrar tus cromos. Todo se sincronizará automáticamente.</p>
-      <button id="onboardingStartButton" class="auth-primary" type="button">Empezar</button>
-    </div>
-  </section>
+<div class="auth-step" hidden="" id="authLoginStep">
+<button aria-label="Volver" class="auth-back" id="authBackButton" type="button">←</button>
+<div aria-hidden="true" class="auth-brand-mark compact"><span>10</span></div>
+<span class="auth-kicker">TU CUENTA</span>
+<h1>Inicia sesión</h1>
+<p>Guarda tu colección en la nube y úsala en todos tus dispositivos.</p>
+<div id="authConfiguredPanel">
+<button class="auth-provider" id="authGoogleButton" type="button"><span>G</span>Continuar con Google</button>
+<p aria-live="polite" class="auth-message" id="authMessage"></p>
 </div>
-
-<div id="topFeedbackCapsule" class="top-feedback-capsule" hidden aria-live="polite">
-  <span id="topFeedbackIcon" class="top-feedback-icon">✓</span>
-  <span class="top-feedback-copy">
-    <strong id="topFeedbackTitle"></strong>
-    <small id="topFeedbackDetail"></small>
-  </span>
+<div class="auth-setup" hidden="" id="authSetupPanel">
+<strong>Falta conectar Supabase</strong>
+<p>Revisa la configuración de <code>supabase-config.js</code>.</p>
+<button class="auth-primary" id="authLocalButton" type="button">Entrar temporalmente en modo local</button>
 </div>
-
+</div>
+</section>
+</div>
+<div class="onboarding-gate" hidden="" id="onboardingGate">
+<section aria-labelledby="onboardingTitle" class="onboarding-card">
+<div id="onboardingCreateStep">
+<div class="onboarding-avatar" id="onboardingAvatar">👋</div>
+<span class="auth-kicker">PRIMERA COLECCIÓN</span>
+<h1 id="onboardingTitle">Hola <span id="onboardingUserName"></span></h1>
+<p>Vamos a preparar tu primera colección.</p>
+<form id="onboardingForm">
+<label class="onboarding-field"><span>Nombre</span><input autocomplete="off" id="onboardingCollectionName" maxlength="60" required="" type="text" value="Mi Mundial 2026"/></label>
+<fieldset class="onboarding-targets">
+<legend>Objetivo de álbumes</legend>
+<div class="onboarding-target-grid">
+<label><input name="onboardingTarget" type="radio" value="1"/><span>1</span></label>
+<label><input name="onboardingTarget" type="radio" value="2"/><span>2</span></label>
+<label><input name="onboardingTarget" type="radio" value="3"/><span>3</span></label>
+<label><input checked="" name="onboardingTarget" type="radio" value="5"/><span>5</span></label>
+<label><input name="onboardingTarget" type="radio" value="10"/><span>10</span></label>
+</div>
+</fieldset>
+<button class="auth-primary" id="onboardingCreateButton" type="submit">Crear colección</button>
+<p aria-live="polite" class="auth-message" id="onboardingMessage"></p>
+</form>
+</div>
+<div class="onboarding-ready" hidden="" id="onboardingReadyStep">
+<div class="ready-icon">🎉</div>
+<span class="auth-kicker">TODO LISTO</span>
+<h1>Tu colección está preparada</h1>
+<p>Ya puedes empezar a registrar tus cromos. Todo se sincronizará automáticamente.</p>
+<button class="auth-primary" id="onboardingStartButton" type="button">Empezar</button>
+</div>
+</section>
+</div>
+<div aria-live="polite" class="top-feedback-capsule" hidden="" id="topFeedbackCapsule">
+<span class="top-feedback-icon" id="topFeedbackIcon">✓</span>
+<span class="top-feedback-copy">
+<strong id="topFeedbackTitle"></strong>
+<small id="topFeedbackDetail"></small>
+</span>
+</div>
 <div class="app-shell" id="appShell">
-  <div class="app-scroll" id="appScroll">
+<div class="app-scroll" id="appScroll">
 <header class="app-header premium-home-header compact-home-header">
-  <div class="compact-home-titlebar">
-    <div class="compact-home-copy">
-      <span class="collection-header-kicker">WORLD CUP 2026</span>
-      <h1 id="homeCollectionName">Colección</h1>
-      <small class="collection-header-subtitle">Mi colección</small>
-    </div>
-    <div class="top-actions">
-      <button id="undoButton" class="icon-action" disabled aria-label="Deshacer">↩</button>
-      <button id="settingsButton" class="icon-action settings-action top-settings-compat" type="button" aria-label="Abrir ajustes">⚙</button>
-    </div>
-  </div>
-
-  
-
-
-
-  
+<div class="compact-home-titlebar">
+<div class="compact-home-copy">
+<span class="collection-header-kicker">WORLD CUP 2026</span>
+<h1 id="homeCollectionName">Colección</h1>
+<small class="collection-header-subtitle">Mi colección</small>
+</div>
+<div class="top-actions">
+<button aria-label="Deshacer" class="icon-action" disabled="" id="undoButton">↩</button>
+<button aria-label="Abrir ajustes" class="icon-action settings-action top-settings-compat" id="settingsButton" type="button">⚙</button>
+</div>
+</div>
 <section class="premium-selection-row premium-selection-row-single">
-  <button id="teamSelectorButton" class="premium-team-card" type="button">
-    <img id="currentTeamFlag" class="premium-team-flag" alt="">
-    <span id="currentTeamEmoji" class="premium-team-emoji" hidden aria-hidden="true"></span>
-    <span class="premium-team-copy">
-      <small>Selección</small>
-      <strong id="currentTeamName">Seleccionar</strong>
-    </span>
-    <span class="premium-chevron">⌄</span>
-  </button>
-  <select id="teamSelect" hidden></select>
-
-  <div class="target-control-hidden" hidden>
-    <button id="targetLockButton" type="button">
-      <span id="targetValue">5</span>
-      <span id="lockIcon">Bloqueado</span>
-    </button>
-    <input id="targetInput" type="number" min="1" max="20" value="5">
-  </div>
+<button class="premium-team-card" id="teamSelectorButton" type="button">
+<img alt="" class="premium-team-flag" id="currentTeamFlag"/>
+<span aria-hidden="true" class="premium-team-emoji" hidden="" id="currentTeamEmoji"></span>
+<span class="premium-team-copy">
+<small>Selección</small>
+<strong id="currentTeamName">Seleccionar</strong>
+</span>
+<span class="premium-chevron">⌄</span>
+</button>
+<select hidden="" id="teamSelect"></select>
+<div class="target-control-hidden" hidden="">
+<button id="targetLockButton" type="button">
+<span id="targetValue">5</span>
+<span id="lockIcon">Bloqueado</span>
+</button>
+<input id="targetInput" max="20" min="1" type="number" value="5"/>
+</div>
 </section>
-
-
-  <div class="premium-search">
-    <div class="search-wrap">
-      <span class="search-icon">⌕</span>
-      <input id="teamSearch" type="search" placeholder="Buscar selección…" autocomplete="off">
-      <div id="searchSuggestions" class="suggestions" hidden></div>
-    </div>
-  </div>
-
-  
+<div class="premium-search">
+<div class="search-wrap">
+<span class="search-icon">⌕</span>
+<input autocomplete="off" id="teamSearch" placeholder="Buscar selección…" type="search"/>
+<div class="suggestions" hidden="" id="searchSuggestions"></div>
+</div>
+</div>
 </header>
-
-
-
-<section class="project-bar legacy-project-bar" hidden>
-  <button id="projectSelectorButton" class="project-selector-button" type="button">
-    <span class="project-icon">📔</span>
-    <span class="project-copy">
-      <small>Colección activa</small>
-      <strong id="activeProjectName">Mundial 2026 · 5 álbumes</strong>
-    </span>
-    <span id="projectPendingBadge" class="project-pending-badge">0 pendientes</span>
-    <span class="project-chevron">⌄</span>
-  </button>
-  <button id="newProjectQuickButton" class="new-project-quick" type="button" aria-label="Nueva colección">＋</button>
+<section class="project-bar legacy-project-bar" hidden="">
+<button class="project-selector-button" id="projectSelectorButton" type="button">
+<span class="project-icon">📔</span>
+<span class="project-copy">
+<small>Colección activa</small>
+<strong id="activeProjectName">Mundial 2026 · 5 álbumes</strong>
+</span>
+<span class="project-pending-badge" id="projectPendingBadge">0 pendientes</span>
+<span class="project-chevron">⌄</span>
+</button>
+<button aria-label="Nueva colección" class="new-project-quick" id="newProjectQuickButton" type="button">＋</button>
 </section>
-
-
-<nav class="mode-nav compatibility-nav" aria-label="Secciones internas" hidden>
-  <button class="mode-button active" data-view="inventory">Inventario</button>
-  <button class="mode-button" data-view="exchange"><b id="exchangeBadge">0</b></button>
-  <button class="mode-button" data-view="missing"><b id="missingBadge">0</b></button>
+<nav aria-label="Secciones internas" class="mode-nav compatibility-nav" hidden="">
+<button class="mode-button active" data-view="inventory">Inventario</button>
+<button class="mode-button" data-view="exchange"><b id="exchangeBadge">0</b></button>
+<button class="mode-button" data-view="missing"><b id="missingBadge">0</b></button>
 </nav>
-
-
-
-
 <main class="app-main">
-  
-<section id="inventoryView" class="app-view active">
-  
-<nav id="collectionStickyControls" class="tabs premium-tabs collection-tabs-sticky" aria-label="Filtrar cromos">
-  <button class="tab active" data-filter="all"><span>Todos</span><b id="tabAllCount">20</b></button>
-  <button class="tab" data-filter="need"><span>Pedir</span><b id="tabNeedCount">0</b></button>
-  <button class="tab" data-filter="offer"><span>Entregar</span><b id="tabOfferCount">0</b></button>
+<section class="app-view active" id="inventoryView">
+<nav aria-label="Filtrar cromos" class="tabs premium-tabs collection-tabs-sticky" id="collectionStickyControls">
+<button class="tab active" data-filter="all"><span>Todos</span><b id="tabAllCount">20</b></button>
+<button class="tab" data-filter="need"><span>Pedir</span><b id="tabNeedCount">0</b></button>
+<button class="tab" data-filter="offer"><span>Entregar</span><b id="tabOfferCount">0</b></button>
 </nav>
 <section class="collection-toolbar">
-    
-    <div>
-      <h2>Colección</h2>
-    </div>
-    <div class="collection-filter" role="tablist">
-      <button class="collection-filter-button active" data-collection-filter="all">Todos</button>
-      <button class="collection-filter-button" data-collection-filter="missing">Me faltan</button>
-      <button class="collection-filter-button" data-collection-filter="repeats">Repetidos</button>
-      <button class="collection-filter-button" data-collection-filter="shiny">Brillantes</button>
-      <button class="collection-filter-button" data-collection-filter="collaboration">Colaboración</button>
-    </div>
-    <button id="shareCollectionListButton" class="share-collection-list-button" type="button" hidden aria-label="Compartir lista">
-      <span aria-hidden="true">↗</span><strong>Compartir</strong>
-    </button>
+<div>
+<h2>Colección</h2>
+</div>
+<div class="collection-filter" role="tablist">
+<button class="collection-filter-button active" data-collection-filter="all">Todos</button>
+<button class="collection-filter-button" data-collection-filter="missing">Me faltan</button>
+<button class="collection-filter-button" data-collection-filter="repeats">Repetidos</button>
+<button class="collection-filter-button" data-collection-filter="shiny">Brillantes</button>
+<button class="collection-filter-button" data-collection-filter="collaboration">Colaboración</button>
+</div>
+<button aria-label="Compartir lista" class="share-collection-list-button" hidden="" id="shareCollectionListButton" type="button">
+<span aria-hidden="true">↗</span><strong>Compartir</strong>
+</button>
 <div class="collection-sort-bar">
-  <label for="collectionSort">Orden</label>
-  <select id="collectionSort">
-    <option value="album">Orden del álbum</option>
-    <option value="most-repeats">Más repetidos</option>
-    <option value="least-repeats">Menos repetidos</option>
-    <option value="number">Número</option>
-    <option value="az">Alfabético</option>
-  </select>
+<label for="collectionSort">Orden</label>
+<select id="collectionSort">
+<option value="album">Orden del álbum</option>
+<option value="most-repeats">Más repetidos</option>
+<option value="least-repeats">Menos repetidos</option>
+<option value="number">Número</option>
+<option value="az">Alfabético</option>
+</select>
 </div>
-
-  
-  </section>
-
-
-  <section id="globalExchangeBanner" class="global-exchange-banner" hidden>
-    <div>
-      <span>INTERCAMBIO EN PREPARACIÓN</span>
-      <strong id="globalExchangeSummary">0 para dar · 0 para recibir</strong>
-      <small>El inventario no cambiará hasta que confirmes.</small>
-    </div>
-    <div class="global-exchange-actions">
-      <button id="cancelGlobalExchangeButton" class="cancel-global-exchange" type="button">Cancelar</button>
-      <button id="openGlobalExchangeListButton" type="button">Revisar y confirmar</button>
-    </div>
-  </section>
-
-  <section id="globalCollectionList" class="global-collection-list"></section>
-
-  <div class="compatibility-hidden" aria-hidden="true">
-    <section class="summary">
-      <article><strong id="needTotal">0</strong><span>Necesito</span></article>
-      <article><strong id="offerTotal">0</strong><span>Puedo entregar</span></article>
-      <article><strong id="selectionTotal">0</strong><span>Total selección</span></article>
-    </section>
-    <section id="exchangeModePanel" class="exchange-mode-panel" hidden>
-      <strong id="exchangeSummary">0 para dar · 0 para recibir</strong>
-      <button id="openExchangeListButton">Ver lista</button>
-    </section>
-    <section class="session-card">
-      <strong id="sessionChanges">+0 / −0</strong>
-      <strong id="sessionBalance">0</strong>
-    </section>
-    <div class="save-status"><span id="saveDot">●</span><span id="saveStatus">Todo guardado</span></div>
-    <p id="lastChange">Sin cambios todavía</p>
-    <section id="stickerGrid" class="sticker-grid"></section>
-    <p id="emptyState" hidden></p>
-    <section class="sync-card">
-      <div><strong id="pendingSyncCount">0 cambios pendientes</strong><small id="lastSyncText">Todavía no sincronizado</small></div>
-      <button id="importExcelButton">Importar Excel</button>
-      <button id="markSyncedButton">Marcar sincronizado</button>
-    </section>
-    <section class="backup-card">
-      <button id="exportBackupButton">Exportar copia</button>
-      <button id="restoreBackupButton">Restaurar copia</button>
-      <input id="backupFileInput" type="file" accept=".json" hidden>
-    </section>
-    <section class="actions">
-      <button id="historyButton">Historial</button>
-      <button id="finishButton">Finalizar</button>
-      <button id="resetSessionButton">Reiniciar estadísticas</button>
-      <button id="exportButton">Exportar copia</button>
-      <button id="excelButton">Descargar Excel</button>
-      <button id="resetButton">Restaurar original</button>
-    </section>
-  </div>
+</section>
+<section class="global-exchange-banner" hidden="" id="globalExchangeBanner">
+<div>
+<span>INTERCAMBIO EN PREPARACIÓN</span>
+<strong id="globalExchangeSummary">0 para dar · 0 para recibir</strong>
+<small>El inventario no cambiará hasta que confirmes.</small>
+</div>
+<div class="global-exchange-actions">
+<button class="cancel-global-exchange" id="cancelGlobalExchangeButton" type="button">Cancelar</button>
+<button id="openGlobalExchangeListButton" type="button">Revisar y confirmar</button>
+</div>
+</section>
+<section class="global-collection-list" id="globalCollectionList"></section>
+<div aria-hidden="true" class="compatibility-hidden">
+<section class="summary">
+<article><strong id="needTotal">0</strong><span>Necesito</span></article>
+<article><strong id="offerTotal">0</strong><span>Puedo entregar</span></article>
+<article><strong id="selectionTotal">0</strong><span>Total selección</span></article>
+</section>
+<section class="exchange-mode-panel" hidden="" id="exchangeModePanel">
+<strong id="exchangeSummary">0 para dar · 0 para recibir</strong>
+<button id="openExchangeListButton">Ver lista</button>
+</section>
+<section class="session-card">
+<strong id="sessionChanges">+0 / −0</strong>
+<strong id="sessionBalance">0</strong>
+</section>
+<div class="save-status"><span id="saveDot">●</span><span id="saveStatus">Todo guardado</span></div>
+<p id="lastChange">Sin cambios todavía</p>
+<section class="sticker-grid" id="stickerGrid"></section>
+<p hidden="" id="emptyState"></p>
+<section class="sync-card">
+<div><strong id="pendingSyncCount">0 cambios pendientes</strong><small id="lastSyncText">Todavía no sincronizado</small></div>
+<button id="importExcelButton">Importar Excel</button>
+<button id="markSyncedButton">Marcar sincronizado</button>
+</section>
+<section class="backup-card">
+<button id="exportBackupButton">Exportar copia</button>
+<button id="restoreBackupButton">Restaurar copia</button>
+<input accept=".json" hidden="" id="backupFileInput" type="file"/>
+</section>
+<section class="actions">
+<button id="historyButton">Historial</button>
+<button id="finishButton">Finalizar</button>
+<button id="resetSessionButton">Reiniciar estadísticas</button>
+<button id="exportButton">Exportar copia</button>
+<button id="excelButton">Descargar Excel</button>
+<button id="resetButton">Restaurar original</button>
+</section>
+</div>
+</section>
+<section class="main-tab-view" hidden="" id="statisticsView">
+<div class="tab-page-heading">
+<span>PROYECTO ACTIVO</span>
+<h2>Estadísticas</h2>
+</div>
+<section class="stats-hero">
+<div class="stats-ring" id="statsProgressRing">
+<div>
+<strong id="statsProgress">0%</strong>
+<span>completado</span>
+</div>
+</div>
+<div class="stats-hero-copy">
+<span>Resumen general</span>
+<h3 id="statsTotalStickers">0 cromos</h3>
+<p id="statsCompleteTeamsText">0 selecciones completas</p>
+</div>
+</section>
+<section class="statistics-grid visual-stats-grid">
+<article class="stat-card stat-red">
+<span class="stat-icon">−</span>
+<div><span>Me faltan</span><strong id="statsMissingUnits">0</strong><small>unidades pendientes</small></div>
+</article>
+<article class="stat-card stat-green">
+<span class="stat-icon">+</span>
+<div><span>Repetidas</span><strong id="statsRepeatUnits">0</strong><small>para intercambio</small></div>
+</article>
+<article class="stat-card stat-gold">
+<span class="stat-icon">✦</span>
+<div><span>Brillantes</span><strong id="statsShinyTotal">0</strong><small>FWC y escudos</small></div>
+</article>
+<article class="stat-card stat-purple">
+<span class="stat-icon">🥤</span>
+<div><span>Colaboración</span><strong id="statsCollaborationTotal">0</strong><small>Coca-Cola CC</small></div>
+</article>
+<article class="stat-card stat-blue">
+<span class="stat-icon">✓</span>
+<div><span>Completas</span><strong id="statsCompleteTeams">0</strong><small>de 50 categorías</small></div>
+</article>
+</section>
+<section class="shiny-breakdown">
+<div><span>FWC</span><strong id="statsFwcTotal">0</strong></div>
+<div><span>Escudos</span><strong id="statsBadgesTotal">0</strong></div>
+</section>
+</section>
+<section class="main-tab-view" hidden="" id="tradeView">
+<div class="tab-page-heading">
+<span>INTERCAMBIOS</span>
+<h2>Cambiar cromos</h2>
+</div>
+<section class="trade-option-card trade-option-primary">
+<div class="trade-option-icon">⇄</div>
+<div class="trade-option-copy">
+<span>DISPONIBLE AHORA</span>
+<h3>Intercambio manual</h3>
+<p>Marca los cromos que vas a dar y recibir. El inventario solo cambia cuando confirmas.</p>
+</div>
+<button id="openClassicExchangeButton" type="button">Empezar</button>
+</section>
+<section class="trade-option-card trade-option-primary trade-analyzer-card">
+<div class="trade-option-icon">⌕</div>
+<div class="trade-option-copy">
+<span>NUEVO</span>
+<h3>Analizar lista</h3>
+<p>Pega la lista de otra persona y comprueba qué cromos tienes realmente disponibles para cambiar.</p>
+</div>
+<button id="openTradeAnalyzerButton" type="button">Analizar</button>
+</section>
+<section class="trade-option-card trade-option-primary trade-protection-card">
+<div class="trade-option-icon">★</div>
+<div class="trade-option-copy">
+<span>GESTIÓN</span>
+<h3>Favoritos y protegidos</h3>
+<p>Decide qué cromos debe evitar o excluir el asistente de intercambio.</p>
+</div>
+<button id="openTradeProtectionManagerButton" type="button">Gestionar</button>
+</section>
+<section class="trade-option-card trade-option-upcoming">
+<div class="trade-option-icon">QR</div>
+<div class="trade-option-copy">
+<span>PRÓXIMAMENTE</span>
+<h3>Comparar mediante QR</h3>
+<p>Escanea la colección de otra persona para detectar automáticamente intercambios compatibles.</p>
+</div>
+</section>
+</section>
+<section aria-hidden="true" class="app-view missing-view-compat" hidden="" id="missingView">
+<select hidden="" id="missingSort"><option value="album">Orden del álbum</option></select>
+<strong hidden="" id="missingTotals">0 cromos</strong>
+<section hidden="" id="missingList"></section>
 </section>
 
-
-<section id="statisticsView" class="main-tab-view" hidden>
-  <div class="tab-page-heading">
-    <span>PROYECTO ACTIVO</span>
-    <h2>Estadísticas</h2>
-  </div>
-
-  <section class="stats-hero">
-    <div class="stats-ring" id="statsProgressRing">
-      <div>
-        <strong id="statsProgress">0%</strong>
-        <span>completado</span>
-      </div>
-    </div>
-    <div class="stats-hero-copy">
-      <span>Resumen general</span>
-      <h3 id="statsTotalStickers">0 cromos</h3>
-      <p id="statsCompleteTeamsText">0 selecciones completas</p>
-    </div>
-  </section>
-
-  <section class="statistics-grid visual-stats-grid">
-    <article class="stat-card stat-red">
-      <span class="stat-icon">−</span>
-      <div><span>Me faltan</span><strong id="statsMissingUnits">0</strong><small>unidades pendientes</small></div>
-    </article>
-    <article class="stat-card stat-green">
-      <span class="stat-icon">+</span>
-      <div><span>Repetidas</span><strong id="statsRepeatUnits">0</strong><small>para intercambio</small></div>
-    </article>
-    <article class="stat-card stat-gold">
-      <span class="stat-icon">✦</span>
-      <div><span>Brillantes</span><strong id="statsShinyTotal">0</strong><small>FWC y escudos</small></div>
-    </article>
-    <article class="stat-card stat-purple">
-      <span class="stat-icon">🥤</span>
-      <div><span>Colaboración</span><strong id="statsCollaborationTotal">0</strong><small>Coca-Cola CC</small></div>
-    </article>
-    <article class="stat-card stat-blue">
-      <span class="stat-icon">✓</span>
-      <div><span>Completas</span><strong id="statsCompleteTeams">0</strong><small>de 50 categorías</small></div>
-    </article>
-  </section>
-
-  <section class="shiny-breakdown">
-    <div><span>FWC</span><strong id="statsFwcTotal">0</strong></div>
-    <div><span>Escudos</span><strong id="statsBadgesTotal">0</strong></div>
-  </section>
+<dialog class="restore-backup-dialog" id="restoreBackupDialog">
+<div class="dialog-header">
+<h2>Restaurar copia</h2>
+<button id="closeRestoreBackupDialog">✕</button>
+</div>
+<div class="restore-backup-summary" id="restoreBackupSummary"></div>
+<label class="restore-option">
+<input checked="" id="restoreReplaceAll" name="restoreMode" type="radio" value="replace"/>
+<span><strong>Reemplazar todos los proyectos</strong><small>Usa exactamente la copia seleccionada.</small></span>
+</label>
+<label class="restore-option">
+<input id="restoreMerge" name="restoreMode" type="radio" value="merge"/>
+<span><strong>Añadir como proyectos nuevos</strong><small>No elimina los proyectos actuales.</small></span>
+</label>
+<div class="restore-backup-actions">
+<button class="secondary" id="cancelRestoreBackupButton">Cancelar</button>
+<button class="primary" id="confirmRestoreBackupButton">Restaurar</button>
+</div>
+</dialog>
+<dialog class="import-excel-dialog" id="importExcelDialog">
+<div class="dialog-header">
+<h2>Importar Excel maestro</h2>
+<button id="closeImportExcelDialog">✕</button>
+</div>
+<input accept=".xlsx,.xlsm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel.sheet.macroEnabled.12" hidden="" id="excelFileInput" type="file"/>
+<section class="import-excel-start" id="importExcelStart">
+<p>Selecciona un archivo <strong>.xlsx</strong> o <strong>.xlsm</strong> con una hoja llamada <strong>Inventario</strong>.</p>
+<button class="primary full" id="chooseExcelFileButton">Seleccionar Excel</button>
 </section>
-
-
-<section id="tradeView" class="main-tab-view" hidden>
-  <div class="tab-page-heading">
-    <span>INTERCAMBIOS</span>
-    <h2>Cambiar cromos</h2>
-  </div>
-
-  <section class="trade-option-card trade-option-primary">
-    <div class="trade-option-icon">⇄</div>
-    <div class="trade-option-copy">
-      <span>DISPONIBLE AHORA</span>
-      <h3>Intercambio manual</h3>
-      <p>Marca los cromos que vas a dar y recibir. El inventario solo cambia cuando confirmas.</p>
-    </div>
-    <button id="openClassicExchangeButton" type="button">Empezar</button>
-  </section>
-
-  <section class="trade-option-card trade-option-primary trade-analyzer-card">
-    <div class="trade-option-icon">⌕</div>
-    <div class="trade-option-copy">
-      <span>NUEVO</span>
-      <h3>Analizar lista</h3>
-      <p>Pega la lista de otra persona y comprueba qué cromos tienes realmente disponibles para cambiar.</p>
-    </div>
-    <button id="openTradeAnalyzerButton" type="button">Analizar</button>
-  </section>
-
-  <section class="trade-option-card trade-option-primary trade-protection-card">
-    <div class="trade-option-icon">★</div>
-    <div class="trade-option-copy">
-      <span>GESTIÓN</span>
-      <h3>Favoritos y protegidos</h3>
-      <p>Decide qué cromos debe evitar o excluir el asistente de intercambio.</p>
-    </div>
-    <button id="openTradeProtectionManagerButton" type="button">Gestionar</button>
-  </section>
-
-  <section class="trade-option-card trade-option-upcoming">
-    <div class="trade-option-icon">QR</div>
-    <div class="trade-option-copy">
-      <span>PRÓXIMAMENTE</span>
-      <h3>Comparar mediante QR</h3>
-      <p>Escanea la colección de otra persona para detectar automáticamente intercambios compatibles.</p>
-    </div>
-  </section>
+<section hidden="" id="importExcelReview">
+<div class="import-summary-grid">
+<article><strong id="importFileTeams">0</strong><span>Selecciones</span></article>
+<article><strong id="importChangedCells">0</strong><span>Diferencias</span></article>
+<article><strong id="importConflictCells">0</strong><span>Conflictos</span></article>
+</div>
+<div class="import-conflict-help" id="importConflictHelp"></div>
+<div class="import-resolution">
+<label>
+<span>Para celdas con cambios pendientes en la app</span>
+<select id="importConflictResolution">
+<option value="app">Mantener el valor de la app</option>
+<option value="excel">Usar el valor del Excel</option>
+</select>
+</label>
+</div>
+<div class="import-differences-list" id="importDifferencesList"></div>
+<div class="import-dialog-actions">
+<button class="secondary" id="cancelExcelImportButton">Cancelar</button>
+<button class="primary" id="applyExcelImportButton">Aplicar importación</button>
+</div>
 </section>
-
-
-
-<section id="missingView" class="app-view missing-view-compat" hidden aria-hidden="true">
-  <select id="missingSort" hidden><option value="album">Orden del álbum</option></select>
-  <strong id="missingTotals" hidden>0 cromos</strong>
-  <section id="missingList" hidden></section>
-</section>
-
-</section>
-
-
-
-<dialog id="restoreBackupDialog" class="restore-backup-dialog">
-  <div class="dialog-header">
-    <h2>Restaurar copia</h2>
-    <button id="closeRestoreBackupDialog">✕</button>
-  </div>
-
-  <div id="restoreBackupSummary" class="restore-backup-summary"></div>
-
-  <label class="restore-option">
-    <input id="restoreReplaceAll" type="radio" name="restoreMode" value="replace" checked>
-    <span><strong>Reemplazar todos los proyectos</strong><small>Usa exactamente la copia seleccionada.</small></span>
-  </label>
-
-  <label class="restore-option">
-    <input id="restoreMerge" type="radio" name="restoreMode" value="merge">
-    <span><strong>Añadir como proyectos nuevos</strong><small>No elimina los proyectos actuales.</small></span>
-  </label>
-
-  <div class="restore-backup-actions">
-    <button id="cancelRestoreBackupButton" class="secondary">Cancelar</button>
-    <button id="confirmRestoreBackupButton" class="primary">Restaurar</button>
-  </div>
 </dialog>
-
-<dialog id="importExcelDialog" class="import-excel-dialog">
-  <div class="dialog-header">
-    <h2>Importar Excel maestro</h2>
-    <button id="closeImportExcelDialog">✕</button>
-  </div>
-
-  <input id="excelFileInput" type="file" accept=".xlsx,.xlsm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel.sheet.macroEnabled.12" hidden>
-
-  <section id="importExcelStart" class="import-excel-start">
-    <p>Selecciona un archivo <strong>.xlsx</strong> o <strong>.xlsm</strong> con una hoja llamada <strong>Inventario</strong>.</p>
-    <button id="chooseExcelFileButton" class="primary full">Seleccionar Excel</button>
-  </section>
-
-  <section id="importExcelReview" hidden>
-    <div class="import-summary-grid">
-      <article><strong id="importFileTeams">0</strong><span>Selecciones</span></article>
-      <article><strong id="importChangedCells">0</strong><span>Diferencias</span></article>
-      <article><strong id="importConflictCells">0</strong><span>Conflictos</span></article>
-    </div>
-
-    <div id="importConflictHelp" class="import-conflict-help"></div>
-
-    <div class="import-resolution">
-      <label>
-        <span>Para celdas con cambios pendientes en la app</span>
-        <select id="importConflictResolution">
-          <option value="app">Mantener el valor de la app</option>
-          <option value="excel">Usar el valor del Excel</option>
-        </select>
-      </label>
-    </div>
-
-    <div id="importDifferencesList" class="import-differences-list"></div>
-
-    <div class="import-dialog-actions">
-      <button id="cancelExcelImportButton" class="secondary">Cancelar</button>
-      <button id="applyExcelImportButton" class="primary">Aplicar importación</button>
-    </div>
-  </section>
+<dialog class="projects-dialog" id="projectsDialog">
+<div class="dialog-header">
+<h2>Mis proyectos</h2>
+<button id="closeProjectsDialog">✕</button>
+</div>
+<div class="projects-list" id="projectsList"></div>
+<button class="primary full" id="createProjectButton">＋ Crear proyecto</button>
 </dialog>
-
-<dialog id="projectsDialog" class="projects-dialog">
-  <div class="dialog-header">
-    <h2>Mis proyectos</h2>
-    <button id="closeProjectsDialog">✕</button>
-  </div>
-  <div id="projectsList" class="projects-list"></div>
-  <button id="createProjectButton" class="primary full">＋ Crear proyecto</button>
+<dialog class="create-project-dialog" id="createProjectDialog">
+<div class="dialog-header">
+<h2>Nuevo proyecto</h2>
+<button id="closeCreateProjectDialog">✕</button>
+</div>
+<label class="project-field">
+<span>Nombre</span>
+<input id="newProjectName" placeholder="Ej. Mundial 2026 · 2 álbumes" type="text"/>
+</label>
+<label class="project-field">
+<span>Objetivo de álbumes</span>
+<input id="newProjectTarget" max="20" min="1" type="number" value="2"/>
+</label>
+<fieldset class="project-source-options">
+<legend>Inventario inicial</legend>
+<label><input checked="" name="projectSource" type="radio" value="empty"/> Empezar vacío</label>
+<label><input name="projectSource" type="radio" value="repeats"/> Usar repetidas de otro proyecto</label>
+</fieldset>
+<div hidden="" id="repeatOptions">
+<label class="project-field">
+<span>Proyecto origen</span>
+<select id="sourceProjectSelect"></select>
+</label>
+<fieldset class="project-source-options">
+<legend>Transferir</legend>
+<label><input checked="" name="repeatMode" type="radio" value="target"/> Solo hasta el objetivo nuevo</label>
+<label><input name="repeatMode" type="radio" value="all"/> Todas las repetidas disponibles</label>
+</fieldset>
+<div class="transfer-preview" id="transferPreview">Selecciona las opciones para ver el cálculo.</div>
+</div>
+<button class="primary full" id="confirmCreateProjectButton">Crear proyecto</button>
 </dialog>
-
-<dialog id="createProjectDialog" class="create-project-dialog">
-  <div class="dialog-header">
-    <h2>Nuevo proyecto</h2>
-    <button id="closeCreateProjectDialog">✕</button>
-  </div>
-
-  <label class="project-field">
-    <span>Nombre</span>
-    <input id="newProjectName" type="text" placeholder="Ej. Mundial 2026 · 2 álbumes">
-  </label>
-
-  <label class="project-field">
-    <span>Objetivo de álbumes</span>
-    <input id="newProjectTarget" type="number" min="1" max="20" value="2">
-  </label>
-
-  <fieldset class="project-source-options">
-    <legend>Inventario inicial</legend>
-    <label><input type="radio" name="projectSource" value="empty" checked> Empezar vacío</label>
-    <label><input type="radio" name="projectSource" value="repeats"> Usar repetidas de otro proyecto</label>
-  </fieldset>
-
-  <div id="repeatOptions" hidden>
-    <label class="project-field">
-      <span>Proyecto origen</span>
-      <select id="sourceProjectSelect"></select>
-    </label>
-    <fieldset class="project-source-options">
-      <legend>Transferir</legend>
-      <label><input type="radio" name="repeatMode" value="target" checked> Solo hasta el objetivo nuevo</label>
-      <label><input type="radio" name="repeatMode" value="all"> Todas las repetidas disponibles</label>
-    </fieldset>
-    <div id="transferPreview" class="transfer-preview">Selecciona las opciones para ver el cálculo.</div>
-  </div>
-
-  <button id="confirmCreateProjectButton" class="primary full">Crear proyecto</button>
+<dialog class="team-dialog" id="teamDialog">
+<div class="dialog-header">
+<h2>Elegir selección</h2>
+<button id="closeTeamDialog">✕</button>
+</div>
+<input class="dialog-search" id="dialogSearch" placeholder="Buscar selección…" type="search"/>
+<div class="team-list" id="teamList"></div>
 </dialog>
-
-<dialog id="teamDialog" class="team-dialog">
-  <div class="dialog-header">
-    <h2>Elegir selección</h2>
-    <button id="closeTeamDialog">✕</button>
-  </div>
-  <input id="dialogSearch" class="dialog-search" type="search" placeholder="Buscar selección…">
-  <div id="teamList" class="team-list"></div>
+<dialog class="exchange-dialog" id="exchangeDialog">
+<div class="dialog-header">
+<h2>Lista del intercambio</h2>
+<button id="closeExchangeDialog">✕</button>
+</div>
+<div class="exchange-dialog-tabs">
+<button class="exchange-list-tab active" data-list-type="give">Dar <b id="giveListCount">0</b></button>
+<button class="exchange-list-tab" data-list-type="receive">Recibir <b id="receiveListCount">0</b></button>
+</div>
+<div class="exchange-list" id="exchangeList"></div>
+<div class="exchange-dialog-actions">
+<button class="danger" id="cancelExchangeButton">Cancelar intercambio</button>
+<button class="primary" id="confirmExchangeButton">Confirmar intercambio</button>
+</div>
 </dialog>
-
-<dialog id="exchangeDialog" class="exchange-dialog">
-  <div class="dialog-header">
-    <h2>Lista del intercambio</h2>
-    <button id="closeExchangeDialog">✕</button>
-  </div>
-
-  <div class="exchange-dialog-tabs">
-    <button class="exchange-list-tab active" data-list-type="give">Dar <b id="giveListCount">0</b></button>
-    <button class="exchange-list-tab" data-list-type="receive">Recibir <b id="receiveListCount">0</b></button>
-  </div>
-
-  <div id="exchangeList" class="exchange-list"></div>
-
-  <div class="exchange-dialog-actions">
-    <button id="cancelExchangeButton" class="danger">Cancelar intercambio</button>
-    <button id="confirmExchangeButton" class="primary">Confirmar intercambio</button>
-  </div>
-</dialog>
-
 <dialog id="historyDialog">
-  <div class="dialog-header">
-    <h2>Historial del día</h2>
-    <button id="closeHistoryButton">✕</button>
-  </div>
-  <div id="historyList" class="history-list"></div>
+<div class="dialog-header">
+<h2>Historial del día</h2>
+<button id="closeHistoryButton">✕</button>
+</div>
+<div class="history-list" id="historyList"></div>
 </dialog>
-
 <dialog id="finishDialog">
-  <div class="dialog-header">
-    <h2>Mercat finalizado</h2>
-    <button id="closeFinishButton">✕</button>
-  </div>
-  <div id="finishSummary" class="finish-summary"></div>
-  <button id="downloadFinishButton" class="primary full">Descargar resumen</button>
-  <button id="confirmFinishButton" class="secondary full">Guardar y empezar una nueva jornada</button>
+<div class="dialog-header">
+<h2>Mercat finalizado</h2>
+<button id="closeFinishButton">✕</button>
+</div>
+<div class="finish-summary" id="finishSummary"></div>
+<button class="primary full" id="downloadFinishButton">Descargar resumen</button>
+<button class="secondary full" id="confirmFinishButton">Guardar y empezar una nueva jornada</button>
 </dialog>
-
-<aside id="appUpdateBanner" class="app-update-banner" hidden aria-live="polite">
-  <div class="app-update-copy">
-    <strong>Nueva versión disponible</strong>
-    <span id="appUpdateMessage">Hay una actualización preparada.</span>
-  </div>
-  <button id="appUpdateButton" type="button">Actualizar ahora</button>
+<aside aria-live="polite" class="app-update-banner" hidden="" id="appUpdateBanner">
+<div class="app-update-copy">
+<strong>Nueva versión disponible</strong>
+<span id="appUpdateMessage">Hay una actualización preparada.</span>
+</div>
+<button id="appUpdateButton" type="button">Actualizar ahora</button>
 </aside>
-
-<div id="albumCompleteOverlay" class="album-complete-overlay" hidden><div class="album-complete-card"><div class="album-complete-emoji">🎉</div><h2>¡Álbum completado!</h2><p id="albumCompleteName"></p><button id="closeAlbumComplete" class="primary" type="button">Continuar</button></div></div>
-<div id="toast" class="toast">Guardado</div>
-
-
-
-<dialog id="settingsDialog" class="settings-center">
-  <div class="settings-sheet-header">
-    <div>
-      <span>WORLD CUP 2026</span>
-      <h2>Ajustes</h2>
-    </div>
-    <button id="closeSettingsDialog" type="button" aria-label="Cerrar">✕</button>
-  </div>
-
-  <div class="settings-groups">
-    <details class="settings-group settings-accordion">
-      <summary class="settings-group-title"><span class="settings-glyph blue">●</span><div><strong>Cuenta</strong><small>Sesión y acceso multidispositivo</small></div><span class="settings-chevron">›</span></summary>
-      <div class="settings-group-content">
-        <div class="account-settings-card">
-          <div><span id="accountStatusLabel">Modo local</span><strong id="accountEmailLabel">Sin cuenta conectada</strong></div>
-          <button id="accountActionButton" type="button">Iniciar sesión</button>
-        </div>
-      </div>
-    </details>
-
-    <details class="settings-group settings-accordion">
-      <summary class="settings-group-title"><span class="settings-glyph green">↻</span><div><strong>Sincronización</strong><small>Importar, exportar y revisar cambios</small></div><span class="settings-chevron">›</span></summary>
-      <div class="settings-group-content"><div id="settingsSyncSlot" class="settings-slot"></div></div>
-    </details>
-
-    <details class="settings-group settings-accordion">
-      <summary class="settings-group-title"><span class="settings-glyph purple">◆</span><div><strong>Seguridad</strong><small>Copias y restauración</small></div><span class="settings-chevron">›</span></summary>
-      <div class="settings-group-content"><div id="settingsBackupSlot" class="settings-slot"></div></div>
-    </details>
-
-    <details class="settings-group settings-accordion">
-      <summary class="settings-group-title"><span class="settings-glyph orange">◷</span><div><strong>Actividad</strong><small>Historial, sesión y herramientas</small></div><span class="settings-chevron">›</span></summary>
-      <div class="settings-group-content"><div id="settingsActionsSlot" class="settings-slot"></div></div>
-    </details>
-
-    <details class="settings-group settings-accordion">
-      <summary class="settings-group-title"><span class="settings-glyph red">◉</span><div><strong>Colecciones visibles</strong><small>Activa las colaboraciones que coleccionas</small></div><span class="settings-chevron">›</span></summary>
-      <div class="settings-group-content"><div id="collectionModuleSettings" class="collection-module-settings"></div></div>
-    </details>
-
-    <details class="settings-group settings-accordion">
-      <summary class="settings-group-title"><span class="settings-glyph yellow">★</span><div><strong>Intercambios</strong><small>Estrellas y cromos protegidos</small></div><span class="settings-chevron">›</span></summary>
-      <div class="settings-group-content"><div id="tradeProtectionSettings" class="trade-protection-settings"></div></div>
-    </details>
-
-    <details class="settings-group settings-accordion info-group">
-      <summary class="settings-group-title"><span class="settings-glyph gray">i</span><div><strong>Información</strong><small>World Cup 2026</small></div><span class="settings-chevron">›</span></summary>
-      <div class="settings-group-content">
-        <div class="settings-info-list">
-          <div><span>Versión</span><strong>Build 704.7 · Colecciones y protegidos</strong></div>
-          <div><span>Modo</span><strong>Disponible offline</strong></div>
-        </div>
-      </div>
-    </details>
-  </div>
+<div class="album-complete-overlay" hidden="" id="albumCompleteOverlay"><div class="album-complete-card"><div class="album-complete-emoji">🎉</div><h2>¡Álbum completado!</h2><p id="albumCompleteName"></p><button class="primary" id="closeAlbumComplete" type="button">Continuar</button></div></div>
+<div class="toast" id="toast">Guardado</div>
+<dialog class="settings-center" id="settingsDialog">
+<div class="settings-sheet-header">
+<div>
+<span>WORLD CUP 2026</span>
+<h2>Ajustes</h2>
+</div>
+<button aria-label="Cerrar" id="closeSettingsDialog" type="button">✕</button>
+</div>
+<div class="settings-groups">
+<details class="settings-group settings-accordion">
+<summary class="settings-group-title"><span class="settings-glyph blue">●</span><div><strong>Cuenta</strong><small>Sesión y acceso multidispositivo</small></div><span class="settings-chevron">›</span></summary>
+<div class="settings-group-content">
+<div class="account-settings-card">
+<div><span id="accountStatusLabel">Modo local</span><strong id="accountEmailLabel">Sin cuenta conectada</strong></div>
+<button id="accountActionButton" type="button">Iniciar sesión</button>
+</div>
+</div>
+</details>
+<details class="settings-group settings-accordion">
+<summary class="settings-group-title"><span class="settings-glyph green">↻</span><div><strong>Sincronización</strong><small>Importar, exportar y revisar cambios</small></div><span class="settings-chevron">›</span></summary>
+<div class="settings-group-content"><div class="settings-slot" id="settingsSyncSlot"></div></div>
+</details>
+<details class="settings-group settings-accordion">
+<summary class="settings-group-title"><span class="settings-glyph purple">◆</span><div><strong>Seguridad</strong><small>Copias y restauración</small></div><span class="settings-chevron">›</span></summary>
+<div class="settings-group-content"><div class="settings-slot" id="settingsBackupSlot"></div></div>
+</details>
+<details class="settings-group settings-accordion">
+<summary class="settings-group-title"><span class="settings-glyph orange">◷</span><div><strong>Actividad</strong><small>Historial, sesión y herramientas</small></div><span class="settings-chevron">›</span></summary>
+<div class="settings-group-content"><div class="settings-slot" id="settingsActionsSlot"></div></div>
+</details>
+<details class="settings-group settings-accordion">
+<summary class="settings-group-title"><span class="settings-glyph red">◉</span><div><strong>Colecciones visibles</strong><small>Activa las colaboraciones que coleccionas</small></div><span class="settings-chevron">›</span></summary>
+<div class="settings-group-content"><div class="collection-module-settings" id="collectionModuleSettings"></div></div>
+</details>
+<details class="settings-group settings-accordion">
+<summary class="settings-group-title"><span class="settings-glyph yellow">★</span><div><strong>Intercambios</strong><small>Estrellas y cromos protegidos</small></div><span class="settings-chevron">›</span></summary>
+<div class="settings-group-content"><div class="trade-protection-settings" id="tradeProtectionSettings"></div></div>
+</details>
+<details class="settings-group settings-accordion info-group">
+<summary class="settings-group-title"><span class="settings-glyph gray">i</span><div><strong>Información</strong><small>World Cup 2026</small></div><span class="settings-chevron">›</span></summary>
+<div class="settings-group-content">
+<div class="settings-info-list">
+<div><span>Versión</span><strong>Build 704.9.3 · Transferencia de repetidas corregida</strong></div>
+<div><span>Modo</span><strong>Disponible offline</strong></div>
+</div>
+</div>
+</details>
+</div>
 </dialog>
+</main></div></div></body>
+</html>
 
 
-
-</body>
-</html> 
-    
-    <section id="missingList" class="missing-list"></section>
-  </section>
-
-<section id="collectionsView" class="main-tab-view collections-view" hidden>
-  <header class="collections-header clean-collections-header">
-    <div>
-      <span class="collections-eyebrow">MIS ÁLBUMES</span>
-      <h2>Colecciones</h2>
-    </div>
-    <button id="createCollectionFromLibraryButton" class="create-collection-library-button" type="button">＋ Nueva colección</button>
-  </header>
-  <div id="collectionsList" class="collections-grid"></div>
+<section class="main-tab-view collections-view" hidden="" id="collectionsView">
+<header class="collections-header clean-collections-header">
+<div>
+<span class="collections-eyebrow">MIS ÁLBUMES</span>
+<h2>Colecciones</h2>
+</div>
+<button class="create-collection-library-button" id="createCollectionFromLibraryButton" type="button">＋ Nueva colección</button>
+</header>
+<div class="collections-grid" id="collectionsList"></div>
 </section>
-</main>
-  </div>
-<nav class="bottom-app-nav" aria-label="Navegación principal">
-  <button class="bottom-nav-button active" data-main-view="collection">
-    <span class="bottom-nav-icon">▦</span><span>Cromos</span>
-  </button>
-  <button class="bottom-nav-button" data-main-view="statistics">
-    <span class="bottom-nav-icon">◔</span><span>Estadísticas</span>
-  </button>
-  <button class="bottom-nav-button" data-main-view="trade">
-    <span class="bottom-nav-icon">⇄</span><span>Cambiar</span>
-  </button>
-  <button class="bottom-nav-button" data-main-view="collections">
-    <span class="bottom-nav-icon">📔</span><span>Colecciones</span>
-  </button>
-  <button class="bottom-nav-button" data-main-view="settings">
-    <span class="bottom-nav-icon">⚙</span><span>Ajustes</span>
-  </button>
+
+
+<nav aria-label="Navegación principal" class="bottom-app-nav">
+<button class="bottom-nav-button active" data-main-view="collection">
+<span class="bottom-nav-icon">▦</span><span>Cromos</span>
+</button>
+<button class="bottom-nav-button" data-main-view="statistics">
+<span class="bottom-nav-icon">◔</span><span>Estadísticas</span>
+</button>
+<button class="bottom-nav-button" data-main-view="trade">
+<span class="bottom-nav-icon">⇄</span><span>Cambiar</span>
+</button>
+<button class="bottom-nav-button" data-main-view="collections">
+<span class="bottom-nav-icon">📔</span><span>Colecciones</span>
+</button>
+<button class="bottom-nav-button" data-main-view="settings">
+<span class="bottom-nav-icon">⚙</span><span>Ajustes</span>
+</button>
 </nav>
+
+
+
+
+
+
+
+
+
+<dialog class="collection-edit-dialog" id="editCollectionDialog">
+<form id="editCollectionForm" method="dialog">
+<div aria-hidden="true" class="collection-edit-handle"></div>
+<header class="collection-edit-header">
+<div><span>COLECCIÓN</span><h2>Editar colección</h2></div>
+<button aria-label="Cerrar" id="closeEditCollectionDialog" type="button">✕</button>
+</header>
+<input id="editCollectionId" type="hidden"/>
+<label class="collection-edit-field">
+<span>Nombre</span>
+<input autocomplete="off" id="editCollectionName" maxlength="60" required="" type="text"/>
+</label>
+<label class="collection-edit-field">
+<span>Objetivo de álbumes</span>
+<div class="collection-target-editor">
+<button aria-label="Reducir objetivo" id="editTargetMinus" type="button">−</button>
+<input id="editCollectionTarget" inputmode="numeric" max="20" min="1" required="" type="number"/>
+<button aria-label="Aumentar objetivo" id="editTargetPlus" type="button">＋</button>
 </div>
-
-
-
-
-
-
-
-<dialog id="restoreBackupDialog" class="restore-backup-dialog">
-  <div class="dialog-header">
-    <h2>Restaurar copia</h2>
-    <button id="closeRestoreBackupDialog">✕</button>
-  </div>
-
-  <div id="restoreBackupSummary" class="restore-backup-summary"></div>
-
-  <label class="restore-option">
-    <input id="restoreReplaceAll" type="radio" name="restoreMode" value="replace" checked>
-    <span><strong>Reemplazar todos los proyectos</strong><small>Usa exactamente la copia seleccionada.</small></span>
-  </label>
-
-  <label class="restore-option">
-    <input id="restoreMerge" type="radio" name="restoreMode" value="merge">
-    <span><strong>Añadir como proyectos nuevos</strong><small>No elimina los proyectos actuales.</small></span>
-  </label>
-
-  <div class="restore-backup-actions">
-    <button id="cancelRestoreBackupButton" class="secondary">Cancelar</button>
-    <button id="confirmRestoreBackupButton" class="primary">Restaurar</button>
-  </div>
-</dialog>
-
-<dialog id="importExcelDialog" class="import-excel-dialog">
-  <div class="dialog-header">
-    <h2>Importar Excel maestro</h2>
-    <button id="closeImportExcelDialog">✕</button>
-  </div>
-
-  <input id="excelFileInput" type="file" accept=".xlsx,.xlsm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel.sheet.macroEnabled.12" hidden>
-
-  <section id="importExcelStart" class="import-excel-start">
-    <p>Selecciona un archivo <strong>.xlsx</strong> o <strong>.xlsm</strong> con una hoja llamada <strong>Inventario</strong>.</p>
-    <button id="chooseExcelFileButton" class="primary full">Seleccionar Excel</button>
-  </section>
-
-  <section id="importExcelReview" hidden>
-    <div class="import-summary-grid">
-      <article><strong id="importFileTeams">0</strong><span>Selecciones</span></article>
-      <article><strong id="importChangedCells">0</strong><span>Diferencias</span></article>
-      <article><strong id="importConflictCells">0</strong><span>Conflictos</span></article>
-    </div>
-
-    <div id="importConflictHelp" class="import-conflict-help"></div>
-
-    <div class="import-resolution">
-      <label>
-        <span>Para celdas con cambios pendientes en la app</span>
-        <select id="importConflictResolution">
-          <option value="app">Mantener el valor de la app</option>
-          <option value="excel">Usar el valor del Excel</option>
-        </select>
-      </label>
-    </div>
-
-    <div id="importDifferencesList" class="import-differences-list"></div>
-
-    <div class="import-dialog-actions">
-      <button id="cancelExcelImportButton" class="secondary">Cancelar</button>
-      <button id="applyExcelImportButton" class="primary">Aplicar importación</button>
-    </div>
-  </section>
-</dialog>
-
-<dialog id="projectsDialog" class="projects-dialog">
-  <div class="dialog-header">
-    <h2>Mis proyectos</h2>
-    <button id="closeProjectsDialog">✕</button>
-  </div>
-  <div id="projectsList" class="projects-list"></div>
-  <button id="createProjectButton" class="primary full">＋ Crear proyecto</button>
-</dialog>
-
-<dialog id="createProjectDialog" class="create-project-dialog">
-  <div class="dialog-header">
-    <h2>Nuevo proyecto</h2>
-    <button id="closeCreateProjectDialog">✕</button>
-  </div>
-
-  <label class="project-field">
-    <span>Nombre</span>
-    <input id="newProjectName" type="text" placeholder="Ej. Mundial 2026 · 2 álbumes">
-  </label>
-
-  <label class="project-field">
-    <span>Objetivo de álbumes</span>
-    <input id="newProjectTarget" type="number" min="1" max="20" value="2">
-  </label>
-
-  <fieldset class="project-source-options">
-    <legend>Inventario inicial</legend>
-    <label><input type="radio" name="projectSource" value="empty" checked> Empezar vacío</label>
-    <label><input type="radio" name="projectSource" value="repeats"> Usar repetidas de otro proyecto</label>
-  </fieldset>
-
-  <div id="repeatOptions" hidden>
-    <label class="project-field">
-      <span>Proyecto origen</span>
-      <select id="sourceProjectSelect"></select>
-    </label>
-    <fieldset class="project-source-options">
-      <legend>Transferir</legend>
-      <label><input type="radio" name="repeatMode" value="target" checked> Solo hasta el objetivo nuevo</label>
-      <label><input type="radio" name="repeatMode" value="all"> Todas las repetidas disponibles</label>
-    </fieldset>
-    <div id="transferPreview" class="transfer-preview">Selecciona las opciones para ver el cálculo.</div>
-  </div>
-
-  <button id="confirmCreateProjectButton" class="primary full">Crear proyecto</button>
-</dialog>
-
-<dialog id="teamDialog" class="team-dialog">
-  <div class="dialog-header">
-    <h2>Elegir selección</h2>
-    <button id="closeTeamDialog">✕</button>
-  </div>
-  <input id="dialogSearch" class="dialog-search" type="search" placeholder="Buscar selección…">
-  <div id="teamList" class="team-list"></div>
-</dialog>
-
-<dialog id="exchangeDialog" class="exchange-dialog">
-  <div class="dialog-header">
-    <h2>Lista del intercambio</h2>
-    <button id="closeExchangeDialog">✕</button>
-  </div>
-
-  <div class="exchange-dialog-tabs">
-    <button class="exchange-list-tab active" data-list-type="give">Dar <b id="giveListCount">0</b></button>
-    <button class="exchange-list-tab" data-list-type="receive">Recibir <b id="receiveListCount">0</b></button>
-  </div>
-
-  <div id="exchangeList" class="exchange-list"></div>
-
-  <div class="exchange-dialog-actions">
-    <button id="cancelExchangeButton" class="danger">Cancelar intercambio</button>
-    <button id="confirmExchangeButton" class="primary">Confirmar intercambio</button>
-  </div>
-</dialog>
-
-<dialog id="historyDialog">
-  <div class="dialog-header">
-    <h2>Historial del día</h2>
-    <button id="closeHistoryButton">✕</button>
-  </div>
-  <div id="historyList" class="history-list"></div>
-</dialog>
-
-<dialog id="finishDialog">
-  <div class="dialog-header">
-    <h2>Mercat finalizado</h2>
-    <button id="closeFinishButton">✕</button>
-  </div>
-  <div id="finishSummary" class="finish-summary"></div>
-  <button id="downloadFinishButton" class="primary full">Descargar resumen</button>
-  <button id="confirmFinishButton" class="secondary full">Guardar y empezar una nueva jornada</button>
-</dialog>
-
-
-
-
-
-<dialog id="editCollectionDialog" class="collection-edit-dialog">
-  <form id="editCollectionForm" method="dialog">
-    <div class="collection-edit-handle" aria-hidden="true"></div>
-    <header class="collection-edit-header">
-      <div><span>COLECCIÓN</span><h2>Editar colección</h2></div>
-      <button id="closeEditCollectionDialog" type="button" aria-label="Cerrar">✕</button>
-    </header>
-    <input id="editCollectionId" type="hidden">
-    <label class="collection-edit-field">
-      <span>Nombre</span>
-      <input id="editCollectionName" type="text" maxlength="60" required autocomplete="off">
-    </label>
-    <label class="collection-edit-field">
-      <span>Objetivo de álbumes</span>
-      <div class="collection-target-editor">
-        <button id="editTargetMinus" type="button" aria-label="Reducir objetivo">−</button>
-        <input id="editCollectionTarget" type="number" min="1" max="20" required inputmode="numeric">
-        <button id="editTargetPlus" type="button" aria-label="Aumentar objetivo">＋</button>
-      </div>
-      <small>Define cuántas copias quieres completar.</small>
-    </label>
-    <button class="collection-save-button" type="submit">Guardar cambios</button>
-    <section class="collection-stock-tools">
-      <span>INVENTARIO</span>
-      <button id="completeOneAlbumButton" type="button"><b>✓ Completar 1 álbum</b><small>Añade 1 unidad donde falte, conservando las repetidas</small></button>
-      <button id="emptyCollectionButton" class="danger-soft" type="button"><b>Vaciar cartas</b><small>Pone todo el stock de esta colección a cero</small></button>
-    </section>
-    <div class="collection-edit-secondary">
-      <button id="duplicateCollectionButton" type="button">Duplicar colección</button>
-      <button id="deleteCollectionButton" class="danger" type="button">Eliminar colección</button>
-    </div>
-  </form>
-</dialog>
-
-
-<dialog id="tradeAnalyzerDialog" class="trade-analyzer-dialog">
-  <div class="dialog-header"><div><span class="dialog-kicker">ASISTENTE DE INTERCAMBIO</span><h2 id="tradeAnalyzerTitle">Comparar intercambio</h2></div><button id="closeTradeAnalyzerDialog" type="button" aria-label="Cerrar">✕</button></div>
-  <div class="trade-analyzer-body" id="tradeAnalyzerBody">
-    <section id="tradeAnalyzerEntry" class="trade-analyzer-entry">
-      <p class="trade-context-label">Pega la lista de cromos que la otra persona quiere de ti</p>
-      <textarea id="tradeAnalyzerInput" rows="7" placeholder="Ejemplo: España 6 · Brasil 9,11"></textarea>
-      <div class="trade-analyzer-actions"><button id="clearTradeAnalyzerButton" type="button" class="secondary">Limpiar</button><button id="runTradeAnalyzerButton" type="button" class="primary">Analizar lo que pide</button></div>
-    </section>
-    <section id="tradeAnalyzerResult" class="trade-analyzer-result" hidden></section>
-  </div>
-</dialog>
-
-<div id="shareOptionsSheet" class="share-options-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="shareOptionsTitle">
-  <button id="shareOptionsBackdrop" class="share-options-backdrop" type="button" aria-label="Cerrar"></button>
-  <section class="share-options-panel">
-    <div class="share-options-handle" aria-hidden="true"></div>
-    <header>
-      <div><span>LISTA</span><h2 id="shareOptionsTitle">Compartir lista</h2></div>
-      <button id="shareOptionsClose" type="button" aria-label="Cerrar">✕</button>
-    </header>
-    <button class="share-option-button primary" type="button" data-share-option="share">
-      <span>↗</span><div><strong>Compartir</strong><small>Con banderas · WhatsApp, Telegram, Mensajes…</small></div>
-    </button>
-    <button class="share-option-button" type="button" data-share-option="copy">
-      <span>▣</span><div><strong>Copiar texto</strong><small>Sin banderas · ideal para Wallapop o Vinted</small></div>
-    </button>
-    <button class="share-option-button" type="button" data-share-option="compact">
-      <span>≡</span><div><strong>Copiar compacto</strong><small>Sin banderas · una línea por selección</small></div>
-    </button>
-  </section>
+<small>Define cuántas copias quieres completar.</small>
+</label>
+<button class="collection-save-button" type="submit">Guardar cambios</button>
+<section class="collection-stock-tools">
+<span>INVENTARIO</span>
+<button id="completeOneAlbumButton" type="button"><b>✓ Completar 1 álbum</b><small>Añade 1 unidad donde falte, conservando las repetidas</small></button>
+<button class="danger-soft" id="emptyCollectionButton" type="button"><b>Vaciar cartas</b><small>Pone todo el stock de esta colección a cero</small></button>
+</section>
+<div class="collection-edit-secondary">
+<button id="duplicateCollectionButton" type="button">Duplicar colección</button>
+<button class="danger" id="deleteCollectionButton" type="button">Eliminar colección</button>
 </div>
-
+</form>
+</dialog>
+<dialog class="trade-analyzer-dialog" id="tradeAnalyzerDialog">
+<div class="dialog-header"><div><span class="dialog-kicker">ASISTENTE DE INTERCAMBIO</span><h2 id="tradeAnalyzerTitle">Comparar intercambio</h2></div><button aria-label="Cerrar" id="closeTradeAnalyzerDialog" type="button">✕</button></div>
+<div class="trade-analyzer-body" id="tradeAnalyzerBody">
+<section class="trade-analyzer-entry" id="tradeAnalyzerEntry">
+<p class="trade-context-label">Pega la lista de cromos que la otra persona quiere de ti</p>
+<textarea id="tradeAnalyzerInput" placeholder="Ejemplo: España 6 · Brasil 9,11" rows="7"></textarea>
+<div class="trade-analyzer-actions"><button class="secondary" id="clearTradeAnalyzerButton" type="button">Limpiar</button><button class="primary" id="runTradeAnalyzerButton" type="button">Analizar lo que pide</button></div>
+</section>
+<section class="trade-analyzer-result" hidden="" id="tradeAnalyzerResult"></section>
+</div>
+</dialog>
+<div aria-labelledby="shareOptionsTitle" aria-modal="true" class="share-options-sheet" hidden="" id="shareOptionsSheet" role="dialog">
+<button aria-label="Cerrar" class="share-options-backdrop" id="shareOptionsBackdrop" type="button"></button>
+<section class="share-options-panel">
+<div aria-hidden="true" class="share-options-handle"></div>
+<header>
+<div><span>LISTA</span><h2 id="shareOptionsTitle">Compartir lista</h2></div>
+<button aria-label="Cerrar" id="shareOptionsClose" type="button">✕</button>
+</header>
+<button class="share-option-button primary" data-share-option="share" type="button">
+<span>↗</span><div><strong>Compartir</strong><small>Con banderas · WhatsApp, Telegram, Mensajes…</small></div>
+</button>
+<button class="share-option-button" data-share-option="copy" type="button">
+<span>▣</span><div><strong>Copiar texto</strong><small>Sin banderas · ideal para Wallapop o Vinted</small></div>
+</button>
+<button class="share-option-button" data-share-option="compact" type="button">
+<span>≡</span><div><strong>Copiar compacto</strong><small>Sin banderas · una línea por selección</small></div>
+</button>
+</section>
+</div>
 <script src="./assets/vendor/jszip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./supabase-config.js"></script>
 <script src="./app-config.js"></script>
-<script src="./auth.js" defer></script>
-<script src="./app.js" defer></script>
-
-
-
-
-
-
-
-<dialog id="tradeProtectionManagerDialog" class="trade-protection-manager-dialog">
-  <header class="trade-manager-header"><div><span>INTERCAMBIOS</span><h2>Favoritos y protegidos</h2></div><button id="closeTradeProtectionManager" type="button" aria-label="Cerrar">✕</button></header>
-  <div class="trade-manager-body">
-    <p class="trade-manager-help">⭐ Favoritos se evitan si hay alternativas. 🔒 Protegidos nunca se ofrecen.</p>
-    <input id="tradeProtectionSearch" class="trade-manager-search" type="search" placeholder="Buscar jugador, selección o código" autocomplete="off">
-    <section class="trade-manager-add">
-      <h3>Añadir cromo</h3>
-      <div class="trade-manager-selects"><select id="tradeProtectionTeam"></select><select id="tradeProtectionNumber"></select></div>
-      <div class="trade-manager-add-actions"><button id="addTradeFavorite" type="button">★ Favorito</button><button id="addTradeProtected" type="button">🔒 Nunca intercambiar</button></div>
-    </section>
-    <section><h3>Configurados</h3><div id="tradeProtectionManagerList" class="trade-protection-manager-list"></div></section>
-  </div>
+<script defer="" src="./auth.js"></script>
+<script defer="" src="./app.js"></script>
+<dialog class="trade-protection-manager-dialog" id="tradeProtectionManagerDialog">
+<header class="trade-manager-header"><div><span>INTERCAMBIOS</span><h2>Favoritos y protegidos</h2></div><button aria-label="Cerrar" id="closeTradeProtectionManager" type="button">✕</button></header>
+<div class="trade-manager-body">
+<p class="trade-manager-help">⭐ Favoritos se evitan si hay alternativas. 🔒 Protegidos nunca se ofrecen.</p>
+<input autocomplete="off" class="trade-manager-search" id="tradeProtectionSearch" placeholder="Buscar jugador, selección o código" type="search"/>
+<section class="trade-manager-add">
+<h3>Añadir cromo</h3>
+<div class="trade-manager-selects"><select id="tradeProtectionTeam"></select><select id="tradeProtectionNumber"></select></div>
+<div class="trade-manager-add-actions"><button id="addTradeFavorite" type="button">★ Favorito</button><button id="addTradeProtected" type="button">🔒 Nunca intercambiar</button></div>
+</section>
+<section><h3>Configurados</h3><div class="trade-protection-manager-list" id="tradeProtectionManagerList"></div></section>
+</div>
 </dialog>
-</body>
-</html>
+
