@@ -1,3 +1,9 @@
+# Build 704.9.1
+
+- Eliminado un bloque HTML duplicado que impedía que el botón Crear proyecto ejecutara el manejador correcto.
+- Ajustes usa una única superficie de desplazamiento compatible con Safari iOS para acceder a todos los interruptores de Extra Stickers.
+- Información, version.json, configuración y caché actualizados a 704.9.1.
+
 # Build 704.9
 
 - Corrige el porcentaje para que una colección con cromos pendientes nunca aparezca como 100% completada.
